@@ -238,7 +238,7 @@ export default function App() {
           isCellRevealed={game.isCellRevealed}
           selectedCell={selectedCell}
           highlightValue={highlightValue}
-          celebrateBox={game.celebrateBox}
+          celebrate={game.celebrate}
           onSelectCell={handleSelectCell}
         />
 

@@ -52,6 +52,23 @@ function isBoxComplete(boxIndex, grid, solution) {
   return true;
 }
 
+function isRowComplete(row, grid, solution) {
+  for (let c = 0; c < 9; c++) {
+    if (grid[row][c] !== solution[row][c]) return false;
+  }
+  return true;
+}
+
+function isColComplete(col, grid, solution) {
+  for (let r = 0; r < 9; r++) {
+    if (grid[r][col] !== solution[r][col]) return false;
+  }
+  return true;
+}
+
+const CENTER_ROW = 4;
+const CENTER_COL = 4;
+
 export function useGame(manifest) {
   const [difficulty, setDifficulty] = useState(null);
   const [puzzleData, setPuzzleData] = useState(null); // { puzzle, solution, givenMask }
@@ -67,7 +84,7 @@ export function useGame(manifest) {
   const [notesMode, setNotesMode] = useState(false);
   const [notesGrid, setNotesGrid] = useState(() => buildEmptyNotes());
   const [history, setHistory] = useState([]);
-  const [celebrateBox, setCelebrateBox] = useState(null);
+  const [celebrate, setCelebrate] = useState(null); // { type: 'box'|'row'|'col', index }
 
   const timerIdRef = useRef(null);
   const celebrateTimeoutRef = useRef(null);
@@ -94,7 +111,7 @@ export function useGame(manifest) {
     setNotesMode(false);
     setNotesGrid(buildEmptyNotes());
     setHistory([]);
-    setCelebrateBox(null);
+    setCelebrate(null);
   }, [manifest, season]);
 
   // Chronomètre : actif uniquement pendant une partie en cours, et mis en
@@ -214,17 +231,32 @@ export function useGame(manifest) {
       return cloned;
     });
 
-    // Si ce coup vient de compléter un carré 3x3 entier, on déclenche la
-    // petite animation d'étoiles qui crépitent, et l'image de ce carré
-    // devient définitivement visible.
+    // Si ce coup vient de compléter un carré 3x3, une ligne ou une colonne
+    // entière, on déclenche la petite animation d'étoiles qui crépitent, et
+    // les chiffres donnés au départ dans cette zone deviennent visibles
+    // (eux seuls étaient encore cachés, les chiffres trouvés par le joueur
+    // se révèlent déjà immédiatement au fur et à mesure).
     if (isCorrect) {
       const box = boxIndexOf(row, col);
-      const wasComplete = isBoxComplete(box, userGrid, puzzleData.solution);
-      const isNowComplete = isBoxComplete(box, next, puzzleData.solution);
-      if (!wasComplete && isNowComplete) {
-        setCelebrateBox(box);
+      const boxNewlyComplete =
+        !isBoxComplete(box, userGrid, puzzleData.solution) &&
+        isBoxComplete(box, next, puzzleData.solution);
+      const rowNewlyComplete =
+        !isRowComplete(row, userGrid, puzzleData.solution) &&
+        isRowComplete(row, next, puzzleData.solution);
+      const colNewlyComplete =
+        !isColComplete(col, userGrid, puzzleData.solution) &&
+        isColComplete(col, next, puzzleData.solution);
+
+      let nextCelebrate = null;
+      if (boxNewlyComplete) nextCelebrate = { type: 'box', index: box };
+      else if (rowNewlyComplete) nextCelebrate = { type: 'row', index: row };
+      else if (colNewlyComplete) nextCelebrate = { type: 'col', index: col };
+
+      if (nextCelebrate) {
+        setCelebrate(nextCelebrate);
         if (celebrateTimeoutRef.current) clearTimeout(celebrateTimeoutRef.current);
-        celebrateTimeoutRef.current = setTimeout(() => setCelebrateBox(null), 1200);
+        celebrateTimeoutRef.current = setTimeout(() => setCelebrate(null), 1200);
       }
     }
 
@@ -266,24 +298,43 @@ export function useGame(manifest) {
     setWatermarkVisible(v => !v);
   }, []);
 
-  // Une case est "révélée" visuellement seulement si tout le carré 3x3 auquel
-  // elle appartient est entièrement complété (et pas juste parce qu'elle est
-  // donnée au départ) — ça évite de dévoiler trop vite une grande partie de
-  // l'image dès le début de la partie.
+  // Logique de révélation :
+  // - la case centrale est toujours visible dès le départ (pour montrer que
+  //   l'effet fonctionne, même si rien n'a encore été joué) ;
+  // - une case trouvée par le joueur (non donnée) se révèle immédiatement
+  //   dès qu'elle est remplie correctement ;
+  // - une case donnée au départ ne se révèle que lorsque son carré, sa ligne
+  //   ou sa colonne est entièrement complétée.
   const isCellRevealed = useCallback((row, col) => {
     if (!puzzleData || !userGrid) return false;
+
+    if (row === CENTER_ROW && col === CENTER_COL) return true;
+
+    const isGiven = puzzleData.givenMask[row][col];
+
+    if (!isGiven) {
+      const value = userGrid[row][col];
+      return value !== 0 && value === puzzleData.solution[row][col];
+    }
+
     const box = boxIndexOf(row, col);
-    return isBoxComplete(box, userGrid, puzzleData.solution);
+    return (
+      isBoxComplete(box, userGrid, puzzleData.solution) ||
+      isRowComplete(row, userGrid, puzzleData.solution) ||
+      isColComplete(col, userGrid, puzzleData.solution)
+    );
   }, [puzzleData, userGrid]);
 
   const revealProgress = useMemo(() => {
     if (!puzzleData || !userGrid) return 0;
-    let completedBoxes = 0;
-    for (let b = 0; b < 9; b++) {
-      if (isBoxComplete(b, userGrid, puzzleData.solution)) completedBoxes++;
+    let revealed = 0;
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (isCellRevealed(r, c)) revealed++;
+      }
     }
-    return completedBoxes / 9;
-  }, [puzzleData, userGrid]);
+    return revealed / 81;
+  }, [puzzleData, userGrid, isCellRevealed]);
 
   // Calcule un indice expliqué pour une case vide : les chiffres déjà présents
   // dans la ligne/colonne/carré, les candidats restants, et la bonne valeur.
@@ -345,7 +396,7 @@ export function useGame(manifest) {
     setNotesMode(false);
     setNotesGrid(buildEmptyNotes());
     setHistory([]);
-    setCelebrateBox(null);
+    setCelebrate(null);
   }, []);
 
   return {
@@ -364,7 +415,7 @@ export function useGame(manifest) {
     elapsedSeconds,
     notesMode,
     notesGrid,
-    celebrateBox,
+    celebrate,
     revealProgress,
     canUndo,
     startNewGame,

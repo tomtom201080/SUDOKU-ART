@@ -29,7 +29,7 @@ const SudokuBoard = forwardRef(function SudokuBoard({
   isCellRevealed,
   selectedCell,
   highlightValue,
-  celebrateBox,
+  celebrate,
   onSelectCell
 }, ref) {
   if (!puzzleData || !userGrid) return null;
@@ -50,7 +50,11 @@ const SudokuBoard = forwardRef(function SudokuBoard({
             const finalRevealed = watermarkVisible && rawRevealed && !showHighlight;
             const hasError = errorCells.has(`${row}-${col}`);
             const isSelected = selectedCell?.row === row && selectedCell?.col === col;
-            const isCelebrating = celebrateBox !== null && boxIndexOf(row, col) === celebrateBox;
+            const isCelebrating =
+              !!celebrate &&
+              ((celebrate.type === 'box' && boxIndexOf(row, col) === celebrate.index) ||
+                (celebrate.type === 'row' && row === celebrate.index) ||
+                (celebrate.type === 'col' && col === celebrate.index));
 
             const isPeer =
               showHighlight &&
