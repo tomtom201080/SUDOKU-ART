@@ -34,7 +34,8 @@ const SudokuBoard = forwardRef(function SudokuBoard({
 }, ref) {
   if (!puzzleData || !userGrid) return null;
 
-  const showHighlight = !!highlightValue && highlightValue !== 0;
+  const showPeerHighlight = !!selectedCell;
+  const showSameValueHighlight = !!highlightValue && highlightValue !== 0;
   const veilOpacity = 1 - (imageIntensity ?? 0.28);
 
   return (
@@ -47,7 +48,7 @@ const SudokuBoard = forwardRef(function SudokuBoard({
             const isValidated = value !== 0 && value === puzzleData.solution[row][col];
             const isLocked = isGiven || isValidated;
             const rawRevealed = isCellRevealed(row, col);
-            const finalRevealed = watermarkVisible && rawRevealed && !showHighlight;
+            const finalRevealed = watermarkVisible && rawRevealed && !showPeerHighlight;
             const hasError = errorCells.has(`${row}-${col}`);
             const isSelected = selectedCell?.row === row && selectedCell?.col === col;
             const isCelebrating =
@@ -57,13 +58,13 @@ const SudokuBoard = forwardRef(function SudokuBoard({
                 (celebrate.type === 'col' && col === celebrate.index));
 
             const isPeer =
-              showHighlight &&
+              showPeerHighlight &&
               !isSelected &&
               (row === selectedCell.row ||
                 col === selectedCell.col ||
                 sameBox(row, col, selectedCell.row, selectedCell.col));
 
-            const isSameValue = showHighlight && value === highlightValue;
+            const isSameValue = showSameValueHighlight && value === highlightValue;
 
             const thickRight = col === 2 || col === 5;
             const thickBottom = row === 2 || row === 5;
