@@ -1,0 +1,22 @@
+{
+  "printemps": {
+    "commune": [],
+    "rare": [],
+    "legendaire": []
+  },
+  "ete": {
+    "commune": [],
+    "rare": [],
+    "legendaire": []
+  },
+  "automne": {
+    "commune": [],
+    "rare": [],
+    "legendaire": []
+  },
+  "hiver": {
+    "commune": [],
+    "rare": [],
+    "legendaire": []
+  }
+}

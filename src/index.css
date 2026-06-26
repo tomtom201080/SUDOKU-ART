@@ -1,0 +1,122 @@
+:root {
+  --bg-color: #F7F1E4;
+  --card-bg: #FFFFFF;
+  --card-border: #E7DEC8;
+  --text-color: #2E2A22;
+  --text-muted: #8C8268;
+  --accent: #D98E04;
+  --accent-text: #2E2A22;
+  --grid-border: #D98E04;
+  --grid-line: #3A332A;
+}
+
+body.dark {
+  --bg-color: #14181F;
+  --card-bg: #1F2530;
+  --card-border: #2C3340;
+  --text-color: #ECEAE3;
+  --text-muted: #9AA3B2;
+  --accent: #E0A53D;
+  --accent-text: #14181F;
+  --grid-border: #E0A53D;
+  --grid-line: #3A4150;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+}
+
+.app-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.icon-btn {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-color);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.stat-pill {
+  display: inline-flex;
+  align-items: center;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.game-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0 32px;
+}
+
+.intensity-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: min(98vw, 720px);
+  margin: 0 auto 14px;
+}
+
+.intensity-control label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.intensity-control input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.progress-bar {
+  width: min(98vw, 720px);
+  height: 8px;
+  background: var(--card-border);
+  border-radius: 6px;
+  margin: 0 auto 12px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.4s ease;
+}

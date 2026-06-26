@@ -1,0 +1,60 @@
+.hint-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 250;
+  padding: 16px;
+}
+
+.hint-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 24px;
+  width: min(92vw, 460px);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.hint-panel h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.hint-panel p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+.hint-conclusion {
+  background: rgba(217, 142, 4, 0.12);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.hint-btn-primary,
+.hint-btn-secondary {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.hint-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.hint-btn-secondary {
+  background: var(--card-bg);
+  color: var(--text-color);
+}

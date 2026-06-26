@@ -1,0 +1,110 @@
+.difficulty-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.difficulty-selector h1 {
+  font-size: 2rem;
+  margin: 0;
+  color: var(--text-color);
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin: 0 0 24px;
+}
+
+.difficulty-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+}
+
+.difficulty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 150px;
+  padding: 24px 12px;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  background: var(--card-bg);
+  color: var(--text-color);
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(46, 42, 34, 0.08);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.difficulty-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(46, 42, 34, 0.12);
+}
+
+.difficulty-icon {
+  font-size: 2rem;
+}
+
+.difficulty-label {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.difficulty-tier {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.difficulty-moyen { border-color: #4caf50; }
+.difficulty-complique { border-color: #ff9800; }
+.difficulty-enfer { border-color: #e53935; }
+
+.custom-photo-divider {
+  color: var(--text-muted);
+  margin: 24px 0 12px;
+}
+
+.custom-photo-btn {
+  background: var(--card-bg);
+  border: 1px dashed var(--card-border);
+  color: var(--text-color);
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.custom-photo-btn:hover {
+  border-color: var(--accent);
+}
+
+.custom-photo-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 24px;
+}
+
+.custom-photo-preview img {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid var(--accent);
+  box-shadow: 0 4px 14px rgba(46, 42, 34, 0.12);
+}
+
+.custom-photo-cancel {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
