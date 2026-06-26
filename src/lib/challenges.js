@@ -1,6 +1,8 @@
 // src/lib/challenges.js
 import { supabase } from './supabaseClient';
 
+const PENDING_KEY = 'sudoku-devoile:pendingChallengeId';
+
 // Crée un défi en base : photo déjà téléversée (photoPath), paramètres de
 // difficulté/erreurs/temps choisis par l'expéditeur. Retourne la ligne créée
 // (avec son id, utilisé pour construire le lien).
@@ -39,6 +41,33 @@ export function clearChallengeFromUrl() {
   const url = new URL(window.location.href);
   url.searchParams.delete('defi');
   window.history.replaceState({}, '', url.toString());
+}
+
+// Le défi en attente est mémorisé dans localStorage (pas seulement dans
+// l'URL), pour survivre à un passage par la création de compte / confirmation
+// email, qui ouvre souvent une page différente sans le paramètre d'origine.
+export function rememberPendingChallengeId(challengeId) {
+  try {
+    localStorage.setItem(PENDING_KEY, challengeId);
+  } catch {
+    // stockage indisponible, on ignore simplement la persistance
+  }
+}
+
+export function getRememberedChallengeId() {
+  try {
+    return localStorage.getItem(PENDING_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function forgetPendingChallengeId() {
+  try {
+    localStorage.removeItem(PENDING_KEY);
+  } catch {
+    // stockage indisponible, on ignore simplement la persistance
+  }
 }
 
 export async function fetchChallenge(challengeId) {

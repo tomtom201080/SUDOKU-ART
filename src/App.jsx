@@ -18,7 +18,10 @@ import {
   readChallengeIdFromUrl,
   clearChallengeFromUrl,
   claimChallenge,
-  fetchPendingChallenges
+  fetchPendingChallenges,
+  rememberPendingChallengeId,
+  getRememberedChallengeId,
+  forgetPendingChallengeId
 } from './lib/challenges';
 
 const DARK_MODE_KEY = 'sudoku-devoile:darkMode';
@@ -51,7 +54,14 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
-  const [pendingChallengeId, setPendingChallengeId] = useState(() => readChallengeIdFromUrl());
+  const [pendingChallengeId, setPendingChallengeId] = useState(() => {
+    const fromUrl = readChallengeIdFromUrl();
+    if (fromUrl) {
+      rememberPendingChallengeId(fromUrl);
+      return fromUrl;
+    }
+    return getRememberedChallengeId();
+  });
   const [pendingChallenges, setPendingChallenges] = useState([]);
 
   useEffect(() => {
@@ -108,6 +118,7 @@ export default function App() {
       .catch(() => null)
       .finally(() => {
         clearChallengeFromUrl();
+        forgetPendingChallengeId();
         setPendingChallengeId(null);
         refreshPendingChallenges();
       });
