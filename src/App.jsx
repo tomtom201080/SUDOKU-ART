@@ -12,6 +12,7 @@ import { useGame } from './hooks/useGame';
 import { loadManifest } from './data/imageLibrary';
 import { getUnlockedGallery } from './utils/storage';
 import { supabase } from './lib/supabaseClient';
+import { readSharedPhotoFromUrl, clearSharedPhotoFromUrl } from './lib/sharedPhoto';
 
 const DARK_MODE_KEY = 'sudoku-devoile:darkMode';
 
@@ -42,6 +43,15 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
+  const [sharedPhoto, setSharedPhoto] = useState(null);
+
+  useEffect(() => {
+    const shared = readSharedPhotoFromUrl();
+    if (shared) {
+      setSharedPhoto(shared);
+      clearSharedPhotoFromUrl();
+    }
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession()
@@ -180,7 +190,7 @@ export default function App() {
             <button className="icon-btn" onClick={() => supabase.auth.signOut()} title="Déconnexion">🚪</button>
           </div>
         </header>
-        <DifficultySelector onSelect={handleSelectDifficulty} />
+        <DifficultySelector onSelect={handleSelectDifficulty} sharedPhoto={sharedPhoto} />
         {showGallery && (
           <Gallery gallery={galleryData} onClose={() => setShowGallery(false)} />
         )}

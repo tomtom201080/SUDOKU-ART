@@ -108,3 +108,42 @@
   cursor: pointer;
   text-decoration: underline;
 }
+
+.custom-photo-share {
+  background: var(--accent);
+  border: none;
+  color: var(--accent-text);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.custom-photo-share:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.custom-photo-share-note {
+  color: #2E7D32;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.custom-photo-share-error {
+  color: #D32F2F;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.shared-photo-banner {
+  background: rgba(217, 142, 4, 0.12);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  color: var(--text-color);
+  max-width: 420px;
+  margin: 0 0 16px;
+}
