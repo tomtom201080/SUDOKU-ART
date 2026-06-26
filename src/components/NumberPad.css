@@ -1,14 +1,24 @@
 .number-pad {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
   width: min(98vw, 40vh, 720px);
   margin: 10px auto 0;
-  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.number-pad-digits {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 4px;
+}
+
+.number-pad-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
 }
 
 .number-pad-btn {
-  flex: 1 0 18%;
   padding: 8px 0;
   font-size: 1rem;
   font-weight: 600;
@@ -28,31 +38,20 @@
   cursor: default;
 }
 
-.number-pad-erase {
-  flex: 1 0 30%;
+.number-pad-erase,
+.number-pad-notes,
+.number-pad-undo,
+.number-pad-hint {
   background: #EFE6D3;
-  font-size: 0.85rem;
-}
-
-.number-pad-notes {
-  flex: 1 0 100%;
-  background: #EFE6D3;
-  font-size: 0.85rem;
-  padding: 6px 0;
+  font-size: 0.72rem;
+  padding: 6px 2px;
+  white-space: nowrap;
 }
 
 .number-pad-notes.is-active {
   background: var(--accent);
   color: var(--accent-text);
   border-color: var(--accent);
-}
-
-.number-pad-undo,
-.number-pad-hint {
-  flex: 1 0 48%;
-  background: #EFE6D3;
-  font-size: 0.85rem;
-  padding: 6px 0;
 }
 
 body.dark .number-pad-erase,

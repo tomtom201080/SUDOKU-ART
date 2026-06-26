@@ -13,47 +13,52 @@ const NumberPad = forwardRef(function NumberPad({
 }, ref) {
   return (
     <div className="number-pad" ref={ref}>
-      {Array.from({ length: 9 }, (_, i) => i + 1).map(num => (
+      <div className="number-pad-digits">
+        {Array.from({ length: 9 }, (_, i) => i + 1).map(num => (
+          <button
+            key={num}
+            className="number-pad-btn"
+            onClick={() => onInput(num)}
+            disabled={disabled}
+          >
+            {num}
+          </button>
+        ))}
+      </div>
+
+      <div className="number-pad-actions">
         <button
-          key={num}
-          className="number-pad-btn"
-          onClick={() => onInput(num)}
+          className="number-pad-btn number-pad-erase"
+          onClick={() => onInput(0)}
           disabled={disabled}
         >
-          {num}
+          ✕ Effacer
         </button>
-      ))}
-      <button
-        className="number-pad-btn number-pad-erase"
-        onClick={() => onInput(0)}
-        disabled={disabled}
-      >
-        ✕ Effacer
-      </button>
 
-      <button
-        className={`number-pad-btn number-pad-notes ${notesMode ? 'is-active' : ''}`}
-        onClick={onToggleNotes}
-        disabled={disabled}
-      >
-        {notesMode ? '✏️ Désactiver les notes' : '✏️ Activer les notes'}
-      </button>
+        <button
+          className={`number-pad-btn number-pad-notes ${notesMode ? 'is-active' : ''}`}
+          onClick={onToggleNotes}
+          disabled={disabled}
+        >
+          {notesMode ? '✏️ Désactiver' : '✏️ Notes'}
+        </button>
 
-      <button
-        className="number-pad-btn number-pad-undo"
-        onClick={onUndo}
-        disabled={disabled || !canUndo}
-      >
-        ↩️ Annuler
-      </button>
+        <button
+          className="number-pad-btn number-pad-undo"
+          onClick={onUndo}
+          disabled={disabled || !canUndo}
+        >
+          ↩️ Annuler
+        </button>
 
-      <button
-        className="number-pad-btn number-pad-hint"
-        onClick={onHint}
-        disabled={disabled}
-      >
-        💡 Indice
-      </button>
+        <button
+          className="number-pad-btn number-pad-hint"
+          onClick={onHint}
+          disabled={disabled}
+        >
+          💡 Indice
+        </button>
+      </div>
     </div>
   );
 });
