@@ -150,9 +150,9 @@
   }
 }
 
-/* --- Mode sombre : la grille a des couleurs codées en dur (pas des
-   variables) car les cases doivent rester lisibles quel que soit le thème
-   de la photo affichée derrière ; on les redéfinit donc explicitement ici. --- */
+/* --- Mode sombre : la grille a des couleurs codÃ©es en dur (pas des
+   variables) car les cases doivent rester lisibles quel que soit le thÃ¨me
+   de la photo affichÃ©e derriÃ¨re ; on les redÃ©finit donc explicitement ici. --- */
 body.dark .sudoku-cell {
   background-color: #232A35;
 }
