@@ -219,7 +219,7 @@ export default function App() {
             id="image-intensity"
             type="range"
             min="0.05"
-            max="1"
+            max="0.5"
             step="0.05"
             value={game.imageIntensity}
             onChange={(e) => game.setImageIntensity(parseFloat(e.target.value))}

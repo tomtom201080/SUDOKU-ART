@@ -115,6 +115,23 @@ body {
 .intensity-control input[type="range"] {
   width: 100%;
   accent-color: var(--accent);
+  height: 28px;
+  cursor: pointer;
+}
+
+.intensity-control input[type="range"]::-webkit-slider-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.intensity-control input[type="range"]::-moz-range-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
 }
 
 .progress-bar {
