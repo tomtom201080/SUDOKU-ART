@@ -1,8 +1,9 @@
 // src/hooks/useGame.js
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { generateSudoku, isGridComplete } from '../sudoku/generator';
+import { generateSudoku, isGridComplete, DIFFICULTIES } from '../sudoku/generator';
 import { getCurrentSeason, pickWatermarkImage, pickRewardImage } from '../data/imageLibrary';
 import { addToGallery, getUnlockedIds, recordWin } from '../utils/storage';
+import { markChallengeCompleted } from '../lib/challenges';
 
 function cloneGrid(grid) {
   return grid.map(row => [...row]);
@@ -77,6 +78,7 @@ export function useGame(manifest) {
   const [watermarkVisible, setWatermarkVisible] = useState(true);
   const [imageIntensity, setImageIntensity] = useState(0.28);
   const [isComplete, setIsComplete] = useState(false);
+  const [isFailed, setIsFailed] = useState(false);
   const [rewardImage, setRewardImage] = useState(null);
   const [errorCells, setErrorCells] = useState(() => new Set());
   const [errorCount, setErrorCount] = useState(0);
@@ -85,25 +87,34 @@ export function useGame(manifest) {
   const [notesGrid, setNotesGrid] = useState(() => buildEmptyNotes());
   const [history, setHistory] = useState([]);
   const [celebrate, setCelebrate] = useState(null); // { type: 'box'|'row'|'col', index }
+  const [challengeMeta, setChallengeMeta] = useState(null); // { id, maxErrors, timeLimitSeconds }
 
   const timerIdRef = useRef(null);
   const celebrateTimeoutRef = useRef(null);
 
   const season = useMemo(() => getCurrentSeason(), []);
 
-  const startNewGame = useCallback((chosenDifficulty, customImageUrl = null) => {
-    const data = generateSudoku(chosenDifficulty);
+  // challengeOptions (optionnel) : { id, maxErrors, timeLimitMinutes } quand
+  // la partie est un défi reçu d'un ami, avec des contraintes à respecter.
+  const startNewGame = useCallback((chosenDifficulty, customImageUrl = null, challengeOptions = null) => {
+    const actualDifficulty =
+      chosenDifficulty === 'auto'
+        ? DIFFICULTIES[Math.floor(Math.random() * DIFFICULTIES.length)]
+        : chosenDifficulty;
+
+    const data = generateSudoku(actualDifficulty);
     const initialUserGrid = buildInitialUserGrid(data.puzzle);
     const image = customImageUrl
       ? { id: `custom-${Date.now()}`, path: customImageUrl, tier: null, season: null, isCustom: true }
       : (manifest ? pickWatermarkImage(manifest, season) : null);
 
-    setDifficulty(chosenDifficulty);
+    setDifficulty(actualDifficulty);
     setPuzzleData(data);
     setUserGrid(initialUserGrid);
     setWatermark(image);
     setWatermarkVisible(true);
     setIsComplete(false);
+    setIsFailed(false);
     setRewardImage(null);
     setErrorCells(new Set());
     setErrorCount(0);
@@ -112,18 +123,37 @@ export function useGame(manifest) {
     setNotesGrid(buildEmptyNotes());
     setHistory([]);
     setCelebrate(null);
+    setChallengeMeta(
+      challengeOptions
+        ? {
+            id: challengeOptions.id,
+            maxErrors: challengeOptions.maxErrors ?? null,
+            timeLimitSeconds: challengeOptions.timeLimitMinutes
+              ? challengeOptions.timeLimitMinutes * 60
+              : null
+          }
+        : null
+    );
   }, [manifest, season]);
 
   // Chronomètre : actif uniquement pendant une partie en cours, et mis en
   // pause automatiquement si l'onglet/la page n'est plus visible (l'utilisateur
-  // a changé d'application ou d'onglet).
+  // a changé d'application ou d'onglet). Si la partie est un défi avec une
+  // limite de temps, on bascule en échec dès que le temps est écoulé.
   useEffect(() => {
-    if (!difficulty || isComplete) return;
+    if (!difficulty || isComplete || isFailed) return;
 
     function startInterval() {
       if (timerIdRef.current) return;
       timerIdRef.current = setInterval(() => {
-        setElapsedSeconds(s => s + 1);
+        setElapsedSeconds(s => {
+          const next = s + 1;
+          if (challengeMeta?.timeLimitSeconds && next >= challengeMeta.timeLimitSeconds) {
+            setIsFailed(true);
+            if (challengeMeta.id) markChallengeCompleted(challengeMeta.id, 'lost');
+          }
+          return next;
+        });
       }, 1000);
     }
 
@@ -149,13 +179,14 @@ export function useGame(manifest) {
       stopInterval();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [difficulty, isComplete]);
+  }, [difficulty, isComplete, isFailed, challengeMeta]);
 
   // Le joueur saisit une valeur (1-9) ou l'efface (0) dans une case.
   // En mode notes, la saisie ajoute/retire un chiffre "candidat" sans toucher
   // à la vraie valeur de la case, et ne compte jamais comme une erreur.
   const setCellValue = useCallback((row, col, value) => {
     if (!puzzleData || !userGrid) return;
+    if (isFailed) return; // défi déjà perdu, plus aucune saisie possible
     if (puzzleData.givenMask[row][col]) return; // case fixe, non modifiable
 
     // Une fois la bonne valeur posée et validée dans une case, elle se
@@ -207,7 +238,14 @@ export function useGame(manifest) {
     setErrorCells(nextErrors);
 
     if (isWrong && value !== previousValue) {
-      setErrorCount(c => c + 1);
+      setErrorCount(c => {
+        const nextCount = c + 1;
+        if (challengeMeta?.maxErrors != null && nextCount > challengeMeta.maxErrors) {
+          setIsFailed(true);
+          if (challengeMeta.id) markChallengeCompleted(challengeMeta.id, 'lost');
+        }
+        return nextCount;
+      });
     }
 
     const isCorrect = value !== 0 && value === puzzleData.solution[row][col];
@@ -263,6 +301,9 @@ export function useGame(manifest) {
     if (value !== 0 && isGridComplete(next, puzzleData.solution)) {
       setIsComplete(true);
       recordWin(difficulty);
+      if (challengeMeta?.id) {
+        markChallengeCompleted(challengeMeta.id, 'won');
+      }
       if (manifest) {
         const unlockedIds = getUnlockedIds();
         const reward = pickRewardImage(manifest, season, difficulty, unlockedIds);
@@ -272,7 +313,7 @@ export function useGame(manifest) {
         }
       }
     }
-  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, manifest, season, notesMode]);
+  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, manifest, season, notesMode, isFailed, challengeMeta]);
 
   // Annule le dernier coup joué (grille + notes + erreurs reviennent à l'état
   // précédent). Le compteur d'erreurs cumulé n'est lui jamais "annulé" : une
@@ -389,6 +430,7 @@ export function useGame(manifest) {
     setUserGrid(null);
     setWatermark(null);
     setIsComplete(false);
+    setIsFailed(false);
     setRewardImage(null);
     setErrorCells(new Set());
     setErrorCount(0);
@@ -397,6 +439,7 @@ export function useGame(manifest) {
     setNotesGrid(buildEmptyNotes());
     setHistory([]);
     setCelebrate(null);
+    setChallengeMeta(null);
   }, []);
 
   return {
@@ -409,6 +452,8 @@ export function useGame(manifest) {
     imageIntensity,
     setImageIntensity,
     isComplete,
+    isFailed,
+    challengeMeta,
     rewardImage,
     errorCells,
     errorCount,

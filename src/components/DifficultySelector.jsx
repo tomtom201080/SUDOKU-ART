@@ -1,6 +1,6 @@
 // src/components/DifficultySelector.jsx
-import { useRef, useState, useEffect } from 'react';
-import { uploadSharedPhoto, buildShareLink, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
+import { useRef, useState } from 'react';
+import ChallengeComposer from './ChallengeComposer';
 import './DifficultySelector.css';
 
 const OPTIONS = [
@@ -9,21 +9,21 @@ const OPTIONS = [
   { id: 'enfer', label: 'Enfer', tier: 'Image légendaire', icon: '🔥' }
 ];
 
-export default function DifficultySelector({ onSelect, sharedPhoto }) {
-  const [customImage, setCustomImage] = useState(null);
-  const [customFile, setCustomFile] = useState(null);
-  const [isFromSharedLink, setIsFromSharedLink] = useState(false);
-  const [shareState, setShareState] = useState('idle'); // idle | uploading | done | error
-  const fileInputRef = useRef(null);
+function formatChallengeDate(dateString) {
+  try {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'short'
+    });
+  } catch {
+    return '';
+  }
+}
 
-  // Si la page a été ouverte via un lien de partage reçu d'un ami, on
-  // pré-remplit directement la photo personnelle avec celle-ci.
-  useEffect(() => {
-    if (sharedPhoto?.publicUrl) {
-      setCustomImage(sharedPhoto.publicUrl);
-      setIsFromSharedLink(true);
-    }
-  }, [sharedPhoto]);
+export default function DifficultySelector({ onSelect, pendingChallenges, onPlayChallenge }) {
+  const [customImage, setCustomImage] = useState(null);
+  const [showComposer, setShowComposer] = useState(false);
+  const fileInputRef = useRef(null);
 
   const handlePickPhoto = () => {
     fileInputRef.current?.click();
@@ -32,53 +32,19 @@ export default function DifficultySelector({ onSelect, sharedPhoto }) {
   const handleFileChange = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (customImage && !isFromSharedLink) URL.revokeObjectURL(customImage);
+    if (customImage) URL.revokeObjectURL(customImage);
     const url = URL.createObjectURL(file);
     setCustomImage(url);
-    setCustomFile(file);
-    setIsFromSharedLink(false);
-    setShareState('idle');
   };
 
   const handleCancelCustom = () => {
-    if (customImage && !isFromSharedLink) URL.revokeObjectURL(customImage);
+    if (customImage) URL.revokeObjectURL(customImage);
     setCustomImage(null);
-    setCustomFile(null);
-    setIsFromSharedLink(false);
-    setShareState('idle');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleSelectDifficulty = (difficultyId) => {
     onSelect(difficultyId, customImage);
-  };
-
-  const handleShareLink = async () => {
-    if (!customFile) return;
-    setShareState('uploading');
-    try {
-      const path = await uploadSharedPhoto(customFile);
-      const link = buildShareLink(path);
-      const message =
-        `Je te défie de finir mon Sudoku Art pour découvrir ma photo ! 🧩📷\n` +
-        `${link}\n` +
-        `⚠️ Cette photo sera supprimée de nos serveurs dans ${SHARE_EXPIRY_DAYS} jours, ne traîne pas !`;
-
-      if (navigator.share) {
-        try {
-          await navigator.share({ title: 'Sudoku Art', text: message });
-          setShareState('done');
-          return;
-        } catch {
-          // partage annulé : on retombe sur WhatsApp Web ci-dessous
-        }
-      }
-      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-      setShareState('done');
-    } catch (err) {
-      console.error(err);
-      setShareState('error');
-    }
   };
 
   return (
@@ -90,11 +56,26 @@ export default function DifficultySelector({ onSelect, sharedPhoto }) {
           : "Choisis ta difficulté. Plus c'est dur, plus la récompense est rare."}
       </p>
 
-      {isFromSharedLink && (
-        <p className="shared-photo-banner">
-          📷 Un ami t'a envoyé une photo à découvrir ! Elle sera supprimée de nos
-          serveurs {SHARE_EXPIRY_DAYS} jours après son envoi, alors ne tarde pas trop.
-        </p>
+      {pendingChallenges && pendingChallenges.length > 0 && (
+        <div className="pending-challenges">
+          <p className="pending-challenges-title">🎯 Défis reçus</p>
+          {pendingChallenges.map(challenge => (
+            <div className="pending-challenge-card" key={challenge.id}>
+              <div className="pending-challenge-info">
+                <strong>{challenge.sender_email}</strong> t'a envoyé un défi
+                <span className="pending-challenge-date">
+                  {' '}le {formatChallengeDate(challenge.created_at)}
+                </span>
+              </div>
+              <button
+                className="pending-challenge-play"
+                onClick={() => onPlayChallenge(challenge)}
+              >
+                Jouer
+              </button>
+            </div>
+          ))}
+        </div>
       )}
 
       {customImage && (
@@ -103,30 +84,6 @@ export default function DifficultySelector({ onSelect, sharedPhoto }) {
           <button className="custom-photo-cancel" onClick={handleCancelCustom}>
             ✕ Retirer la photo
           </button>
-
-          {!isFromSharedLink && (
-            <>
-              <button
-                className="custom-photo-share"
-                onClick={handleShareLink}
-                disabled={shareState === 'uploading'}
-              >
-                {shareState === 'uploading'
-                  ? 'Envoi en cours…'
-                  : '🔗 Envoyer cette photo à un ami (lien de jeu)'}
-              </button>
-              {shareState === 'done' && (
-                <p className="custom-photo-share-note">
-                  Lien envoyé ! Il sera valable {SHARE_EXPIRY_DAYS} jours.
-                </p>
-              )}
-              {shareState === 'error' && (
-                <p className="custom-photo-share-error">
-                  L'envoi a échoué, réessaie dans un instant.
-                </p>
-              )}
-            </>
-          )}
         </div>
       )}
 
@@ -158,6 +115,15 @@ export default function DifficultySelector({ onSelect, sharedPhoto }) {
             style={{ display: 'none' }}
           />
         </>
+      )}
+
+      <p className="custom-photo-divider">— ou —</p>
+      <button className="send-challenge-btn" onClick={() => setShowComposer(true)}>
+        🎯 Envoyer une grille personnalisée à un ami
+      </button>
+
+      {showComposer && (
+        <ChallengeComposer onClose={() => setShowComposer(false)} />
       )}
     </div>
   );

@@ -147,3 +147,58 @@
   max-width: 420px;
   margin: 0 0 16px;
 }
+
+.pending-challenges {
+  width: min(92vw, 420px);
+  margin: 0 0 24px;
+}
+
+.pending-challenges-title {
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.pending-challenge-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.pending-challenge-info {
+  font-size: 0.85rem;
+  color: var(--text-color);
+}
+
+.pending-challenge-date {
+  color: var(--text-muted);
+}
+
+.pending-challenge-play {
+  background: var(--accent);
+  border: none;
+  color: var(--accent-text);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.send-challenge-btn {
+  background: var(--accent);
+  border: none;
+  color: var(--accent-text);
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}

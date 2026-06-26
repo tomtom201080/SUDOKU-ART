@@ -5,6 +5,7 @@ import SudokuBoard from './components/SudokuBoard';
 import NumberPad from './components/NumberPad';
 import Gallery from './components/Gallery';
 import WinModal from './components/WinModal';
+import ChallengeFailModal from './components/ChallengeFailModal';
 import HintModal from './components/HintModal';
 import AuthScreen from './components/AuthScreen';
 import UpdatePasswordScreen from './components/UpdatePasswordScreen';
@@ -12,7 +13,13 @@ import { useGame } from './hooks/useGame';
 import { loadManifest } from './data/imageLibrary';
 import { getUnlockedGallery } from './utils/storage';
 import { supabase } from './lib/supabaseClient';
-import { readSharedPhotoFromUrl, clearSharedPhotoFromUrl } from './lib/sharedPhoto';
+import { getSharedPhotoPublicUrl } from './lib/sharedPhoto';
+import {
+  readChallengeIdFromUrl,
+  clearChallengeFromUrl,
+  claimChallenge,
+  fetchPendingChallenges
+} from './lib/challenges';
 
 const DARK_MODE_KEY = 'sudoku-devoile:darkMode';
 
@@ -30,6 +37,7 @@ export default function App() {
   const [showGallery, setShowGallery] = useState(false);
   const [galleryData, setGalleryData] = useState([]);
   const [lastCustomImage, setLastCustomImage] = useState(null);
+  const [lastChallengeMeta, setLastChallengeMeta] = useState(null);
   const [showHint, setShowHint] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     try {
@@ -43,15 +51,8 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
-  const [sharedPhoto, setSharedPhoto] = useState(null);
-
-  useEffect(() => {
-    const shared = readSharedPhotoFromUrl();
-    if (shared) {
-      setSharedPhoto(shared);
-      clearSharedPhotoFromUrl();
-    }
-  }, []);
+  const [pendingChallengeId, setPendingChallengeId] = useState(() => readChallengeIdFromUrl());
+  const [pendingChallenges, setPendingChallenges] = useState([]);
 
   useEffect(() => {
     supabase.auth.getSession()
@@ -92,6 +93,34 @@ export default function App() {
     }
   }, [darkMode]);
 
+  const refreshPendingChallenges = useCallback(() => {
+    fetchPendingChallenges()
+      .then(setPendingChallenges)
+      .catch(() => setPendingChallenges([]));
+  }, []);
+
+  // Si la page a été ouverte via un lien de défi reçu d'un ami, on rattache
+  // ce défi au compte de l'utilisateur dès qu'il est connecté, puis on
+  // nettoie l'URL et on rafraîchit la liste des défis en attente.
+  useEffect(() => {
+    if (!session || !pendingChallengeId) return;
+    claimChallenge(pendingChallengeId)
+      .catch(() => null)
+      .finally(() => {
+        clearChallengeFromUrl();
+        setPendingChallengeId(null);
+        refreshPendingChallenges();
+      });
+  }, [session, pendingChallengeId, refreshPendingChallenges]);
+
+  // Tant qu'on est sur l'écran de choix de difficulté, on tient la liste des
+  // défis en attente à jour (au cas où un ami en aurait envoyé un nouveau).
+  useEffect(() => {
+    if (session && !pendingChallengeId) {
+      refreshPendingChallenges();
+    }
+  }, [session, pendingChallengeId, refreshPendingChallenges]);
+
   const game = useGame(manifest);
 
   const handleOpenGallery = useCallback(() => {
@@ -101,7 +130,20 @@ export default function App() {
 
   const handleSelectDifficulty = (difficultyId, customImageUrl) => {
     setLastCustomImage(customImageUrl || null);
+    setLastChallengeMeta(null);
     game.startNewGame(difficultyId, customImageUrl);
+  };
+
+  const handlePlayChallenge = (challenge) => {
+    const photoUrl = getSharedPhotoPublicUrl(challenge.photo_path);
+    const challengeOptions = {
+      id: challenge.id,
+      maxErrors: challenge.max_errors,
+      timeLimitMinutes: challenge.time_limit_minutes
+    };
+    setLastCustomImage(photoUrl);
+    setLastChallengeMeta(challengeOptions);
+    game.startNewGame(challenge.difficulty_mode, photoUrl, challengeOptions);
   };
 
   const handleSelectCell = (row, col) => {
@@ -116,9 +158,14 @@ export default function App() {
   };
 
   const handleReplay = () => {
-    game.startNewGame(game.difficulty, lastCustomImage);
+    game.startNewGame(game.difficulty, lastCustomImage, lastChallengeMeta);
     setSelectedCell(null);
     setHighlightValue(0);
+  };
+
+  const handleCloseGameEnd = () => {
+    game.resetToMenu();
+    refreshPendingChallenges();
   };
 
   const handleHintFill = (row, col, value) => {
@@ -190,7 +237,11 @@ export default function App() {
             <button className="icon-btn" onClick={() => supabase.auth.signOut()} title="Déconnexion">🚪</button>
           </div>
         </header>
-        <DifficultySelector onSelect={handleSelectDifficulty} sharedPhoto={sharedPhoto} />
+        <DifficultySelector
+          onSelect={handleSelectDifficulty}
+          pendingChallenges={pendingChallenges}
+          onPlayChallenge={handlePlayChallenge}
+        />
         {showGallery && (
           <Gallery gallery={galleryData} onClose={() => setShowGallery(false)} />
         )}
@@ -205,9 +256,13 @@ export default function App() {
         <div className="header-actions">
           <span className="stat-pill" title="Temps de jeu (en pause hors de cet onglet)">
             ⏱ {formatTime(game.elapsedSeconds)}
+            {game.challengeMeta?.timeLimitSeconds
+              ? ` / ${formatTime(game.challengeMeta.timeLimitSeconds)}`
+              : ''}
           </span>
           <span className="stat-pill" title="Nombre d'erreurs">
             ❌ {game.errorCount}
+            {game.challengeMeta?.maxErrors != null ? ` / ${game.challengeMeta.maxErrors}` : ''}
           </span>
           {darkModeButton}
           <button
@@ -218,7 +273,7 @@ export default function App() {
             {game.watermarkVisible ? '🙈' : '🙉'}
           </button>
           <button className="icon-btn" onClick={handleOpenGallery} title="Galerie">🖼</button>
-          <button className="icon-btn" onClick={game.resetToMenu} title="Menu">↩</button>
+          <button className="icon-btn" onClick={handleCloseGameEnd} title="Menu">↩</button>
         </div>
       </header>
 
@@ -255,7 +310,7 @@ export default function App() {
         <NumberPad
           ref={padRef}
           onInput={handleInput}
-          disabled={game.isComplete}
+          disabled={game.isComplete || game.isFailed}
           notesMode={game.notesMode}
           onToggleNotes={game.toggleNotesMode}
           onUndo={game.undo}
@@ -278,7 +333,14 @@ export default function App() {
           rewardImage={game.rewardImage}
           watermark={game.watermark}
           onReplay={handleReplay}
-          onClose={game.resetToMenu}
+          onClose={handleCloseGameEnd}
+        />
+      )}
+
+      {game.isFailed && (
+        <ChallengeFailModal
+          onReplay={handleReplay}
+          onClose={handleCloseGameEnd}
         />
       )}
 
