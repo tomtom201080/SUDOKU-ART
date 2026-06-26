@@ -1,18 +1,18 @@
 .number-pad {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  width: min(98vw, 48vh, 720px);
-  margin: 16px auto 0;
+  gap: 6px;
+  width: min(98vw, 40vh, 720px);
+  margin: 10px auto 0;
   justify-content: center;
 }
 
 .number-pad-btn {
   flex: 1 0 18%;
-  padding: 14px 0;
-  font-size: 1.15rem;
+  padding: 8px 0;
+  font-size: 1rem;
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid var(--card-border);
   background: var(--card-bg);
   color: var(--text-color);
@@ -31,13 +31,14 @@
 .number-pad-erase {
   flex: 1 0 30%;
   background: #EFE6D3;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 
 .number-pad-notes {
   flex: 1 0 100%;
   background: #EFE6D3;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  padding: 6px 0;
 }
 
 .number-pad-notes.is-active {
@@ -50,7 +51,8 @@
 .number-pad-hint {
   flex: 1 0 48%;
   background: #EFE6D3;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
+  padding: 6px 0;
 }
 
 body.dark .number-pad-erase,

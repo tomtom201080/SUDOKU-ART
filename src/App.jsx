@@ -144,8 +144,12 @@ export default function App() {
   }, [game.difficulty]);
 
   const darkModeButton = (
-    <button className="icon-btn" onClick={() => setDarkMode(d => !d)}>
-      {darkMode ? '☀️ Mode clair' : '🌙 Mode sombre'}
+    <button
+      className="icon-btn"
+      onClick={() => setDarkMode(d => !d)}
+      title={darkMode ? 'Mode clair' : 'Mode sombre'}
+    >
+      {darkMode ? '☀️' : '🌙'}
     </button>
   );
 
@@ -172,8 +176,8 @@ export default function App() {
           <p className="app-title">Sudoku Dévoilé — {SEASON_LABELS[game.season]}</p>
           <div className="header-actions">
             {darkModeButton}
-            <button className="icon-btn" onClick={handleOpenGallery}>🖼 Galerie</button>
-            <button className="icon-btn" onClick={() => supabase.auth.signOut()}>🚪 Déconnexion</button>
+            <button className="icon-btn" onClick={handleOpenGallery} title="Galerie">🖼</button>
+            <button className="icon-btn" onClick={() => supabase.auth.signOut()} title="Déconnexion">🚪</button>
           </div>
         </header>
         <DifficultySelector onSelect={handleSelectDifficulty} />
@@ -196,11 +200,15 @@ export default function App() {
             ❌ {game.errorCount}
           </span>
           {darkModeButton}
-          <button className="icon-btn" onClick={game.toggleWatermark}>
-            {game.watermarkVisible ? '🙈 Masquer' : '🙉 Afficher'}
+          <button
+            className="icon-btn"
+            onClick={game.toggleWatermark}
+            title={game.watermarkVisible ? 'Masquer le filigrane' : 'Afficher le filigrane'}
+          >
+            {game.watermarkVisible ? '🙈' : '🙉'}
           </button>
-          <button className="icon-btn" onClick={handleOpenGallery}>🖼 Galerie</button>
-          <button className="icon-btn" onClick={game.resetToMenu}>↩ Menu</button>
+          <button className="icon-btn" onClick={handleOpenGallery} title="Galerie">🖼</button>
+          <button className="icon-btn" onClick={game.resetToMenu} title="Menu">↩</button>
         </div>
       </header>
 
