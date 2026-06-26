@@ -92,7 +92,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  width: min(98vw, 62vh, 720px);
+  width: min(98vw, 48vh, 720px);
   margin: 0 auto 14px;
 }
 
@@ -107,7 +107,7 @@ body {
 }
 
 .progress-bar {
-  width: min(98vw, 62vh, 720px);
+  width: min(98vw, 48vh, 720px);
   height: 8px;
   background: var(--card-border);
   border-radius: 6px;

@@ -1,7 +1,7 @@
 .sudoku-board {
   display: flex;
   flex-direction: column;
-  width: min(98vw, 62vh, 720px);
+  width: min(98vw, 48vh, 720px);
   aspect-ratio: 1;
   margin: 0 auto;
   border: 3px solid var(--grid-border);
