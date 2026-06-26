@@ -36,7 +36,7 @@ export default function DifficultySelector({ onSelect }) {
 
   return (
     <div className="difficulty-selector">
-      <h1>Sudoku Dévoilé</h1>
+      <h1>Sudoku Art</h1>
       <p className="subtitle">
         {customImage
           ? 'Photo personnelle prête — choisis maintenant la difficulté.'

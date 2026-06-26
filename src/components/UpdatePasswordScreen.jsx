@@ -34,7 +34,7 @@ export default function UpdatePasswordScreen({ onDone }) {
   return (
     <div className="auth-screen">
       <div className="auth-hero">
-        <img src="/favicon.svg" alt="Logo Sudoku Dévoilé" className="auth-logo" />
+        <img src="/favicon.svg" alt="Logo Sudoku Art" className="auth-logo" />
         <h1>Nouveau mot de passe</h1>
         <p className="auth-tagline">
           Choisis un nouveau mot de passe pour ton compte.

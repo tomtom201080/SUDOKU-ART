@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: 'Sudoku Dévoilé',
-        short_name: 'Sudoku Dévoilé',
+        name: 'Sudoku Art',
+        short_name: 'Sudoku Art',
         description: 'Sudoku avec image surprise à dévoiler à chaque partie',
         theme_color: '#D98E04',
         background_color: '#F7F1E4',

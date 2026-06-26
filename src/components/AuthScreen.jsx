@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabaseClient';
 import './AuthScreen.css';
 
 const APP_URL = typeof window !== 'undefined' ? window.location.origin : '';
-const SHARE_TEXT = "Sudoku Dévoilé : un Sudoku où une photo se dévoile au fil de la partie ! Essaie : ";
+const SHARE_TEXT = "Sudoku Art : un Sudoku où une photo se dévoile au fil de la partie ! Essaie : ";
 
 export default function AuthScreen() {
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup' | 'forgot'
@@ -18,7 +18,7 @@ export default function AuthScreen() {
     const text = SHARE_TEXT + APP_URL;
     try {
       if (navigator.share) {
-        await navigator.share({ title: 'Sudoku Dévoilé', text: SHARE_TEXT, url: APP_URL });
+        await navigator.share({ title: 'Sudoku Art', text: SHARE_TEXT, url: APP_URL });
         return;
       }
     } catch {
@@ -65,8 +65,8 @@ export default function AuthScreen() {
   return (
     <div className="auth-screen">
       <div className="auth-hero">
-        <img src="/favicon.svg" alt="Logo Sudoku Dévoilé" className="auth-logo" />
-        <h1>Sudoku Dévoilé</h1>
+        <img src="/favicon.svg" alt="Logo Sudoku Art" className="auth-logo" />
+        <h1>Sudoku Art</h1>
         <p className="auth-tagline">
           Un Sudoku classique avec un twist : complète des carrés pour dévoiler,
           petit à petit, une photo cachée derrière la grille — la tienne, ou une

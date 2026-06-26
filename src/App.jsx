@@ -9,7 +9,7 @@ import HintModal from './components/HintModal';
 import AuthScreen from './components/AuthScreen';
 import UpdatePasswordScreen from './components/UpdatePasswordScreen';
 import { useGame } from './hooks/useGame';
-import { loadManifest, SEASON_LABELS } from './data/imageLibrary';
+import { loadManifest } from './data/imageLibrary';
 import { getUnlockedGallery } from './utils/storage';
 import { supabase } from './lib/supabaseClient';
 
@@ -173,7 +173,7 @@ export default function App() {
     return (
       <>
         <header className="app-header">
-          <p className="app-title">Sudoku Dévoilé — {SEASON_LABELS[game.season]}</p>
+          <img src="/favicon.svg" alt="Sudoku Art" className="app-logo" />
           <div className="header-actions">
             {darkModeButton}
             <button className="icon-btn" onClick={handleOpenGallery} title="Galerie">🖼</button>
@@ -191,7 +191,7 @@ export default function App() {
   return (
     <>
       <header className="app-header">
-        <p className="app-title">Sudoku Dévoilé — {SEASON_LABELS[game.season]}</p>
+        <img src="/favicon.svg" alt="Sudoku Art" className="app-logo" />
         <div className="header-actions">
           <span className="stat-pill" title="Temps de jeu (en pause hors de cet onglet)">
             ⏱ {formatTime(game.elapsedSeconds)}

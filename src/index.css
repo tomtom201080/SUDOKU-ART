@@ -51,6 +51,12 @@ body {
   margin: 0;
 }
 
+.app-logo {
+  height: 34px;
+  width: 34px;
+  border-radius: 8px;
+}
+
 .header-actions {
   display: flex;
   flex-wrap: wrap;

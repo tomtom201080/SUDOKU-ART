@@ -32,7 +32,7 @@ export default function WinModal({ difficulty, rewardImage, watermark, onReplay,
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
-          title: 'Sudoku Dévoilé',
+          title: 'Sudoku Art',
           text: 'Regarde la photo que j\'ai dévoilée en finissant mon Sudoku ! 🧩'
         });
         return;
@@ -40,7 +40,7 @@ export default function WinModal({ difficulty, rewardImage, watermark, onReplay,
 
       if (navigator.share) {
         await navigator.share({
-          title: 'Sudoku Dévoilé',
+          title: 'Sudoku Art',
           text: 'Regarde la photo que j\'ai dévoilée en finissant mon Sudoku ! 🧩'
         });
         return;
