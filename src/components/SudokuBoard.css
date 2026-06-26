@@ -118,9 +118,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(8px, 1.8vw, 11px);
+  font-size: clamp(9px, 2vw, 12px);
   font-weight: 700;
-  color: var(--text-muted);
+  color: #1A1A1A;
 }
 
 .cell-sparkle {
@@ -176,5 +176,5 @@ body.dark .sudoku-cell.has-error .cell-value {
 }
 
 body.dark .note-digit {
-  color: var(--text-muted);
+  color: #D8D8EE;
 }
