@@ -9,7 +9,7 @@
 .number-pad-digits {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
-  gap: 4px;
+  gap: 6px;
 }
 
 .number-pad-actions {
@@ -27,6 +27,12 @@
   background: var(--card-bg);
   color: var(--text-color);
   cursor: pointer;
+}
+
+.number-pad-digits .number-pad-btn {
+  min-height: 52px;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 .number-pad-btn:active {
