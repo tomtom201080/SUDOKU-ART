@@ -1,19 +1,19 @@
 // src/components/Gallery.jsx
 import { useMemo, useState } from 'react';
-import { SEASON_LABELS, TIER_LABELS } from '../data/imageLibrary';
+import { TIER_LABELS } from '../data/imageLibrary';
 import './Gallery.css';
 
 export default function Gallery({ gallery, onClose }) {
-  const [activeSeason, setActiveSeason] = useState('all');
+  const [activeTier, setActiveTier] = useState('all');
 
-  const seasons = useMemo(() => {
-    const set = new Set(gallery.map(img => img.season));
+  const tiers = useMemo(() => {
+    const set = new Set(gallery.map(img => img.tier));
     return Array.from(set);
   }, [gallery]);
 
-  const filtered = activeSeason === 'all'
+  const filtered = activeTier === 'all'
     ? gallery
-    : gallery.filter(img => img.season === activeSeason);
+    : gallery.filter(img => img.tier === activeTier);
 
   return (
     <div className="gallery-overlay">
@@ -31,18 +31,18 @@ export default function Gallery({ gallery, onClose }) {
           <>
             <div className="gallery-filters">
               <button
-                className={activeSeason === 'all' ? 'active' : ''}
-                onClick={() => setActiveSeason('all')}
+                className={activeTier === 'all' ? 'active' : ''}
+                onClick={() => setActiveTier('all')}
               >
                 Tout
               </button>
-              {seasons.map(season => (
+              {tiers.map(tier => (
                 <button
-                  key={season}
-                  className={activeSeason === season ? 'active' : ''}
-                  onClick={() => setActiveSeason(season)}
+                  key={tier}
+                  className={activeTier === tier ? 'active' : ''}
+                  onClick={() => setActiveTier(tier)}
                 >
-                  {SEASON_LABELS[season] ?? season}
+                  {TIER_LABELS[tier] ?? tier}
                 </button>
               ))}
             </div>

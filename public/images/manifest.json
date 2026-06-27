@@ -1,82 +1,59 @@
 {
-  "printemps": {
+  "tableaux": {
     "commune": [
       "la-joconde",
+      "le-tricheur-a-l-as-de-carreau",
       "la-grande-odalisque",
-      "les-raboteurs-de-parquet",
-      "les-iris",
-      "amandier-en-fleurs",
-      "la-laitiere",
-      "les-tournesols",
-      "meduse",
-      "madame-x",
-      "le-baiser"
-    ],
-    "rare": [
-      "le-dejeuner-sur-l-herbe",
-      "ophelie"
-    ],
-    "legendaire": [
-      "le-jardin-des-delices"
-    ]
-  },
-  "ete": {
-    "commune": [
+      "la-dentelliere",
       "impression-soleil-levant",
+      "la-pie",
+      "les-coquelicots",
       "olympia",
+      "l-absinthe",
+      "les-raboteurs-de-parquet",
+      "la-nuit-etoilee",
+      "les-iris",
+      "terrasse-du-cafe-le-soir",
+      "amandier-en-fleurs",
       "la-chambre-a-arles",
+      "autoportrait-au-chapeau-de-feutre-gris",
+      "la-laitiere",
       "femme-lisant-une-lettre",
+      "la-venus-de-rokeby",
+      "les-tournesols",
       "le-combat-du-temeraire",
       "flaming-june",
+      "la-naissance-de-venus",
+      "meduse",
       "la-grande-vague-de-kanagawa",
-      "le-chardonneret"
-    ],
-    "rare": [
-      "la-liberte-guidant-le-peuple",
-      "le-serment-des-horaces",
-      "le-souper-a-emmaus",
-      "les-parapluies",
-      "portrait-d-adele-bloch-bauer-i"
-    ],
-    "legendaire": []
-  },
-  "automne": {
-    "commune": [
-      "la-dentelliere",
-      "les-coquelicots",
-      "l-absinthe",
-      "autoportrait-au-chapeau-de-feutre-gris",
+      "madame-x",
+      "le-chardonneret",
       "la-jeune-fille-a-la-perle",
       "le-voyageur-contemplant-une-mer-de-nuages",
+      "le-baiser",
       "le-cri"
     ],
     "rare": [
+      "la-liberte-guidant-le-peuple",
       "le-radeau-de-la-meduse",
-      "les-epoux-arnolfini"
-    ],
-    "legendaire": [
-      "le-printemps",
-      "les-meninas",
-      "un-dimanche-apres-midi-a-l-ile-de-la-grande-jatte"
-    ]
-  },
-  "hiver": {
-    "commune": [
-      "le-tricheur-a-l-as-de-carreau",
-      "la-pie",
-      "la-nuit-etoilee",
-      "terrasse-du-cafe-le-soir",
-      "la-venus-de-rokeby",
-      "la-naissance-de-venus"
-    ],
-    "rare": [
+      "le-serment-des-horaces",
+      "le-dejeuner-sur-l-herbe",
       "le-cirque",
+      "les-epoux-arnolfini",
+      "ophelie",
+      "le-souper-a-emmaus",
       "le-3-mai-1808",
-      "washington-traversant-le-delaware"
+      "les-parapluies",
+      "washington-traversant-le-delaware",
+      "portrait-d-adele-bloch-bauer-i"
     ],
     "legendaire": [
       "bal-du-moulin-de-la-galette",
       "la-ronde-de-nuit",
+      "le-printemps",
+      "les-meninas",
+      "le-jardin-des-delices",
+      "un-dimanche-apres-midi-a-l-ile-de-la-grande-jatte",
       "la-tour-de-babel"
     ]
   }

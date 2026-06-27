@@ -1,7 +1,7 @@
 // src/hooks/useGame.js
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { generateSudoku, isGridComplete, DIFFICULTIES } from '../sudoku/generator';
-import { getCurrentSeason, pickWatermarkImage, pickRewardImage } from '../data/imageLibrary';
+import { pickWatermarkImage, pickRewardImage } from '../data/imageLibrary';
 import { addToGallery, getUnlockedIds, recordWin } from '../utils/storage';
 import { markChallengeCompleted, deleteChallenge } from '../lib/challenges';
 import { getSeenPaintingIds, markPaintingSeen } from '../lib/seenPaintings';
@@ -95,7 +95,6 @@ export function useGame(manifest, userId = null) {
   const celebrateTimeoutRef = useRef(null);
   const winRevealTimeoutRef = useRef(null);
 
-  const season = useMemo(() => getCurrentSeason(), []);
 
   // challengeOptions (optionnel) : { id, maxErrors, timeLimitMinutes } quand
   // la partie est un défi reçu d'un ami, avec des contraintes à respecter.
@@ -108,8 +107,8 @@ export function useGame(manifest, userId = null) {
     const data = generateSudoku(actualDifficulty);
     const initialUserGrid = buildInitialUserGrid(data.puzzle);
     const image = customImageUrl
-      ? { id: `custom-${Date.now()}`, path: customImageUrl, tier: null, season: null, isCustom: true }
-      : (manifest ? pickWatermarkImage(manifest, season) : null);
+      ? { id: `custom-${Date.now()}`, path: customImageUrl, tier: null, isCustom: true }
+      : (manifest ? pickWatermarkImage(manifest) : null);
 
     setDifficulty(actualDifficulty);
     setPuzzleData(data);
@@ -144,7 +143,7 @@ export function useGame(manifest, userId = null) {
           }
         : null
     );
-  }, [manifest, season]);
+  }, [manifest]);
 
   // Chronomètre : actif uniquement pendant une partie en cours, et mis en
   // pause automatiquement si l'onglet/la page n'est plus visible (l'utilisateur
@@ -212,13 +211,13 @@ export function useGame(manifest, userId = null) {
       }
     }
 
-    const reward = pickRewardImage(manifest, season, difficulty, unlockedIds);
+    const reward = pickRewardImage(manifest, difficulty, unlockedIds);
     if (reward) {
       addToGallery(reward, { difficulty });
       setRewardImage(reward);
       if (userId) markPaintingSeen(userId, reward.id).catch(() => null);
     }
-  }, [manifest, season, difficulty, userId]);
+  }, [manifest, difficulty, userId]);
 
   const setCellValue = useCallback((row, col, value) => {
     if (!puzzleData || !userGrid) return;
@@ -356,7 +355,7 @@ export function useGame(manifest, userId = null) {
       if (winRevealTimeoutRef.current) clearTimeout(winRevealTimeoutRef.current);
       winRevealTimeoutRef.current = setTimeout(() => setShowWinModal(true), 3000);
     }
-  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, manifest, season, notesMode, isFailed, challengeMeta, resolveReward]);
+  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, manifest, notesMode, isFailed, challengeMeta, resolveReward]);
 
   // Annule le dernier coup joué (grille + notes + erreurs reviennent à l'état
   // précédent). Le compteur d'erreurs cumulé n'est lui jamais "annulé" : une
@@ -517,7 +516,6 @@ export function useGame(manifest, userId = null) {
   }, []);
 
   return {
-    season,
     difficulty,
     puzzleData,
     userGrid,

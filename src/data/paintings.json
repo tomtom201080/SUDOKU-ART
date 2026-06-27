@@ -15,7 +15,6 @@
     "observe": "Le sourire, les mains, le paysage bleuté, le voile transparent.",
     "openAccessNote": "Domaine public - photo musée à vérifier",
     "source": "https://collections.louvre.fr/ark:/53355/cl010062370",
-    "season": "printemps",
     "tier": "commune",
     "imageUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Mona_Lisa_headcrop.jpg"
   },
@@ -35,7 +34,6 @@
     "observe": "Le drapeau tricolore, la pyramide humaine, les fumées, les regards.",
     "openAccessNote": "Domaine public",
     "source": "https://collections.louvre.fr/ark:/53355/cl010065872",
-    "season": "ete",
     "tier": "rare",
     "imageUrl": null
   },
@@ -55,7 +53,6 @@
     "observe": "La diagonale des corps, la voile lointaine, la lumière tragique.",
     "openAccessNote": "Domaine public",
     "source": "https://collections.louvre.fr/ark:/53355/cl010059199",
-    "season": "automne",
     "tier": "rare",
     "imageUrl": null
   },
@@ -75,7 +72,6 @@
     "observe": "La carte dissimulée, les regards, les bijoux, les mains.",
     "openAccessNote": "Domaine public",
     "source": "https://collections.louvre.fr/ark:/53355/cl010062580",
-    "season": "hiver",
     "tier": "commune",
     "imageUrl": null
   },
@@ -95,7 +91,6 @@
     "observe": "Le dos, les tissus bleus, les accessoires orientalisants.",
     "openAccessNote": "Domaine public",
     "source": "https://collections.louvre.fr/ark:/53355/cl010065566",
-    "season": "printemps",
     "tier": "commune",
     "imageUrl": null
   },
@@ -115,7 +110,6 @@
     "observe": "Les bras tendus, les arcs, l'opposition hommes/femmes.",
     "openAccessNote": "Domaine public",
     "source": "https://collections.louvre.fr/ark:/53355/cl010065426",
-    "season": "ete",
     "tier": "rare",
     "imageUrl": null
   },
@@ -135,7 +129,6 @@
     "observe": "Les fils rouges et blancs, le visage penché, la profondeur douce.",
     "openAccessNote": "Domaine public",
     "source": "https://collections.louvre.fr/ark:/53355/cl010064918",
-    "season": "automne",
     "tier": "commune",
     "imageUrl": null
   },
@@ -155,7 +148,6 @@
     "observe": "Le disque orange, les silhouettes de barques, la brume portuaire.",
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.marmottan.fr/",
-    "season": "ete",
     "tier": "commune",
     "imageUrl": null
   },
@@ -175,7 +167,6 @@
     "observe": "La pie sur la barrière, les ombres bleutées, la neige lumineuse.",
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/la-pie-1117",
-    "season": "hiver",
     "tier": "commune",
     "imageUrl": null
   },
@@ -195,7 +186,6 @@
     "observe": "Les taches rouges, la pente, les figures dans l'herbe.",
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/coquelicots-1066",
-    "season": "automne",
     "tier": "commune",
     "imageUrl": null
   },
@@ -215,7 +205,6 @@
     "observe": "Les taches de soleil, les robes, les visages, le mouvement.",
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/bal-du-moulin-de-la-galette-108",
-    "season": "hiver",
     "tier": "legendaire",
     "imageUrl": null
   },
@@ -235,7 +224,6 @@
     "observe": "Le contraste des figures, le regard frontal, la nature morte.",
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/le-dejeuner-sur-lherbe-904",
-    "season": "printemps",
     "tier": "rare",
     "imageUrl": null
   },
@@ -255,7 +243,6 @@
     "observe": "Le regard direct, le chat noir, le bouquet, les aplats.",
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/olympia-712",
-    "season": "ete",
     "tier": "commune",
     "imageUrl": null
   },
@@ -275,7 +262,6 @@
     "observe": "La table décentrée, les verres, les regards absents.",
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/dans-un-cafe-114",
-    "season": "automne",
     "tier": "commune",
     "imageUrl": null
   },
@@ -295,7 +281,6 @@
     "observe": "Les points colorés, l'écuyère, les courbes et les gradins.",
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/le-cirque-874",
-    "season": "hiver",
     "tier": "rare",
     "imageUrl": null
   },
@@ -315,7 +300,6 @@
     "observe": "Le parquet, les dos, la lumière de la fenêtre, la perspective.",
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/les-raboteurs-de-parquet-329",
-    "season": "printemps",
     "tier": "commune",
     "imageUrl": null
   },
@@ -335,7 +319,6 @@
     "observe": "Les spirales du ciel, le cyprès, le village, les jaunes et bleus.",
     "openAccessNote": "Domaine public - image MoMA pas toujours libre",
     "source": "https://www.moma.org/collection/works/79802",
-    "season": "hiver",
     "tier": "commune",
     "imageUrl": null
   },
@@ -355,7 +338,6 @@
     "observe": "Les fleurs violettes, les feuilles en arabesques, la fleur blanche.",
     "openAccessNote": "Open Content Getty",
     "source": "https://www.getty.edu/art/collection/object/103JNH",
-    "season": "printemps",
     "tier": "commune",
     "imageUrl": null
   },
@@ -375,7 +357,6 @@
     "observe": "La terrasse jaune, les étoiles, la profondeur de rue.",
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://krollermuller.nl/en/vincent-van-gogh-terrace-of-a-cafe-at-night-place-du-forum-1",
-    "season": "hiver",
     "tier": "commune",
     "imageUrl": null
   },
@@ -395,7 +376,6 @@
     "observe": "Branches noires, fleurs blanches, fond bleu plat.",
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.vangoghmuseum.nl/en/collection/s0176V1962",
-    "season": "printemps",
     "tier": "commune",
     "imageUrl": null
   },
@@ -415,7 +395,6 @@
     "observe": "Le lit jaune, les murs bleus, la perspective volontairement instable.",
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.vangoghmuseum.nl/en/collection/s0047V1962",
-    "season": "ete",
     "tier": "commune",
     "imageUrl": null
   },
@@ -435,7 +414,6 @@
     "observe": "Le regard, les touches bleues et orangées, le chapeau.",
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.vangoghmuseum.nl/en/collection/s0016V1962",
-    "season": "automne",
     "tier": "commune",
     "imageUrl": null
   },
@@ -455,7 +433,6 @@
     "observe": "La lumière sur la jeune fille, les hallebardes, le capitaine.",
     "openAccessNote": "Rijksmuseum Open Data",
     "source": "https://www.rijksmuseum.nl/en/collection/SK-C-5",
-    "season": "hiver",
     "tier": "legendaire",
     "imageUrl": null
   },
@@ -475,7 +452,6 @@
     "observe": "Le filet de lait, le pain, le mur, les bleus et jaunes.",
     "openAccessNote": "Rijksmuseum Open Data",
     "source": "https://www.rijksmuseum.nl/en/collection/SK-A-2344",
-    "season": "printemps",
     "tier": "commune",
     "imageUrl": null
   },
@@ -495,7 +471,6 @@
     "observe": "La veste bleue, la carte, la lumière latérale.",
     "openAccessNote": "Rijksmuseum Open Data",
     "source": "https://www.rijksmuseum.nl/en/collection/SK-C-251",
-    "season": "ete",
     "tier": "commune",
     "imageUrl": null
   },
@@ -515,7 +490,6 @@
     "observe": "Le miroir, le chien, les chaussures, la signature.",
     "openAccessNote": "Domaine public",
     "source": "https://www.nationalgallery.org.uk/paintings/jan-van-eyck-the-arnolfini-portrait",
-    "season": "automne",
     "tier": "rare",
     "imageUrl": null
   },
@@ -535,7 +509,6 @@
     "observe": "Le miroir flou, Cupidon, les drapés gris et rouges.",
     "openAccessNote": "Domaine public",
     "source": "https://www.nationalgallery.org.uk/paintings/diego-velazquez-the-toilet-of-venus-the-rokeby-venus",
-    "season": "hiver",
     "tier": "commune",
     "imageUrl": null
   },
@@ -555,7 +528,6 @@
     "observe": "Les pétales, les textures épaisses, les jaunes variés.",
     "openAccessNote": "Domaine public",
     "source": "https://www.nationalgallery.org.uk/paintings/vincent-van-gogh-sunflowers",
-    "season": "printemps",
     "tier": "commune",
     "imageUrl": null
   },
@@ -575,7 +547,6 @@
     "observe": "Le vieux navire, le remorqueur noir, les reflets dorés.",
     "openAccessNote": "Domaine public",
     "source": "https://www.nationalgallery.org.uk/paintings/joseph-mallord-william-turner-the-fighting-temeraire",
-    "season": "ete",
     "tier": "commune",
     "imageUrl": null
   },
@@ -595,7 +566,6 @@
     "observe": "Les fleurs, l'eau, la robe, les mains ouvertes.",
     "openAccessNote": "Domaine public",
     "source": "https://www.tate.org.uk/art/artworks/millais-ophelia-n01506",
-    "season": "printemps",
     "tier": "rare",
     "imageUrl": null
   },
@@ -615,7 +585,6 @@
     "observe": "La robe orange, la pose circulaire, la branche de laurier-rose.",
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://museoarteponce.org/",
-    "season": "ete",
     "tier": "commune",
     "imageUrl": null
   },
@@ -635,7 +604,6 @@
     "observe": "Les Trois Grâces, Mercure, Vénus, les fleurs du sol.",
     "openAccessNote": "Domaine public",
     "source": "https://www.uffizi.it/en/artworks/botticelli-spring",
-    "season": "automne",
     "tier": "legendaire",
     "imageUrl": null
   },
@@ -655,7 +623,6 @@
     "observe": "La coquille, les cheveux, les vents, le manteau fleuri.",
     "openAccessNote": "Domaine public",
     "source": "https://www.uffizi.it/en/artworks/birth-of-venus",
-    "season": "hiver",
     "tier": "commune",
     "imageUrl": null
   },
@@ -675,7 +642,6 @@
     "observe": "Les serpents, la bouche ouverte, le sang, l'ombre.",
     "openAccessNote": "Domaine public",
     "source": "https://www.uffizi.it/en/artworks/medusa",
-    "season": "printemps",
     "tier": "commune",
     "imageUrl": null
   },
@@ -695,7 +661,6 @@
     "observe": "La corbeille, les mains ouvertes, la lumière, les ombres.",
     "openAccessNote": "Domaine public",
     "source": "https://www.nationalgallery.org.uk/paintings/michelangelo-merisi-da-caravaggio-the-supper-at-emmaus",
-    "season": "ete",
     "tier": "rare",
     "imageUrl": null
   },
@@ -715,7 +680,6 @@
     "observe": "L'infante, le peintre, le miroir, les nains, la porte ouverte.",
     "openAccessNote": "Domaine public",
     "source": "https://www.museodelprado.es/en/the-collection/art-work/las-meninas/9fdc7800-9ade-48b0-ab8b-edee94ea877f",
-    "season": "automne",
     "tier": "legendaire",
     "imageUrl": null
   },
@@ -735,7 +699,6 @@
     "observe": "La chemise blanche, les fusils, la lanterne, les corps au sol.",
     "openAccessNote": "Domaine public",
     "source": "https://www.museodelprado.es/en/the-collection/art-work/the-3rd-of-may-1808-in-madrid/5e177409-2993-4240-97fb-847a02c6496c",
-    "season": "hiver",
     "tier": "rare",
     "imageUrl": null
   },
@@ -755,7 +718,6 @@
     "observe": "Les créatures, les fruits géants, l'enfer musical, les détails cachés.",
     "openAccessNote": "Domaine public",
     "source": "https://www.museodelprado.es/en/the-collection/art-work/the-garden-of-earthly-delights-triptych/02388242-6d6a-4e9e-a992-e1311eab3609",
-    "season": "printemps",
     "tier": "legendaire",
     "imageUrl": null
   },
@@ -775,7 +737,6 @@
     "observe": "Les parapluies, le panier, les robes, les visages coupés.",
     "openAccessNote": "Domaine public",
     "source": "https://www.nationalgallery.org.uk/paintings/pierre-auguste-renoir-the-umbrellas",
-    "season": "ete",
     "tier": "rare",
     "imageUrl": null
   },
@@ -795,7 +756,6 @@
     "observe": "Les personnages figés, le singe, les ombres, les points.",
     "openAccessNote": "Public domain - ArtIC",
     "source": "https://www.artic.edu/artworks/27992/a-sunday-on-la-grande-jatte-1884",
-    "season": "automne",
     "tier": "legendaire",
     "imageUrl": null
   },
@@ -815,7 +775,6 @@
     "observe": "La vague, le mont Fuji, les barques, l'écume en griffes.",
     "openAccessNote": "The Met Open Access",
     "source": "https://www.metmuseum.org/art/collection/search/45434",
-    "season": "ete",
     "tier": "commune",
     "imageUrl": null
   },
@@ -835,7 +794,6 @@
     "observe": "Washington debout, le drapeau, la glace, les rameurs.",
     "openAccessNote": "The Met Open Access",
     "source": "https://www.metmuseum.org/art/collection/search/11417",
-    "season": "hiver",
     "tier": "rare",
     "imageUrl": null
   },
@@ -855,7 +813,6 @@
     "observe": "Le profil, la robe noire, la peau pâle, la pose.",
     "openAccessNote": "The Met Open Access",
     "source": "https://www.metmuseum.org/art/collection/search/12127",
-    "season": "printemps",
     "tier": "commune",
     "imageUrl": null
   },
@@ -875,7 +832,6 @@
     "observe": "L'oiseau, la chaîne, le perchoir, le mur clair.",
     "openAccessNote": "Domaine public - Mauritshuis",
     "source": "https://www.mauritshuis.nl/en/our-collection/artworks/605-the-goldfinch/",
-    "season": "ete",
     "tier": "commune",
     "imageUrl": null
   },
@@ -895,7 +851,6 @@
     "observe": "La perle, le turban bleu et jaune, les lèvres entrouvertes.",
     "openAccessNote": "Domaine public - Mauritshuis",
     "source": "https://www.mauritshuis.nl/en/our-collection/artworks/670-girl-with-a-pearl-earring/",
-    "season": "automne",
     "tier": "commune",
     "imageUrl": null
   },
@@ -915,7 +870,6 @@
     "observe": "La silhouette de dos, les rochers, la brume, l'horizon.",
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.hamburger-kunsthalle.de/",
-    "season": "automne",
     "tier": "commune",
     "imageUrl": null
   },
@@ -935,7 +889,6 @@
     "observe": "Les étages, les ouvriers, la ville, le port.",
     "openAccessNote": "Domaine public",
     "source": "https://www.khm.at/en/objectdb/detail/323/",
-    "season": "hiver",
     "tier": "legendaire",
     "imageUrl": null
   },
@@ -955,7 +908,6 @@
     "observe": "L'or, les motifs carrés et ronds, la prairie fleurie.",
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.belvedere.at/en/kiss-gustav-klimt",
-    "season": "printemps",
     "tier": "commune",
     "imageUrl": null
   },
@@ -975,7 +927,6 @@
     "observe": "Les motifs d'or, les yeux, le visage pâle, la robe fusionnée au fond.",
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.neuegalerie.org/",
-    "season": "ete",
     "tier": "rare",
     "imageUrl": null
   },
@@ -995,7 +946,6 @@
     "observe": "Le visage, le ciel ondulant, le pont, les silhouettes au loin.",
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.nasjonalmuseet.no/en/collection/object/NG.M.00939",
-    "season": "automne",
     "tier": "commune",
     "imageUrl": null
   }
