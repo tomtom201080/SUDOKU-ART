@@ -13,6 +13,7 @@ import ChallengeComposer from './components/ChallengeComposer';
 import UpdatePasswordScreen from './components/UpdatePasswordScreen';
 import InstallAppModal from './components/InstallAppModal';
 import HelpModal from './components/HelpModal';
+import KpiDashboard from './components/KpiDashboard';
 import { useGame } from './hooks/useGame';
 import { loadManifest, pickImageForTier, TIERS_BY_DIFFICULTY } from './data/imageLibrary';
 import { getMergedUnseenIds } from './lib/seenPaintings';
@@ -80,6 +81,7 @@ export default function App() {
   const [showComposer, setShowComposer] = useState(false);
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [showKpiDashboard, setShowKpiDashboard] = useState(false);
 
   // Défi reçu par lien : on le charge directement, sans exiger de connexion.
   const [incomingChallengeId] = useState(() => readChallengeIdFromUrl());
@@ -339,6 +341,9 @@ export default function App() {
             {darkModeButton}
             <button className="icon-btn" onClick={() => setShowHelpModal(true)} title="Règles & aide">❓</button>
             <button className="icon-btn" onClick={() => setShowInstallModal(true)} title="Installer l'app">📲</button>
+            {session?.user?.email === 't.dabadie@gmail.com' && (
+              <button className="icon-btn" onClick={() => setShowKpiDashboard(true)} title="Statistiques">📊</button>
+            )}
             <button className="icon-btn" onClick={handleOpenGallery} title="Galerie">🖼</button>
             {accountButton}
           </div>
@@ -359,6 +364,9 @@ export default function App() {
         )}
         {showInstallModal && (
           <InstallAppModal onClose={() => setShowInstallModal(false)} />
+        )}
+        {showKpiDashboard && (
+          <KpiDashboard onClose={() => setShowKpiDashboard(false)} />
         )}
         {showGallery && (
           <Gallery gallery={galleryData} onClose={() => setShowGallery(false)} />

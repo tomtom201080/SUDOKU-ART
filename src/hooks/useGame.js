@@ -5,6 +5,7 @@ import { pickImageForTier, pickRewardImage, TIERS_BY_DIFFICULTY } from '../data/
 import { addToGallery, recordWin } from '../utils/storage';
 import { markChallengeCompleted, deleteChallenge } from '../lib/challenges';
 import { markPaintingSeen, getMergedUnseenIds } from '../lib/seenPaintings';
+import { logGameStart, logGameComplete, logGameFail } from '../lib/analytics';
 
 function cloneGrid(grid) {
   return grid.map(row => [...row]);
@@ -157,7 +158,14 @@ export function useGame(manifest, userId = null) {
           }
         : null
     );
-  }, [manifest]);
+
+    logGameStart({
+      difficulty: actualDifficulty,
+      userId,
+      isCustomPhoto: !!customImageUrl,
+      isChallenge: !!challengeOptions
+    });
+  }, [manifest, userId]);
 
   // Chronomètre : actif uniquement pendant une partie en cours, et mis en
   // pause automatiquement si l'onglet/la page n'est plus visible (l'utilisateur
@@ -173,6 +181,13 @@ export function useGame(manifest, userId = null) {
           const next = s + 1;
           if (challengeMeta?.timeLimitSeconds && next >= challengeMeta.timeLimitSeconds) {
             setIsFailed(true);
+            logGameFail({
+              difficulty,
+              userId,
+              errorCount,
+              elapsedSeconds: next,
+              isChallenge: !!challengeMeta?.id
+            });
             if (challengeMeta.id) {
               markChallengeCompleted(challengeMeta.id, 'lost');
               deleteChallenge(challengeMeta.id, challengeMeta.photoPath);
@@ -205,7 +220,7 @@ export function useGame(manifest, userId = null) {
       stopInterval();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [difficulty, isComplete, isFailed, challengeMeta]);
+  }, [difficulty, isComplete, isFailed, challengeMeta, userId]);
 
   // Le joueur saisit une valeur (1-9) ou l'efface (0) dans une case.
   // En mode notes, la saisie ajoute/retire un chiffre "candidat" sans toucher
@@ -310,6 +325,13 @@ export function useGame(manifest, userId = null) {
         const nextCount = c + 1;
         if (challengeMeta?.maxErrors != null && nextCount > challengeMeta.maxErrors) {
           setIsFailed(true);
+          logGameFail({
+            difficulty,
+            userId,
+            errorCount: nextCount,
+            elapsedSeconds,
+            isChallenge: !!challengeMeta?.id
+          });
           if (challengeMeta.id) {
             markChallengeCompleted(challengeMeta.id, 'lost');
             deleteChallenge(challengeMeta.id, challengeMeta.photoPath);
@@ -383,6 +405,14 @@ export function useGame(manifest, userId = null) {
     if (value !== 0 && isGridComplete(next, puzzleData.solution)) {
       setIsComplete(true);
       recordWin(difficulty);
+      logGameComplete({
+        difficulty,
+        userId,
+        errorCount,
+        elapsedSeconds,
+        isCustomPhoto: !!watermark?.isCustom,
+        isChallenge: !!challengeMeta?.id
+      });
       if (challengeMeta?.id) {
         markChallengeCompleted(challengeMeta.id, 'won');
         deleteChallenge(challengeMeta.id, challengeMeta.photoPath);
@@ -401,7 +431,7 @@ export function useGame(manifest, userId = null) {
       if (winRevealTimeoutRef.current) clearTimeout(winRevealTimeoutRef.current);
       winRevealTimeoutRef.current = setTimeout(() => setShowWinModal(true), 3000);
     }
-  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, notesMode, isFailed, challengeMeta, watermark, userId, imageIntensity]);
+  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, notesMode, isFailed, challengeMeta, watermark, userId, imageIntensity, elapsedSeconds]);
 
   // Annule le dernier coup joué (grille + notes + erreurs reviennent à l'état
   // précédent). Le compteur d'erreurs cumulé n'est lui jamais "annulé" : une

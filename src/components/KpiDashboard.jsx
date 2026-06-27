@@ -1,0 +1,127 @@
+// src/components/KpiDashboard.jsx
+import { useEffect, useState } from 'react';
+import { fetchAllGameEvents } from '../lib/analytics';
+import { computeKpis } from '../utils/kpiStats';
+import './KpiDashboard.css';
+
+const DIFFICULTY_LABELS = {
+  facile: 'Facile',
+  moyen: 'Moyen',
+  complique: 'Compliqué',
+  enfer: 'Enfer'
+};
+
+export default function KpiDashboard({ onClose }) {
+  const [kpis, setKpis] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchAllGameEvents()
+      .then(events => setKpis(computeKpis(events)))
+      .catch(err => setError(err.message || 'Erreur de chargement'));
+  }, []);
+
+  return (
+    <div className="kpi-overlay" onClick={onClose}>
+      <div className="kpi-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="kpi-header">
+          <h2>📊 Statistiques</h2>
+          <button className="kpi-close" onClick={onClose}>✕</button>
+        </div>
+
+        {error && <p className="kpi-error">{error}</p>}
+
+        {!kpis && !error && <p>Chargement…</p>}
+
+        {kpis && (
+          <>
+            <div className="kpi-grid">
+              <div className="kpi-card">
+                <span className="kpi-value">{kpis.startedToday}</span>
+                <span className="kpi-label">Parties commencées aujourd'hui</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{kpis.completedToday}</span>
+                <span className="kpi-label">Parties terminées aujourd'hui</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{kpis.totalStarted}</span>
+                <span className="kpi-label">Total commencées</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{kpis.totalCompleted}</span>
+                <span className="kpi-label">Total terminées</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{kpis.globalCompletionRate != null ? `${kpis.globalCompletionRate}%` : '—'}</span>
+                <span className="kpi-label">Taux de complétion</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{kpis.totalFailed}</span>
+                <span className="kpi-label">Défis échoués</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{kpis.avgErrors}</span>
+                <span className="kpi-label">Erreurs moy. (parties gagnées)</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{kpis.avgTime}</span>
+                <span className="kpi-label">Temps moyen (parties gagnées)</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{kpis.customPhotoGames}</span>
+                <span className="kpi-label">Parties avec photo perso</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{kpis.challengeGamesStarted}</span>
+                <span className="kpi-label">Défis joués</span>
+              </div>
+            </div>
+
+            <h3 className="kpi-section-title">Par difficulté</h3>
+            <table className="kpi-table">
+              <thead>
+                <tr>
+                  <th>Difficulté</th>
+                  <th>Commencées</th>
+                  <th>Terminées</th>
+                  <th>Taux</th>
+                </tr>
+              </thead>
+              <tbody>
+                {kpis.byDifficulty.map(row => (
+                  <tr key={row.difficulty}>
+                    <td>{DIFFICULTY_LABELS[row.difficulty]}</td>
+                    <td>{row.started}</td>
+                    <td>{row.completed}</td>
+                    <td>{row.completionRate != null ? `${row.completionRate}%` : '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <h3 className="kpi-section-title">7 derniers jours</h3>
+            <table className="kpi-table">
+              <thead>
+                <tr>
+                  <th>Jour</th>
+                  <th>Commencées</th>
+                  <th>Terminées</th>
+                </tr>
+              </thead>
+              <tbody>
+                {kpis.last7Days.map(row => (
+                  <tr key={row.label}>
+                    <td>{row.label}</td>
+                    <td>{row.started}</td>
+                    <td>{row.completed}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
