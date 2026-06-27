@@ -370,9 +370,13 @@ export function useGame(manifest, userId = null) {
         // On affiche la grille complète, sans surlignage qui cacherait
         // l'image, pendant 2 secondes — pour que la nouvelle portion révélée
         // soit vraiment visible même si le joueur reste sur la même case.
-        setTempFullReveal(true);
-        if (tempRevealTimeoutRef.current) clearTimeout(tempRevealTimeoutRef.current);
-        tempRevealTimeoutRef.current = setTimeout(() => setTempFullReveal(false), 2000);
+        // Inutile (et même perturbant) si le filigrane est désactivé : dans
+        // ce cas, on garde juste les étincelles, sans toucher au surlignage.
+        if (imageIntensity > 0) {
+          setTempFullReveal(true);
+          if (tempRevealTimeoutRef.current) clearTimeout(tempRevealTimeoutRef.current);
+          tempRevealTimeoutRef.current = setTimeout(() => setTempFullReveal(false), 2000);
+        }
       }
     }
 
@@ -397,7 +401,7 @@ export function useGame(manifest, userId = null) {
       if (winRevealTimeoutRef.current) clearTimeout(winRevealTimeoutRef.current);
       winRevealTimeoutRef.current = setTimeout(() => setShowWinModal(true), 3000);
     }
-  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, notesMode, isFailed, challengeMeta, watermark, userId]);
+  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, notesMode, isFailed, challengeMeta, watermark, userId, imageIntensity]);
 
   // Annule le dernier coup joué (grille + notes + erreurs reviennent à l'état
   // précédent). Le compteur d'erreurs cumulé n'est lui jamais "annulé" : une

@@ -358,11 +358,13 @@ export default function App() {
 
       <div className="game-screen">
         <div className="intensity-control">
-          <label htmlFor="image-intensity">🖼 Intensité du filigrane</label>
+          <label htmlFor="image-intensity">
+            🖼 Intensité du filigrane {game.imageIntensity <= 0 ? '(désactivé)' : ''}
+          </label>
           <input
             id="image-intensity"
             type="range"
-            min="0.05"
+            min="0"
             max="0.5"
             step="0.05"
             value={game.imageIntensity}

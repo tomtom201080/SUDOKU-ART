@@ -35,6 +35,8 @@ const SudokuBoard = forwardRef(function SudokuBoard({
 }, ref) {
   if (!puzzleData || !userGrid) return null;
 
+  const watermarkDisabled = (imageIntensity ?? 0.28) <= 0;
+
   const showPeerHighlight = !!selectedCell && !isComplete;
   const showSameValueHighlight = !!highlightValue && highlightValue !== 0 && !isComplete;
   // Une fois la grille terminée, on laisse voir la photo dans ses couleurs
@@ -55,6 +57,7 @@ const SudokuBoard = forwardRef(function SudokuBoard({
             const hasError = errorCells.has(`${row}-${col}`);
             const isSelected = selectedCell?.row === row && selectedCell?.col === col;
             const isCelebrating =
+              !watermarkDisabled &&
               (celebrate ?? []).some(c =>
                 c.type === 'all' ||
                 (c.type === 'box' && boxIndexOf(row, col) === c.index) ||
@@ -75,7 +78,7 @@ const SudokuBoard = forwardRef(function SudokuBoard({
             const thickBottom = row === 2 || row === 5;
 
             const bgStyle =
-              watermark && watermarkVisible
+              watermark && watermarkVisible && !watermarkDisabled
                 ? {
                     backgroundImage: `url(${watermark.path})`,
                     backgroundSize: '900% 900%',
