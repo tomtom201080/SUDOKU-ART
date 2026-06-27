@@ -38,6 +38,7 @@ export default function ChallengeComposer({ onClose }) {
   const [timeLimitMinutes, setTimeLimitMinutes] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | sending | done | error
   const [shareLink, setShareLink] = useState(null);
+  const [linkCopied, setLinkCopied] = useState(false);
   const fileInputRef = useRef(null);
 
   const handlePickPhoto = () => fileInputRef.current?.click();
@@ -48,6 +49,16 @@ export default function ChallengeComposer({ onClose }) {
     if (photoPreview) URL.revokeObjectURL(photoPreview);
     setPhotoFile(file);
     setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const handleCopyLink = async () => {
+    if (!shareLink) return;
+    try {
+      await navigator.clipboard.writeText(shareLink);
+      setLinkCopied(true);
+    } catch {
+      // Le presse-papiers a refusé : pas grave, le lien reste visible à l'écran.
+    }
   };
 
   const handleSend = async () => {
@@ -100,10 +111,12 @@ export default function ChallengeComposer({ onClose }) {
           <>
             <p className="challenge-success">Défi envoyé ! Il sera valable {SHARE_EXPIRY_DAYS} jours.</p>
             {shareLink && (
-              <p className="challenge-link-fallback">
-                Si le partage n'a pas fonctionné, copie ce lien :<br />
-                <code>{shareLink}</code>
-              </p>
+              <div className="challenge-link-fallback">
+                <p>Le sélecteur WhatsApp ne s'est pas ouvert ? Copie le lien et colle-le toi-même :</p>
+                <button className="challenge-copy-btn" onClick={handleCopyLink}>
+                  {linkCopied ? '✅ Lien copié !' : '📋 Copier le lien'}
+                </button>
+              </div>
             )}
             <button className="challenge-btn-primary" onClick={onClose}>Fermer</button>
           </>

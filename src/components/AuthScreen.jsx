@@ -66,7 +66,9 @@ export default function AuthScreen({ onCancel }) {
   return (
     <div className="auth-screen">
       {onCancel && (
-        <button className="auth-cancel-btn" onClick={onCancel}>← Retour au jeu (sans connexion)</button>
+        <button className="auth-free-play-btn" onClick={onCancel}>
+          🎮 Jouer en partie libre (sans compte)
+        </button>
       )}
       <div className="auth-hero">
         <img src="/favicon.svg" alt="Logo Sudoku Art" className="auth-logo" />

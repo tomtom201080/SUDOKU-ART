@@ -15,6 +15,8 @@
   border-radius: 16px;
   padding: 24px;
   width: min(92vw, 420px);
+  max-height: 85vh;
+  overflow-y: auto;
   text-align: center;
 }
 
@@ -34,6 +36,12 @@
   max-height: 320px;
   object-fit: cover;
   border-radius: 12px;
+}
+
+@media (max-height: 700px) {
+  .win-reward-image {
+    max-height: 200px;
+  }
 }
 
 .win-actions {
@@ -118,6 +126,8 @@
   border-radius: 16px;
   padding: 22px;
   width: min(92vw, 380px);
+  max-height: 85vh;
+  overflow-y: auto;
   text-align: center;
 }
 

@@ -10,6 +10,7 @@ import HintModal from './components/HintModal';
 import AuthScreen from './components/AuthScreen';
 import ChallengeComposer from './components/ChallengeComposer';
 import UpdatePasswordScreen from './components/UpdatePasswordScreen';
+import InstallAppModal from './components/InstallAppModal';
 import { useGame } from './hooks/useGame';
 import { loadManifest } from './data/imageLibrary';
 import { getUnlockedGallery } from './utils/storage';
@@ -57,6 +58,7 @@ export default function App() {
   // (envoyer un défi), jamais comme un mur d'entrée obligatoire.
   const [showAuthScreen, setShowAuthScreen] = useState(false);
   const [showComposer, setShowComposer] = useState(false);
+  const [showInstallModal, setShowInstallModal] = useState(false);
 
   // Défi reçu par lien : on le charge directement, sans exiger de connexion.
   const [incomingChallengeId] = useState(() => readChallengeIdFromUrl());
@@ -254,6 +256,7 @@ export default function App() {
           <img src="/favicon.svg" alt="Sudoku Art" className="app-logo" />
           <div className="header-actions">
             {darkModeButton}
+            <button className="icon-btn" onClick={() => setShowInstallModal(true)} title="Installer l'app">📲</button>
             <button className="icon-btn" onClick={handleOpenGallery} title="Galerie">🖼</button>
             {accountButton}
           </div>
@@ -262,6 +265,9 @@ export default function App() {
           onSelect={handleSelectDifficulty}
           onRequestSendChallenge={handleRequestSendChallenge}
         />
+        {showInstallModal && (
+          <InstallAppModal onClose={() => setShowInstallModal(false)} />
+        )}
         {showGallery && (
           <Gallery gallery={galleryData} onClose={() => setShowGallery(false)} />
         )}
