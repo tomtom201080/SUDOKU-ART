@@ -29,6 +29,20 @@ import {
 
 const DARK_MODE_KEY = 'sudoku-devoile:darkMode';
 
+const DIFFICULTY_LABELS = {
+  facile: 'Facile',
+  moyen: 'Moyen',
+  complique: 'Compliqué',
+  enfer: 'Enfer'
+};
+
+const DIFFICULTY_ICONS = {
+  facile: '😌',
+  moyen: '🙂',
+  complique: '😬',
+  enfer: '🔥'
+};
+
 function formatTime(totalSeconds) {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
@@ -62,6 +76,7 @@ export default function App() {
   // Écran de connexion affiché uniquement quand on en a explicitement besoin
   // (envoyer un défi), jamais comme un mur d'entrée obligatoire.
   const [showAuthScreen, setShowAuthScreen] = useState(false);
+  const [authIntent, setAuthIntent] = useState(null);
   const [showComposer, setShowComposer] = useState(false);
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
@@ -110,14 +125,19 @@ export default function App() {
     }
   }, [darkMode]);
 
-  // Si on vient de se connecter (ou de créer un compte) pour envoyer un défi,
-  // on ouvre automatiquement le composeur juste après.
+  // Si on vient de se connecter (ou de créer un compte) spécifiquement pour
+  // envoyer un défi, on ouvre automatiquement le composeur juste après. Si la
+  // connexion a été faite depuis le bouton générique "Se connecter", on
+  // retombe normalement sur l'écran de choix de difficulté.
   useEffect(() => {
     if (session && showAuthScreen) {
       setShowAuthScreen(false);
-      setShowComposer(true);
+      if (authIntent === 'challenge') {
+        setShowComposer(true);
+      }
+      setAuthIntent(null);
     }
-  }, [session, showAuthScreen]);
+  }, [session, showAuthScreen, authIntent]);
 
   const game = useGame(manifest, session?.user?.id ?? null);
 
@@ -211,6 +231,7 @@ export default function App() {
     if (session) {
       setShowComposer(true);
     } else {
+      setAuthIntent('challenge');
       setShowAuthScreen(true);
     }
   };
@@ -242,9 +263,7 @@ export default function App() {
     setHintStepIndex(0);
   };
 
-  const currentHint = showHint && selectedCell
-    ? game.getHint(selectedCell.row, selectedCell.col)
-    : null;
+  const currentHint = showHint ? game.getHint() : null;
 
   const hintSteps = currentHint ? buildHintSteps(currentHint) : [];
   const activeHintStep = hintSteps[hintStepIndex] ?? null;
@@ -308,7 +327,7 @@ export default function App() {
   }
 
   if (showAuthScreen) {
-    return <AuthScreen onCancel={() => setShowAuthScreen(false)} />;
+    return <AuthScreen onCancel={() => { setShowAuthScreen(false); setAuthIntent(null); }} />;
   }
 
   if (!game.difficulty) {
@@ -356,6 +375,9 @@ export default function App() {
       <header className="app-header">
         <img src="/favicon.svg" alt="Sudoku Art" className="app-logo" />
         <div className="header-actions">
+          <span className="stat-pill" title="Difficulté">
+            {DIFFICULTY_ICONS[game.difficulty] ?? '🎯'} {DIFFICULTY_LABELS[game.difficulty] ?? game.difficulty}
+          </span>
           <span className="stat-pill" title="Temps de jeu (en pause hors de cet onglet)">
             ⏱ {formatTime(game.elapsedSeconds)}
             {game.challengeMeta?.timeLimitSeconds
@@ -367,7 +389,15 @@ export default function App() {
             {game.challengeMeta?.maxErrors != null ? ` / ${game.challengeMeta.maxErrors}` : ''}
           </span>
           {darkModeButton}
-          <button className="icon-btn" onClick={() => setShowHelpModal(true)} title="Règles & aide">❓</button>
+          {session?.user?.email === 't.dabadie@gmail.com' && (
+            <button
+              className="icon-btn"
+              onClick={game.solveGridForTesting}
+              title="[TEST] Compléter la grille instantanément"
+            >
+              🛠️
+            </button>
+          )}
           <button
             className="icon-btn"
             onClick={game.toggleWatermark}
@@ -415,7 +445,7 @@ export default function App() {
           celebrate={game.celebrate}
           isComplete={game.isComplete || game.tempFullReveal}
           hintHighlight={activeHintStep}
-          hintTargetCell={currentHint ? { row: currentHint.row, col: currentHint.col } : null}
+          hintTargetCell={currentHint?.certainty === 'certain' ? { row: currentHint.row, col: currentHint.col } : null}
           onSelectCell={handleSelectCell}
         />
 

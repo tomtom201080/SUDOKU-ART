@@ -197,6 +197,10 @@ body.dark .note-digit {
   background-color: rgba(76, 175, 80, 0.35) !important;
 }
 
+.sudoku-cell.hint-zone-partial {
+  background-color: rgba(0, 188, 212, 0.32) !important;
+}
+
 .sudoku-cell.hint-target {
   outline: 3px solid var(--accent);
   outline-offset: -3px;

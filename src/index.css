@@ -59,9 +59,11 @@ body {
 
 .header-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 5px;
   justify-content: flex-end;
+  align-items: center;
 }
 
 .icon-btn {
@@ -69,8 +71,9 @@ body {
   border: 1px solid var(--card-border);
   color: var(--text-color);
   border-radius: 8px;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -85,10 +88,11 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 0.8rem;
+  padding: 5px 8px;
+  font-size: 0.78rem;
   font-weight: 600;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .game-screen {

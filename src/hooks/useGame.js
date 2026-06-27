@@ -406,6 +406,34 @@ export function useGame(manifest, userId = null) {
   // Annule le dernier coup joué (grille + notes + erreurs reviennent à l'état
   // précédent). Le compteur d'erreurs cumulé n'est lui jamais "annulé" : une
   // erreur déjà commise reste comptée dans les statistiques de la partie.
+  // Réservé aux tests : complète instantanément la grille avec la solution,
+  // et déclenche la même séquence de victoire qu'une vraie résolution.
+  const solveGridForTesting = useCallback(() => {
+    if (!puzzleData) return;
+
+    setUserGrid(cloneGrid(puzzleData.solution));
+    setErrorCells(new Set());
+    setIsComplete(true);
+    recordWin(difficulty);
+
+    if (challengeMeta?.id) {
+      markChallengeCompleted(challengeMeta.id, 'won');
+      deleteChallenge(challengeMeta.id, challengeMeta.photoPath);
+    }
+
+    if (watermark && !watermark.isCustom) {
+      addToGallery(watermark, { difficulty });
+      setRewardImage(watermark);
+      if (userId) markPaintingSeen(userId, watermark.id).catch(() => null);
+    }
+
+    setCelebrate([{ type: 'all', index: 0 }]);
+    if (celebrateTimeoutRef.current) clearTimeout(celebrateTimeoutRef.current);
+    celebrateTimeoutRef.current = setTimeout(() => setCelebrate([]), 3000);
+    if (winRevealTimeoutRef.current) clearTimeout(winRevealTimeoutRef.current);
+    winRevealTimeoutRef.current = setTimeout(() => setShowWinModal(true), 3000);
+  }, [puzzleData, difficulty, challengeMeta, watermark, userId]);
+
   const undo = useCallback(() => {
     setHistory(prev => {
       if (prev.length === 0) return prev;
@@ -491,61 +519,117 @@ export function useGame(manifest, userId = null) {
     return revealed / 81;
   }, [puzzleData, userGrid, isCellRevealed]);
 
-  // Calcule un indice expliqué pour une case vide : les chiffres déjà présents
-  // dans la ligne/colonne/carré, les candidats restants, et la bonne valeur.
-  const getHint = useCallback((row, col) => {
-    if (!puzzleData || !userGrid) return null;
-    if (puzzleData.givenMask[row][col]) return null;
-    if (userGrid[row][col] !== 0) return null;
-
-    const usedInRow = new Set();
-    const usedInCol = new Set();
-    const usedInBox = new Set();
-    const rowCells = []; // { row, col, value } des cases déjà remplies de la ligne
-    const colCells = [];
-    const boxCells = [];
-
-    for (let i = 0; i < 9; i++) {
-      const rowValue = userGrid[row][i];
-      if (rowValue !== 0) {
-        usedInRow.add(rowValue);
-        rowCells.push({ row, col: i, value: rowValue });
+  // Construit les 27 "unités" de la grille (9 lignes, 9 colonnes, 9 carrés),
+  // chacune sous forme de liste de 9 positions {row, col}.
+  function buildUnits() {
+    const units = [];
+    for (let r = 0; r < 9; r++) {
+      units.push(Array.from({ length: 9 }, (_, c) => ({ row: r, col: c })));
+    }
+    for (let c = 0; c < 9; c++) {
+      units.push(Array.from({ length: 9 }, (_, r) => ({ row: r, col: c })));
+    }
+    for (let br = 0; br < 3; br++) {
+      for (let bc = 0; bc < 3; bc++) {
+        const cells = [];
+        for (let r = br * 3; r < br * 3 + 3; r++) {
+          for (let c = bc * 3; c < bc * 3 + 3; c++) cells.push({ row: r, col: c });
+        }
+        units.push(cells);
       }
-      const colValue = userGrid[i][col];
-      if (colValue !== 0) {
-        usedInCol.add(colValue);
-        colCells.push({ row: i, col, value: colValue });
+    }
+    return units;
+  }
+
+  // Cherche un vrai indice exploitable sur TOUTE la grille (plus besoin de
+  // sélectionner une case précise) :
+  // - en priorité, une case où un seul chiffre est encore possible par
+  //   simple élimination ligne/colonne/carré (déduction 100% certaine) ;
+  // - à défaut, une piste de "repli" : un chiffre qui ne peut se placer que
+  //   sur deux cases au sein d'une même ligne, colonne ou carré (pas une
+  //   certitude totale, mais une vraie information exploitable) ;
+  // - sinon, on l'indique clairement : aucun indice direct disponible.
+  const getHint = useCallback(() => {
+    if (!puzzleData || !userGrid) return null;
+
+    const emptyCellsInfo = [];
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (userGrid[r][c] !== 0) continue;
+
+        const usedInRow = new Set();
+        const usedInCol = new Set();
+        const usedInBox = new Set();
+        const rowCells = [];
+        const colCells = [];
+        const boxCells = [];
+
+        for (let i = 0; i < 9; i++) {
+          const rv = userGrid[r][i];
+          if (rv !== 0) { usedInRow.add(rv); rowCells.push({ row: r, col: i, value: rv }); }
+          const cv = userGrid[i][c];
+          if (cv !== 0) { usedInCol.add(cv); colCells.push({ row: i, col: c, value: cv }); }
+        }
+        const boxRow = Math.floor(r / 3) * 3;
+        const boxCol = Math.floor(c / 3) * 3;
+        for (let rr = boxRow; rr < boxRow + 3; rr++) {
+          for (let cc = boxCol; cc < boxCol + 3; cc++) {
+            const v = userGrid[rr][cc];
+            if (v !== 0) { usedInBox.add(v); boxCells.push({ row: rr, col: cc, value: v }); }
+          }
+        }
+
+        const usedAll = new Set([...usedInRow, ...usedInCol, ...usedInBox]);
+        const candidates = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter(n => !usedAll.has(n));
+
+        emptyCellsInfo.push({
+          row: r,
+          col: c,
+          usedInRow: [...usedInRow].sort((a, b) => a - b),
+          usedInCol: [...usedInCol].sort((a, b) => a - b),
+          usedInBox: [...usedInBox].sort((a, b) => a - b),
+          rowCells,
+          colCells,
+          boxCells,
+          candidates,
+          value: puzzleData.solution[r][c]
+        });
       }
     }
 
-    const boxRow = Math.floor(row / 3) * 3;
-    const boxCol = Math.floor(col / 3) * 3;
-    for (let r = boxRow; r < boxRow + 3; r++) {
-      for (let c = boxCol; c < boxCol + 3; c++) {
-        const v = userGrid[r][c];
-        if (v !== 0) {
-          usedInBox.add(v);
-          boxCells.push({ row: r, col: c, value: v });
+    // Catégorie 1 : déduction certaine (un seul candidat possible).
+    const certain = emptyCellsInfo.find(cell => cell.candidates.length === 1);
+    if (certain) {
+      return { certainty: 'certain', ...certain };
+    }
+
+    // Catégorie 2 : piste de repli — un chiffre limité à 2 cases dans une
+    // même ligne, colonne ou carré.
+    const unitLabels = ['ligne', 'colonne', 'carré'];
+    const units = buildUnits();
+    for (let unitIndex = 0; unitIndex < units.length; unitIndex++) {
+      const unit = units[unitIndex];
+      const unitType = unitLabels[Math.floor(unitIndex / 9)];
+      const emptyInUnit = unit.filter(({ row, col }) => userGrid[row][col] === 0);
+      if (emptyInUnit.length < 2) continue;
+
+      for (let n = 1; n <= 9; n++) {
+        const possibleCells = emptyInUnit.filter(({ row, col }) => {
+          const info = emptyCellsInfo.find(e => e.row === row && e.col === col);
+          return info && info.candidates.includes(n);
+        });
+        if (possibleCells.length === 2) {
+          return {
+            certainty: 'partial',
+            digit: n,
+            unitType,
+            cells: possibleCells
+          };
         }
       }
     }
 
-    const usedAll = new Set([...usedInRow, ...usedInCol, ...usedInBox]);
-    const candidates = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter(n => !usedAll.has(n));
-    const value = puzzleData.solution[row][col];
-
-    return {
-      row,
-      col,
-      usedInRow: [...usedInRow].sort((a, b) => a - b),
-      usedInCol: [...usedInCol].sort((a, b) => a - b),
-      usedInBox: [...usedInBox].sort((a, b) => a - b),
-      rowCells,
-      colCells,
-      boxCells,
-      candidates,
-      value
-    };
+    return { certainty: 'none' };
   }, [puzzleData, userGrid]);
 
   // Retour à l'écran de sélection de difficulté, sans générer de nouvelle grille.
@@ -610,6 +694,7 @@ export function useGame(manifest, userId = null) {
     resetToMenu,
     setCellValue,
     undo,
+    solveGridForTesting,
     getHint,
     isCellRevealed,
     toggleNotesMode,
