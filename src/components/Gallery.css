@@ -74,6 +74,11 @@
   overflow: hidden;
   aspect-ratio: 1;
   border: 2px solid transparent;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  display: block;
 }
 
 .gallery-item img {

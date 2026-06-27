@@ -1,10 +1,12 @@
 // src/components/Gallery.jsx
 import { useMemo, useState } from 'react';
 import { TIER_LABELS } from '../data/imageLibrary';
+import PaintingDetailModal from './PaintingDetailModal';
 import './Gallery.css';
 
 export default function Gallery({ gallery, onClose }) {
   const [activeTier, setActiveTier] = useState('all');
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const tiers = useMemo(() => {
     const set = new Set(gallery.map(img => img.tier));
@@ -49,7 +51,12 @@ export default function Gallery({ gallery, onClose }) {
 
             <div className="gallery-grid">
               {filtered.map((img, idx) => (
-                <div className={`gallery-item tier-${img.tier}`} key={`${img.id}-${idx}`}>
+                <button
+                  type="button"
+                  className={`gallery-item tier-${img.tier}`}
+                  key={`${img.id}-${idx}`}
+                  onClick={() => setSelectedImage(img)}
+                >
                   <img src={img.path} alt={img.title ?? 'Image débloquée'} loading="lazy" />
                   <span className="gallery-item-tier">{TIER_LABELS[img.tier] ?? img.tier}</span>
                   {img.title && (
@@ -58,12 +65,16 @@ export default function Gallery({ gallery, onClose }) {
                       <span className="gallery-item-artist">{img.artist}</span>
                     </div>
                   )}
-                </div>
+                </button>
               ))}
             </div>
           </>
         )}
       </div>
+
+      {selectedImage && (
+        <PaintingDetailModal image={selectedImage} onClose={() => setSelectedImage(null)} />
+      )}
     </div>
   );
 }
