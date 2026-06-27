@@ -11,6 +11,7 @@ import { buildHintSteps } from './utils/hintSteps';
 import AuthScreen from './components/AuthScreen';
 import ChallengeComposer from './components/ChallengeComposer';
 import RematchComposer from './components/RematchComposer';
+import RematchResultDetail from './components/RematchResultDetail';
 import UpdatePasswordScreen from './components/UpdatePasswordScreen';
 import InstallAppModal from './components/InstallAppModal';
 import HelpModal from './components/HelpModal';
@@ -103,6 +104,7 @@ export default function App() {
   const [incomingRematchId] = useState(() => readRematchIdFromUrl());
   const [incomingRematchHandled, setIncomingRematchHandled] = useState(false);
   const [rematchNotifications, setRematchNotifications] = useState([]);
+  const [selectedRematchNotification, setSelectedRematchNotification] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession()
@@ -429,15 +431,28 @@ export default function App() {
             recipientSeconds: r.recipient_result_seconds
           });
           return (
-            <div className="challenge-already-opened-banner" key={r.id}>
+            <div
+              className="challenge-already-opened-banner"
+              key={r.id}
+              onClick={() => setSelectedRematchNotification({ rematch: r, winner })}
+              style={{ cursor: 'pointer' }}
+            >
               🎯 Ton ami a fini le défi que tu lui as envoyé !{' '}
               {winner === 'tie' && 'Égalité parfaite.'}
               {winner === 'challenger' && 'Tu as gagné 🏆'}
               {winner === 'recipient' && "Il/elle a fait mieux que toi cette fois 😅"}
-              <button onClick={() => handleDismissRematchNotification(r.id)}>✕</button>
+              <button onClick={(e) => { e.stopPropagation(); handleDismissRematchNotification(r.id); }}>✕</button>
             </div>
           );
         })}
+
+        {selectedRematchNotification && (
+          <RematchResultDetail
+            rematch={selectedRematchNotification.rematch}
+            winner={selectedRematchNotification.winner}
+            onClose={() => setSelectedRematchNotification(null)}
+          />
+        )}
         {showHelpModal && (
           <HelpModal onClose={() => setShowHelpModal(false)} />
         )}
