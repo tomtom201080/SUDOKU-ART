@@ -1,83 +1,83 @@
 {
   "printemps": {
     "commune": [
-      "la-joconde.jpg",
-      "la-grande-odalisque.jpg",
-      "les-raboteurs-de-parquet.jpg",
-      "les-iris.jpg",
-      "amandier-en-fleurs.jpg",
-      "la-laitiere.jpg",
-      "les-tournesols.jpg",
-      "meduse.jpg",
-      "madame-x.jpg",
-      "le-baiser.jpg"
+      "la-joconde",
+      "la-grande-odalisque",
+      "les-raboteurs-de-parquet",
+      "les-iris",
+      "amandier-en-fleurs",
+      "la-laitiere",
+      "les-tournesols",
+      "meduse",
+      "madame-x",
+      "le-baiser"
     ],
     "rare": [
-      "le-dejeuner-sur-l-herbe.jpg",
-      "ophelie.jpg"
+      "le-dejeuner-sur-l-herbe",
+      "ophelie"
     ],
     "legendaire": [
-      "le-jardin-des-delices.jpg"
+      "le-jardin-des-delices"
     ]
   },
   "ete": {
     "commune": [
-      "impression-soleil-levant.jpg",
-      "olympia.jpg",
-      "la-chambre-a-arles.jpg",
-      "femme-lisant-une-lettre.jpg",
-      "le-combat-du-temeraire.jpg",
-      "flaming-june.jpg",
-      "la-grande-vague-de-kanagawa.jpg",
-      "le-chardonneret.jpg"
+      "impression-soleil-levant",
+      "olympia",
+      "la-chambre-a-arles",
+      "femme-lisant-une-lettre",
+      "le-combat-du-temeraire",
+      "flaming-june",
+      "la-grande-vague-de-kanagawa",
+      "le-chardonneret"
     ],
     "rare": [
-      "la-liberte-guidant-le-peuple.jpg",
-      "le-serment-des-horaces.jpg",
-      "le-souper-a-emmaus.jpg",
-      "les-parapluies.jpg",
-      "portrait-d-adele-bloch-bauer-i.jpg"
+      "la-liberte-guidant-le-peuple",
+      "le-serment-des-horaces",
+      "le-souper-a-emmaus",
+      "les-parapluies",
+      "portrait-d-adele-bloch-bauer-i"
     ],
     "legendaire": []
   },
   "automne": {
     "commune": [
-      "la-dentelliere.jpg",
-      "les-coquelicots.jpg",
-      "l-absinthe.jpg",
-      "autoportrait-au-chapeau-de-feutre-gris.jpg",
-      "la-jeune-fille-a-la-perle.jpg",
-      "le-voyageur-contemplant-une-mer-de-nuages.jpg",
-      "le-cri.jpg"
+      "la-dentelliere",
+      "les-coquelicots",
+      "l-absinthe",
+      "autoportrait-au-chapeau-de-feutre-gris",
+      "la-jeune-fille-a-la-perle",
+      "le-voyageur-contemplant-une-mer-de-nuages",
+      "le-cri"
     ],
     "rare": [
-      "le-radeau-de-la-meduse.jpg",
-      "les-epoux-arnolfini.jpg"
+      "le-radeau-de-la-meduse",
+      "les-epoux-arnolfini"
     ],
     "legendaire": [
-      "le-printemps.jpg",
-      "les-meninas.jpg",
-      "un-dimanche-apres-midi-a-l-ile-de-la-grande-jatte.jpg"
+      "le-printemps",
+      "les-meninas",
+      "un-dimanche-apres-midi-a-l-ile-de-la-grande-jatte"
     ]
   },
   "hiver": {
     "commune": [
-      "le-tricheur-a-l-as-de-carreau.jpg",
-      "la-pie.jpg",
-      "la-nuit-etoilee.jpg",
-      "terrasse-du-cafe-le-soir.jpg",
-      "la-venus-de-rokeby.jpg",
-      "la-naissance-de-venus.jpg"
+      "le-tricheur-a-l-as-de-carreau",
+      "la-pie",
+      "la-nuit-etoilee",
+      "terrasse-du-cafe-le-soir",
+      "la-venus-de-rokeby",
+      "la-naissance-de-venus"
     ],
     "rare": [
-      "le-cirque.jpg",
-      "le-3-mai-1808.jpg",
-      "washington-traversant-le-delaware.jpg"
+      "le-cirque",
+      "le-3-mai-1808",
+      "washington-traversant-le-delaware"
     ],
     "legendaire": [
-      "bal-du-moulin-de-la-galette.jpg",
-      "la-ronde-de-nuit.jpg",
-      "la-tour-de-babel.jpg"
+      "bal-du-moulin-de-la-galette",
+      "la-ronde-de-nuit",
+      "la-tour-de-babel"
     ]
   }
 }

@@ -1,12 +1,12 @@
 // src/data/paintingsIndex.js
 import paintings from './paintings.json';
 
-// Indexe les métadonnées par nom de fichier, pour un accès rapide depuis
-// n'importe quelle image listée dans le manifeste.
-const byFile = new Map(paintings.map(p => [p.file, p]));
+// Indexe les métadonnées par identifiant (id), la clé stable utilisée dans le
+// manifeste, indépendante du nom de fichier ou de l'URL de l'image elle-même.
+const byId = new Map(paintings.map(p => [p.id, p]));
 
-export function getPaintingMetadata(filename) {
-  return byFile.get(filename) ?? null;
+export function getPaintingMetadata(id) {
+  return byId.get(id) ?? null;
 }
 
 export { paintings };

@@ -16,7 +16,8 @@
     "openAccessNote": "Domaine public - photo musée à vérifier",
     "source": "https://collections.louvre.fr/ark:/53355/cl010062370",
     "season": "printemps",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "la-liberte-guidant-le-peuple",
@@ -35,7 +36,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://collections.louvre.fr/ark:/53355/cl010065872",
     "season": "ete",
-    "tier": "rare"
+    "tier": "rare",
+    "imageUrl": null
   },
   {
     "id": "le-radeau-de-la-meduse",
@@ -54,7 +56,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://collections.louvre.fr/ark:/53355/cl010059199",
     "season": "automne",
-    "tier": "rare"
+    "tier": "rare",
+    "imageUrl": null
   },
   {
     "id": "le-tricheur-a-l-as-de-carreau",
@@ -73,7 +76,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://collections.louvre.fr/ark:/53355/cl010062580",
     "season": "hiver",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "la-grande-odalisque",
@@ -92,7 +96,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://collections.louvre.fr/ark:/53355/cl010065566",
     "season": "printemps",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "le-serment-des-horaces",
@@ -111,7 +116,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://collections.louvre.fr/ark:/53355/cl010065426",
     "season": "ete",
-    "tier": "rare"
+    "tier": "rare",
+    "imageUrl": null
   },
   {
     "id": "la-dentelliere",
@@ -130,7 +136,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://collections.louvre.fr/ark:/53355/cl010064918",
     "season": "automne",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "impression-soleil-levant",
@@ -149,7 +156,8 @@
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.marmottan.fr/",
     "season": "ete",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "la-pie",
@@ -168,7 +176,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/la-pie-1117",
     "season": "hiver",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "les-coquelicots",
@@ -187,7 +196,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/coquelicots-1066",
     "season": "automne",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "bal-du-moulin-de-la-galette",
@@ -206,7 +216,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/bal-du-moulin-de-la-galette-108",
     "season": "hiver",
-    "tier": "legendaire"
+    "tier": "legendaire",
+    "imageUrl": null
   },
   {
     "id": "le-dejeuner-sur-l-herbe",
@@ -225,7 +236,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/le-dejeuner-sur-lherbe-904",
     "season": "printemps",
-    "tier": "rare"
+    "tier": "rare",
+    "imageUrl": null
   },
   {
     "id": "olympia",
@@ -244,7 +256,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/olympia-712",
     "season": "ete",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "l-absinthe",
@@ -263,7 +276,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/dans-un-cafe-114",
     "season": "automne",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "le-cirque",
@@ -282,7 +296,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/le-cirque-874",
     "season": "hiver",
-    "tier": "rare"
+    "tier": "rare",
+    "imageUrl": null
   },
   {
     "id": "les-raboteurs-de-parquet",
@@ -301,7 +316,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.musee-orsay.fr/fr/oeuvres/les-raboteurs-de-parquet-329",
     "season": "printemps",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "la-nuit-etoilee",
@@ -320,7 +336,8 @@
     "openAccessNote": "Domaine public - image MoMA pas toujours libre",
     "source": "https://www.moma.org/collection/works/79802",
     "season": "hiver",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "les-iris",
@@ -339,7 +356,8 @@
     "openAccessNote": "Open Content Getty",
     "source": "https://www.getty.edu/art/collection/object/103JNH",
     "season": "printemps",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "terrasse-du-cafe-le-soir",
@@ -358,7 +376,8 @@
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://krollermuller.nl/en/vincent-van-gogh-terrace-of-a-cafe-at-night-place-du-forum-1",
     "season": "hiver",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "amandier-en-fleurs",
@@ -377,7 +396,8 @@
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.vangoghmuseum.nl/en/collection/s0176V1962",
     "season": "printemps",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "la-chambre-a-arles",
@@ -396,7 +416,8 @@
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.vangoghmuseum.nl/en/collection/s0047V1962",
     "season": "ete",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "autoportrait-au-chapeau-de-feutre-gris",
@@ -415,7 +436,8 @@
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.vangoghmuseum.nl/en/collection/s0016V1962",
     "season": "automne",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "la-ronde-de-nuit",
@@ -434,7 +456,8 @@
     "openAccessNote": "Rijksmuseum Open Data",
     "source": "https://www.rijksmuseum.nl/en/collection/SK-C-5",
     "season": "hiver",
-    "tier": "legendaire"
+    "tier": "legendaire",
+    "imageUrl": null
   },
   {
     "id": "la-laitiere",
@@ -453,7 +476,8 @@
     "openAccessNote": "Rijksmuseum Open Data",
     "source": "https://www.rijksmuseum.nl/en/collection/SK-A-2344",
     "season": "printemps",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "femme-lisant-une-lettre",
@@ -472,7 +496,8 @@
     "openAccessNote": "Rijksmuseum Open Data",
     "source": "https://www.rijksmuseum.nl/en/collection/SK-C-251",
     "season": "ete",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "les-epoux-arnolfini",
@@ -491,7 +516,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.nationalgallery.org.uk/paintings/jan-van-eyck-the-arnolfini-portrait",
     "season": "automne",
-    "tier": "rare"
+    "tier": "rare",
+    "imageUrl": null
   },
   {
     "id": "la-venus-de-rokeby",
@@ -510,7 +536,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.nationalgallery.org.uk/paintings/diego-velazquez-the-toilet-of-venus-the-rokeby-venus",
     "season": "hiver",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "les-tournesols",
@@ -529,7 +556,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.nationalgallery.org.uk/paintings/vincent-van-gogh-sunflowers",
     "season": "printemps",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "le-combat-du-temeraire",
@@ -548,7 +576,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.nationalgallery.org.uk/paintings/joseph-mallord-william-turner-the-fighting-temeraire",
     "season": "ete",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "ophelie",
@@ -567,7 +596,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.tate.org.uk/art/artworks/millais-ophelia-n01506",
     "season": "printemps",
-    "tier": "rare"
+    "tier": "rare",
+    "imageUrl": null
   },
   {
     "id": "flaming-june",
@@ -586,7 +616,8 @@
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://museoarteponce.org/",
     "season": "ete",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "le-printemps",
@@ -605,7 +636,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.uffizi.it/en/artworks/botticelli-spring",
     "season": "automne",
-    "tier": "legendaire"
+    "tier": "legendaire",
+    "imageUrl": null
   },
   {
     "id": "la-naissance-de-venus",
@@ -624,7 +656,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.uffizi.it/en/artworks/birth-of-venus",
     "season": "hiver",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "meduse",
@@ -643,7 +676,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.uffizi.it/en/artworks/medusa",
     "season": "printemps",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "le-souper-a-emmaus",
@@ -662,7 +696,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.nationalgallery.org.uk/paintings/michelangelo-merisi-da-caravaggio-the-supper-at-emmaus",
     "season": "ete",
-    "tier": "rare"
+    "tier": "rare",
+    "imageUrl": null
   },
   {
     "id": "les-meninas",
@@ -681,7 +716,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.museodelprado.es/en/the-collection/art-work/las-meninas/9fdc7800-9ade-48b0-ab8b-edee94ea877f",
     "season": "automne",
-    "tier": "legendaire"
+    "tier": "legendaire",
+    "imageUrl": null
   },
   {
     "id": "le-3-mai-1808",
@@ -700,7 +736,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.museodelprado.es/en/the-collection/art-work/the-3rd-of-may-1808-in-madrid/5e177409-2993-4240-97fb-847a02c6496c",
     "season": "hiver",
-    "tier": "rare"
+    "tier": "rare",
+    "imageUrl": null
   },
   {
     "id": "le-jardin-des-delices",
@@ -719,7 +756,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.museodelprado.es/en/the-collection/art-work/the-garden-of-earthly-delights-triptych/02388242-6d6a-4e9e-a992-e1311eab3609",
     "season": "printemps",
-    "tier": "legendaire"
+    "tier": "legendaire",
+    "imageUrl": null
   },
   {
     "id": "les-parapluies",
@@ -738,7 +776,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.nationalgallery.org.uk/paintings/pierre-auguste-renoir-the-umbrellas",
     "season": "ete",
-    "tier": "rare"
+    "tier": "rare",
+    "imageUrl": null
   },
   {
     "id": "un-dimanche-apres-midi-a-l-ile-de-la-grande-jatte",
@@ -757,7 +796,8 @@
     "openAccessNote": "Public domain - ArtIC",
     "source": "https://www.artic.edu/artworks/27992/a-sunday-on-la-grande-jatte-1884",
     "season": "automne",
-    "tier": "legendaire"
+    "tier": "legendaire",
+    "imageUrl": null
   },
   {
     "id": "la-grande-vague-de-kanagawa",
@@ -776,7 +816,8 @@
     "openAccessNote": "The Met Open Access",
     "source": "https://www.metmuseum.org/art/collection/search/45434",
     "season": "ete",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "washington-traversant-le-delaware",
@@ -795,7 +836,8 @@
     "openAccessNote": "The Met Open Access",
     "source": "https://www.metmuseum.org/art/collection/search/11417",
     "season": "hiver",
-    "tier": "rare"
+    "tier": "rare",
+    "imageUrl": null
   },
   {
     "id": "madame-x",
@@ -814,7 +856,8 @@
     "openAccessNote": "The Met Open Access",
     "source": "https://www.metmuseum.org/art/collection/search/12127",
     "season": "printemps",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "le-chardonneret",
@@ -833,7 +876,8 @@
     "openAccessNote": "Domaine public - Mauritshuis",
     "source": "https://www.mauritshuis.nl/en/our-collection/artworks/605-the-goldfinch/",
     "season": "ete",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "la-jeune-fille-a-la-perle",
@@ -852,7 +896,8 @@
     "openAccessNote": "Domaine public - Mauritshuis",
     "source": "https://www.mauritshuis.nl/en/our-collection/artworks/670-girl-with-a-pearl-earring/",
     "season": "automne",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "le-voyageur-contemplant-une-mer-de-nuages",
@@ -871,7 +916,8 @@
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.hamburger-kunsthalle.de/",
     "season": "automne",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "la-tour-de-babel",
@@ -890,7 +936,8 @@
     "openAccessNote": "Domaine public",
     "source": "https://www.khm.at/en/objectdb/detail/323/",
     "season": "hiver",
-    "tier": "legendaire"
+    "tier": "legendaire",
+    "imageUrl": null
   },
   {
     "id": "le-baiser",
@@ -909,7 +956,8 @@
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.belvedere.at/en/kiss-gustav-klimt",
     "season": "printemps",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   },
   {
     "id": "portrait-d-adele-bloch-bauer-i",
@@ -928,7 +976,8 @@
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.neuegalerie.org/",
     "season": "ete",
-    "tier": "rare"
+    "tier": "rare",
+    "imageUrl": null
   },
   {
     "id": "le-cri",
@@ -947,6 +996,7 @@
     "openAccessNote": "Domaine public - reproduction à vérifier",
     "source": "https://www.nasjonalmuseet.no/en/collection/object/NG.M.00939",
     "season": "automne",
-    "tier": "commune"
+    "tier": "commune",
+    "imageUrl": null
   }
 ]

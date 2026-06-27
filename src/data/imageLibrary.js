@@ -51,7 +51,12 @@ export async function loadManifest() {
   }
 }
 
-function buildPath(season, tier, filename) {
+// Si le tableau a une URL externe renseignée (imageUrl), on l'utilise telle
+// quelle (image hébergée ailleurs, ex. Wikimedia Commons). Sinon, on utilise
+// le fichier local attendu dans public/images/.
+function resolveImagePath(season, tier, metadata, fallbackId) {
+  if (metadata?.imageUrl) return metadata.imageUrl;
+  const filename = metadata?.file ?? `${fallbackId}.jpg`;
   return `/images/${season}/${tier}/${filename}`;
 }
 
@@ -61,13 +66,13 @@ export function listImagesForSeason(manifest, season) {
   const seasonData = manifest[season] || {};
   const images = [];
   for (const tier of Object.keys(seasonData)) {
-    for (const filename of seasonData[tier]) {
-      const metadata = getPaintingMetadata(filename);
+    for (const paintingId of seasonData[tier]) {
+      const metadata = getPaintingMetadata(paintingId);
       images.push({
-        id: `${season}/${tier}/${filename}`,
+        id: `${season}/${tier}/${paintingId}`,
         season,
         tier,
-        path: buildPath(season, tier, filename),
+        path: resolveImagePath(season, tier, metadata, paintingId),
         title: metadata?.title ?? null,
         artist: metadata?.artist ?? null,
         year: metadata?.year ?? null,
