@@ -327,6 +327,7 @@ export default function App() {
           selectedCell={selectedCell}
           highlightValue={highlightValue}
           celebrate={game.celebrate}
+          isComplete={game.isComplete}
           onSelectCell={handleSelectCell}
         />
 
@@ -351,7 +352,7 @@ export default function App() {
         />
       )}
 
-      {game.isComplete && (
+      {game.showWinModal && (
         <WinModal
           difficulty={game.difficulty}
           rewardImage={game.rewardImage}
@@ -361,7 +362,7 @@ export default function App() {
           elapsedSeconds={game.elapsedSeconds}
           result="won"
           onReplay={handleReplay}
-          onClose={handleCloseGameEnd}
+          onClose={game.dismissWinModal}
         />
       )}
 

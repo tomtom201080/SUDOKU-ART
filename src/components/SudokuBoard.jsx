@@ -30,13 +30,16 @@ const SudokuBoard = forwardRef(function SudokuBoard({
   selectedCell,
   highlightValue,
   celebrate,
+  isComplete,
   onSelectCell
 }, ref) {
   if (!puzzleData || !userGrid) return null;
 
-  const showPeerHighlight = !!selectedCell;
-  const showSameValueHighlight = !!highlightValue && highlightValue !== 0;
-  const veilOpacity = 1 - (imageIntensity ?? 0.28);
+  const showPeerHighlight = !!selectedCell && !isComplete;
+  const showSameValueHighlight = !!highlightValue && highlightValue !== 0 && !isComplete;
+  // Une fois la grille terminée, on laisse voir la photo dans ses couleurs
+  // pleines, sans le voile dosé par le curseur d'intensité.
+  const veilOpacity = isComplete ? 0 : 1 - (imageIntensity ?? 0.28);
 
   return (
     <div className="sudoku-board" role="grid" ref={ref}>
@@ -53,6 +56,7 @@ const SudokuBoard = forwardRef(function SudokuBoard({
             const isSelected = selectedCell?.row === row && selectedCell?.col === col;
             const isCelebrating =
               (celebrate ?? []).some(c =>
+                c.type === 'all' ||
                 (c.type === 'box' && boxIndexOf(row, col) === c.index) ||
                 (c.type === 'row' && row === c.index) ||
                 (c.type === 'col' && col === c.index)

@@ -78,6 +78,7 @@ export function useGame(manifest) {
   const [watermarkVisible, setWatermarkVisible] = useState(true);
   const [imageIntensity, setImageIntensity] = useState(0.28);
   const [isComplete, setIsComplete] = useState(false);
+  const [showWinModal, setShowWinModal] = useState(false);
   const [isFailed, setIsFailed] = useState(false);
   const [rewardImage, setRewardImage] = useState(null);
   const [errorCells, setErrorCells] = useState(() => new Set());
@@ -91,6 +92,7 @@ export function useGame(manifest) {
 
   const timerIdRef = useRef(null);
   const celebrateTimeoutRef = useRef(null);
+  const winRevealTimeoutRef = useRef(null);
 
   const season = useMemo(() => getCurrentSeason(), []);
 
@@ -114,6 +116,11 @@ export function useGame(manifest) {
     setWatermark(image);
     setWatermarkVisible(true);
     setIsComplete(false);
+    setShowWinModal(false);
+    if (winRevealTimeoutRef.current) {
+      clearTimeout(winRevealTimeoutRef.current);
+      winRevealTimeoutRef.current = null;
+    }
     setIsFailed(false);
     setRewardImage(null);
     setErrorCells(new Set());
@@ -321,6 +328,14 @@ export function useGame(manifest) {
           setRewardImage(reward);
         }
       }
+
+      // Étoiles sur toute la grille, puis on laisse admirer la photo complète
+      // pendant 3 secondes avant d'afficher la popup de victoire.
+      setCelebrate([{ type: 'all', index: 0 }]);
+      if (celebrateTimeoutRef.current) clearTimeout(celebrateTimeoutRef.current);
+      celebrateTimeoutRef.current = setTimeout(() => setCelebrate([]), 3000);
+      if (winRevealTimeoutRef.current) clearTimeout(winRevealTimeoutRef.current);
+      winRevealTimeoutRef.current = setTimeout(() => setShowWinModal(true), 3000);
     }
   }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, manifest, season, notesMode, isFailed, challengeMeta]);
 
@@ -346,6 +361,12 @@ export function useGame(manifest) {
 
   const toggleWatermark = useCallback(() => {
     setWatermarkVisible(v => !v);
+  }, []);
+
+  // Ferme la popup de victoire sans réinitialiser la partie : la grille
+  // reste affichée, avec la photo entièrement révélée derrière.
+  const dismissWinModal = useCallback(() => {
+    setShowWinModal(false);
   }, []);
 
   // Un chiffre est "entièrement découvert" quand ses 9 occurrences sont
@@ -459,6 +480,11 @@ export function useGame(manifest) {
     setUserGrid(null);
     setWatermark(null);
     setIsComplete(false);
+    setShowWinModal(false);
+    if (winRevealTimeoutRef.current) {
+      clearTimeout(winRevealTimeoutRef.current);
+      winRevealTimeoutRef.current = null;
+    }
     setIsFailed(false);
     setRewardImage(null);
     setErrorCells(new Set());
@@ -481,6 +507,7 @@ export function useGame(manifest) {
     imageIntensity,
     setImageIntensity,
     isComplete,
+    showWinModal,
     isFailed,
     challengeMeta,
     completedDigits,
@@ -500,6 +527,7 @@ export function useGame(manifest) {
     getHint,
     isCellRevealed,
     toggleNotesMode,
-    toggleWatermark
+    toggleWatermark,
+    dismissWinModal
   };
 }
