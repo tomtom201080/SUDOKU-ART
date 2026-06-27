@@ -31,14 +31,17 @@ const SudokuBoard = forwardRef(function SudokuBoard({
   highlightValue,
   celebrate,
   isComplete,
+  hintHighlight,
+  hintTargetCell,
   onSelectCell
 }, ref) {
   if (!puzzleData || !userGrid) return null;
 
   const watermarkDisabled = (imageIntensity ?? 0.28) <= 0;
+  const hintActive = !!hintHighlight;
 
-  const showPeerHighlight = !!selectedCell && !isComplete;
-  const showSameValueHighlight = !!highlightValue && highlightValue !== 0 && !isComplete;
+  const showPeerHighlight = !!selectedCell && !isComplete && !hintActive;
+  const showSameValueHighlight = !!highlightValue && highlightValue !== 0 && !isComplete && !hintActive;
   // Une fois la grille terminée, on laisse voir la photo dans ses couleurs
   // pleines, sans le voile dosé par le curseur d'intensité.
   const veilOpacity = isComplete ? 0 : 1 - (imageIntensity ?? 0.28);
@@ -74,6 +77,11 @@ const SudokuBoard = forwardRef(function SudokuBoard({
 
             const isSameValue = showSameValueHighlight && value === highlightValue;
 
+            const isHintZone =
+              hintHighlight?.cells.some(c => c.row === row && c.col === col);
+            const isHintTarget =
+              hintTargetCell?.row === row && hintTargetCell?.col === col;
+
             const thickRight = col === 2 || col === 5;
             const thickBottom = row === 2 || row === 5;
 
@@ -100,6 +108,8 @@ const SudokuBoard = forwardRef(function SudokuBoard({
                   isPeer ? 'is-peer' : '',
                   isSameValue ? 'is-same-value' : '',
                   hasError ? 'has-error' : '',
+                  isHintZone ? `hint-zone-${hintHighlight.color}` : '',
+                  isHintTarget ? 'hint-target' : '',
                   thickRight ? 'thick-right' : '',
                   thickBottom ? 'thick-bottom' : ''
                 ].join(' ').trim()}

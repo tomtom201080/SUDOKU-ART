@@ -1,51 +1,57 @@
-.hint-overlay {
+.hint-bar {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 250;
-  padding: 16px;
-}
-
-.hint-panel {
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  padding: 24px;
-  width: min(92vw, 460px);
-  max-height: 85vh;
-  overflow-y: auto;
+  border-top: 1px solid var(--card-border);
+  border-radius: 16px 16px 0 0;
+  padding: 14px 16px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 150;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-.hint-panel h2 {
-  margin-top: 0;
-  font-size: 1.1rem;
+.hint-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
 }
 
-.hint-panel p {
-  font-size: 0.95rem;
-  line-height: 1.5;
+.hint-step-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.hint-step-progress {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.hint-step-text {
+  font-size: 0.9rem;
+  line-height: 1.4;
   color: var(--text-color);
+  margin: 0 0 12px;
 }
 
-.hint-conclusion {
-  background: rgba(217, 142, 4, 0.12);
-  border-radius: 10px;
-  padding: 10px 12px;
+.hint-bar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .hint-btn-primary,
 .hint-btn-secondary {
-  display: block;
-  width: 100%;
-  padding: 12px;
+  flex: 1;
+  padding: 10px;
   border-radius: 10px;
   border: 1px solid var(--card-border);
   cursor: pointer;
   font-weight: 600;
-  margin-top: 10px;
+  font-size: 0.85rem;
 }
 
 .hint-btn-primary {
@@ -55,6 +61,22 @@
 }
 
 .hint-btn-secondary {
-  background: var(--card-bg);
+  background: var(--bg-color);
   color: var(--text-color);
+}
+
+.hint-btn-secondary:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.hint-btn-close {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: var(--bg-color);
+  color: var(--text-color);
+  cursor: pointer;
 }

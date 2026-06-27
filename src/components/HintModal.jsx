@@ -1,69 +1,48 @@
 // src/components/HintModal.jsx
-import { useState } from 'react';
 import './HintModal.css';
 
-function formatList(numbers) {
-  if (numbers.length === 0) return 'aucun';
-  return numbers.join(', ');
-}
-
-export default function HintModal({ hint, onFill, onClose }) {
-  const [revealed, setRevealed] = useState(false);
-
+export default function HintModal({ hint, steps, stepIndex, onPrev, onNext, onFill, onClose }) {
   if (!hint) {
     return (
-      <div className="hint-overlay">
-        <div className="hint-panel">
-          <h2>Indice</h2>
-          <p>Sélectionne d'abord une case vide de la grille pour obtenir un indice.</p>
-          <button className="hint-btn-secondary" onClick={onClose}>Fermer</button>
-        </div>
+      <div className="hint-bar">
+        <p>Sélectionne d'abord une case vide de la grille pour obtenir un indice.</p>
+        <button className="hint-btn-secondary" onClick={onClose}>Fermer</button>
       </div>
     );
   }
 
-  const { usedInRow, usedInCol, usedInBox, candidates, value } = hint;
-  const isObvious = candidates.length === 1;
+  const step = steps[stepIndex];
+  const isLastStep = stepIndex === steps.length - 1;
 
   return (
-    <div className="hint-overlay">
-      <div className="hint-panel">
-        <h2>Indice — case ligne {hint.row + 1}, colonne {hint.col + 1}</h2>
+    <div className="hint-bar">
+      <div className="hint-bar-header">
+        <span className="hint-step-label">{step.label}</span>
+        <span className="hint-step-progress">Étape {stepIndex + 1} / {steps.length}</span>
+      </div>
 
-        <p>
-          Dans la <strong>ligne</strong>, les chiffres déjà posés sont : {formatList(usedInRow)}.
-        </p>
-        <p>
-          Dans la <strong>colonne</strong>, les chiffres déjà posés sont : {formatList(usedInCol)}.
-        </p>
-        <p>
-          Dans le <strong>carré</strong> 3x3, les chiffres déjà posés sont : {formatList(usedInBox)}.
-        </p>
+      <p className="hint-step-text">{step.text}</p>
 
-        {isObvious ? (
-          <p className="hint-conclusion">
-            En combinant tout ça, le seul chiffre qui n'apparaît encore ni dans la ligne,
-            ni dans la colonne, ni dans le carré est <strong>{candidates[0]}</strong>.
-            C'est donc la valeur de cette case.
-          </p>
-        ) : (
-          <p className="hint-conclusion">
-            Plusieurs chiffres restent possibles par simple élimination ({formatList(candidates)}),
-            mais en regardant plus loin dans le reste de la grille, la valeur correcte ici est <strong>{value}</strong>.
-          </p>
-        )}
+      <div className="hint-bar-actions">
+        <button
+          className="hint-btn-secondary"
+          onClick={onPrev}
+          disabled={stepIndex === 0}
+        >
+          ← Précédent
+        </button>
 
-        {!revealed ? (
-          <button className="hint-btn-primary" onClick={() => setRevealed(true)}>
-            Révéler la valeur
+        {isLastStep ? (
+          <button className="hint-btn-primary" onClick={() => onFill(hint.row, hint.col, hint.value)}>
+            Remplir avec {hint.value}
           </button>
         ) : (
-          <button className="hint-btn-primary" onClick={() => onFill(hint.row, hint.col, value)}>
-            Remplir la case avec {value}
+          <button className="hint-btn-primary" onClick={onNext}>
+            Suivant →
           </button>
         )}
 
-        <button className="hint-btn-secondary" onClick={onClose}>Fermer</button>
+        <button className="hint-btn-close" onClick={onClose}>✕</button>
       </div>
     </div>
   );

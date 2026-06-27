@@ -7,6 +7,7 @@ import Gallery from './components/Gallery';
 import WinModal from './components/WinModal';
 import ChallengeFailModal from './components/ChallengeFailModal';
 import HintModal from './components/HintModal';
+import { buildHintSteps } from './utils/hintSteps';
 import AuthScreen from './components/AuthScreen';
 import ChallengeComposer from './components/ChallengeComposer';
 import UpdatePasswordScreen from './components/UpdatePasswordScreen';
@@ -44,6 +45,7 @@ export default function App() {
   const [lastCustomImage, setLastCustomImage] = useState(null);
   const [lastChallengeMeta, setLastChallengeMeta] = useState(null);
   const [showHint, setShowHint] = useState(false);
+  const [hintStepIndex, setHintStepIndex] = useState(0);
   const [darkMode, setDarkMode] = useState(() => {
     try {
       return localStorage.getItem(DARK_MODE_KEY) === 'true';
@@ -237,11 +239,25 @@ export default function App() {
   const handleHintFill = (row, col, value) => {
     game.setCellValue(row, col, value);
     setShowHint(false);
+    setHintStepIndex(0);
   };
 
   const currentHint = showHint && selectedCell
     ? game.getHint(selectedCell.row, selectedCell.col)
     : null;
+
+  const hintSteps = currentHint ? buildHintSteps(currentHint) : [];
+  const activeHintStep = hintSteps[hintStepIndex] ?? null;
+
+  const handleOpenHint = () => {
+    setHintStepIndex(0);
+    setShowHint(true);
+  };
+
+  const handleCloseHint = () => {
+    setShowHint(false);
+    setHintStepIndex(0);
+  };
 
   // Un clic en dehors de la grille (et du pavé numérique) désélectionne la
   // case en cours : ça désactive le surlignage et fait réapparaître l'image
@@ -252,7 +268,8 @@ export default function App() {
     function handlePointerDown(event) {
       const insideBoard = boardRef.current && boardRef.current.contains(event.target);
       const insidePad = padRef.current && padRef.current.contains(event.target);
-      if (!insideBoard && !insidePad) {
+      const insideHintBar = event.target.closest && event.target.closest('.hint-bar');
+      if (!insideBoard && !insidePad && !insideHintBar) {
         setSelectedCell(null);
         setHighlightValue(0);
       }
@@ -397,6 +414,8 @@ export default function App() {
           highlightValue={highlightValue}
           celebrate={game.celebrate}
           isComplete={game.isComplete || game.tempFullReveal}
+          hintHighlight={activeHintStep}
+          hintTargetCell={currentHint ? { row: currentHint.row, col: currentHint.col } : null}
           onSelectCell={handleSelectCell}
         />
 
@@ -408,7 +427,7 @@ export default function App() {
           onToggleNotes={game.toggleNotesMode}
           onUndo={game.undo}
           canUndo={game.canUndo}
-          onHint={() => setShowHint(true)}
+          onHint={handleOpenHint}
           completedDigits={game.completedDigits}
         />
       </div>
@@ -416,8 +435,12 @@ export default function App() {
       {showHint && (
         <HintModal
           hint={currentHint}
+          steps={hintSteps}
+          stepIndex={hintStepIndex}
+          onPrev={() => setHintStepIndex(i => Math.max(0, i - 1))}
+          onNext={() => setHintStepIndex(i => Math.min(hintSteps.length - 1, i + 1))}
           onFill={handleHintFill}
-          onClose={() => setShowHint(false)}
+          onClose={handleCloseHint}
         />
       )}
 

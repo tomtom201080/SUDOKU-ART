@@ -501,12 +501,21 @@ export function useGame(manifest, userId = null) {
     const usedInRow = new Set();
     const usedInCol = new Set();
     const usedInBox = new Set();
+    const rowCells = []; // { row, col, value } des cases déjà remplies de la ligne
+    const colCells = [];
+    const boxCells = [];
 
     for (let i = 0; i < 9; i++) {
       const rowValue = userGrid[row][i];
-      if (rowValue !== 0) usedInRow.add(rowValue);
+      if (rowValue !== 0) {
+        usedInRow.add(rowValue);
+        rowCells.push({ row, col: i, value: rowValue });
+      }
       const colValue = userGrid[i][col];
-      if (colValue !== 0) usedInCol.add(colValue);
+      if (colValue !== 0) {
+        usedInCol.add(colValue);
+        colCells.push({ row: i, col, value: colValue });
+      }
     }
 
     const boxRow = Math.floor(row / 3) * 3;
@@ -514,7 +523,10 @@ export function useGame(manifest, userId = null) {
     for (let r = boxRow; r < boxRow + 3; r++) {
       for (let c = boxCol; c < boxCol + 3; c++) {
         const v = userGrid[r][c];
-        if (v !== 0) usedInBox.add(v);
+        if (v !== 0) {
+          usedInBox.add(v);
+          boxCells.push({ row: r, col: c, value: v });
+        }
       }
     }
 
@@ -528,6 +540,9 @@ export function useGame(manifest, userId = null) {
       usedInRow: [...usedInRow].sort((a, b) => a - b),
       usedInCol: [...usedInCol].sort((a, b) => a - b),
       usedInBox: [...usedInBox].sort((a, b) => a - b),
+      rowCells,
+      colCells,
+      boxCells,
       candidates,
       value
     };
