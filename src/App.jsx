@@ -11,6 +11,7 @@ import AuthScreen from './components/AuthScreen';
 import ChallengeComposer from './components/ChallengeComposer';
 import UpdatePasswordScreen from './components/UpdatePasswordScreen';
 import InstallAppModal from './components/InstallAppModal';
+import HelpModal from './components/HelpModal';
 import { useGame } from './hooks/useGame';
 import { loadManifest, pickImageForTier, TIERS_BY_DIFFICULTY } from './data/imageLibrary';
 import { getMergedUnseenIds } from './lib/seenPaintings';
@@ -61,6 +62,7 @@ export default function App() {
   const [showAuthScreen, setShowAuthScreen] = useState(false);
   const [showComposer, setShowComposer] = useState(false);
   const [showInstallModal, setShowInstallModal] = useState(false);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   // Défi reçu par lien : on le charge directement, sans exiger de connexion.
   const [incomingChallengeId] = useState(() => readChallengeIdFromUrl());
@@ -299,6 +301,7 @@ export default function App() {
           <img src="/favicon.svg" alt="Sudoku Art" className="app-logo" />
           <div className="header-actions">
             {darkModeButton}
+            <button className="icon-btn" onClick={() => setShowHelpModal(true)} title="Règles & aide">❓</button>
             <button className="icon-btn" onClick={() => setShowInstallModal(true)} title="Installer l'app">📲</button>
             <button className="icon-btn" onClick={handleOpenGallery} title="Galerie">🖼</button>
             {accountButton}
@@ -314,6 +317,9 @@ export default function App() {
             appareil — la photo n'est visible que là où il a été ouvert en premier.
             <button onClick={() => setChallengeAlreadyOpened(false)}>✕</button>
           </div>
+        )}
+        {showHelpModal && (
+          <HelpModal onClose={() => setShowHelpModal(false)} />
         )}
         {showInstallModal && (
           <InstallAppModal onClose={() => setShowInstallModal(false)} />
@@ -344,6 +350,7 @@ export default function App() {
             {game.challengeMeta?.maxErrors != null ? ` / ${game.challengeMeta.maxErrors}` : ''}
           </span>
           {darkModeButton}
+          <button className="icon-btn" onClick={() => setShowHelpModal(true)} title="Règles & aide">❓</button>
           <button
             className="icon-btn"
             onClick={game.toggleWatermark}
@@ -355,6 +362,10 @@ export default function App() {
           <button className="icon-btn" onClick={handleCloseGameEnd} title="Menu">↩</button>
         </div>
       </header>
+
+      {showHelpModal && (
+        <HelpModal onClose={() => setShowHelpModal(false)} />
+      )}
 
       <div className="game-screen">
         <div className="intensity-control">
