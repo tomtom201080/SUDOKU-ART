@@ -61,6 +61,17 @@
   width: 100%;
 }
 
+.challenge-name-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
 .challenge-photo-preview {
   width: 100%;
   max-height: 200px;

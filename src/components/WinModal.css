@@ -149,6 +149,37 @@
   margin-top: 10px;
 }
 
+.rematch-outcome {
+  background: var(--bg-color);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 12px;
+  margin: 12px 0;
+}
+
+.rematch-outcome-title {
+  font-weight: 700;
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.rematch-outcome-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.rematch-outcome-table th,
+.rematch-outcome-table td {
+  text-align: center;
+  padding: 4px 6px;
+}
+
+.rematch-outcome-table td:first-child {
+  text-align: left;
+  font-weight: 600;
+}
+
 .save-notice-overlay {
   position: fixed;
   inset: 0;

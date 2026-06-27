@@ -6,6 +6,7 @@ import { addToGallery, recordWin } from '../utils/storage';
 import { markChallengeCompleted, deleteChallenge } from '../lib/challenges';
 import { markPaintingSeen, getMergedUnseenIds } from '../lib/seenPaintings';
 import { logGameStart, logGameComplete, logGameFail } from '../lib/analytics';
+import { submitRematchResult, determineRematchWinner } from '../lib/rematches';
 
 function cloneGrid(grid) {
   return grid.map(row => [...row]);
@@ -93,6 +94,8 @@ export function useGame(manifest, userId = null) {
   const [challengeMeta, setChallengeMeta] = useState(null); // { id, maxErrors, timeLimitSeconds }
   const [nextWatermark, setNextWatermark] = useState(null); // filigrane préchargé en avance, pour un "Nouvelle partie" immédiat
   const [tempFullReveal, setTempFullReveal] = useState(false); // affichage complet temporaire après une zone complétée
+  const [activeRematch, setActiveRematch] = useState(null); // { id, challengerName, challengerErrors, challengerSeconds }
+  const [rematchOutcome, setRematchOutcome] = useState(null); // résultat comparé, une fois la partie terminée
 
   const timerIdRef = useRef(null);
   const celebrateTimeoutRef = useRef(null);
@@ -133,6 +136,8 @@ export function useGame(manifest, userId = null) {
     setIsFailed(false);
     setRewardImage(null);
     setNextWatermark(null);
+    setActiveRematch(null);
+    setRematchOutcome(null);
     setTempFullReveal(false);
     if (tempRevealTimeoutRef.current) {
       clearTimeout(tempRevealTimeoutRef.current);
@@ -166,6 +171,57 @@ export function useGame(manifest, userId = null) {
       isChallenge: !!challengeOptions
     });
   }, [manifest, userId]);
+
+  // Démarre une partie à partir d'une grille déjà déterminée (reçue via un
+  // défi "même grille") : on ne génère rien, on rejoue exactement le même
+  // puzzle que le challenger, pour pouvoir comparer les résultats à la fin.
+  const startRematchGame = useCallback((rematch, photoUrl) => {
+    const puzzle = rematch.puzzle;
+    const solution = rematch.solution;
+    const givenMask = puzzle.map(row => row.map(v => v !== 0));
+
+    const image = photoUrl
+      ? { id: `rematch-${rematch.id}`, path: photoUrl, tier: null, isCustom: true }
+      : null;
+
+    setDifficulty(rematch.difficulty);
+    setPuzzleData({ puzzle, solution, givenMask });
+    setUserGrid(buildInitialUserGrid(puzzle));
+    setWatermark(image);
+    setWatermarkVisible(true);
+    setIsComplete(false);
+    setShowWinModal(false);
+    if (winRevealTimeoutRef.current) {
+      clearTimeout(winRevealTimeoutRef.current);
+      winRevealTimeoutRef.current = null;
+    }
+    setIsFailed(false);
+    setRewardImage(null);
+    setNextWatermark(null);
+    setTempFullReveal(false);
+    if (tempRevealTimeoutRef.current) {
+      clearTimeout(tempRevealTimeoutRef.current);
+      tempRevealTimeoutRef.current = null;
+    }
+    setErrorCells(new Set());
+    setErrorCount(0);
+    setElapsedSeconds(0);
+    setNotesMode(false);
+    setNotesGrid(buildEmptyNotes());
+    setHistory([]);
+    setCelebrate([]);
+    setChallengeMeta(null);
+    setActiveRematch({
+      id: rematch.id,
+      challengerName: rematch.challenger_name,
+      challengerErrors: rematch.challenger_result_errors,
+      challengerSeconds: rematch.challenger_result_seconds,
+      challengerHasAccount: !!rematch.challenger_user_id
+    });
+    setRematchOutcome(null);
+
+    logGameStart({ difficulty: rematch.difficulty, userId, isCustomPhoto: !!photoUrl, isChallenge: true });
+  }, [userId]);
 
   // Chronomètre : actif uniquement pendant une partie en cours, et mis en
   // pause automatiquement si l'onglet/la page n'est plus visible (l'utilisateur
@@ -423,6 +479,30 @@ export function useGame(manifest, userId = null) {
         if (userId) markPaintingSeen(userId, watermark.id).catch(() => null);
       }
 
+      if (activeRematch?.id) {
+        const finalElapsed = elapsedSeconds; // capturé avant la dernière seconde de tic éventuelle
+        submitRematchResult(activeRematch.id, { errors: errorCount, seconds: finalElapsed, userId }).catch(() => null);
+
+        const challengerErrors = activeRematch.challengerErrors;
+        const challengerSeconds = activeRematch.challengerSeconds;
+        const winner = determineRematchWinner({
+          challengerErrors,
+          challengerSeconds,
+          recipientErrors: errorCount,
+          recipientSeconds: finalElapsed
+        });
+
+        setRematchOutcome({
+          challengerName: activeRematch.challengerName,
+          challengerErrors,
+          challengerSeconds,
+          challengerHasAccount: activeRematch.challengerHasAccount,
+          recipientErrors: errorCount,
+          recipientSeconds: finalElapsed,
+          winner
+        });
+      }
+
       // Étoiles sur toute la grille, puis on laisse admirer la photo complète
       // pendant 3 secondes avant d'afficher la popup de victoire.
       setCelebrate([{ type: 'all', index: 0 }]);
@@ -431,7 +511,7 @@ export function useGame(manifest, userId = null) {
       if (winRevealTimeoutRef.current) clearTimeout(winRevealTimeoutRef.current);
       winRevealTimeoutRef.current = setTimeout(() => setShowWinModal(true), 3000);
     }
-  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, notesMode, isFailed, challengeMeta, watermark, userId, imageIntensity, elapsedSeconds]);
+  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, notesMode, isFailed, challengeMeta, watermark, userId, imageIntensity, elapsedSeconds, activeRematch]);
 
   // Annule le dernier coup joué (grille + notes + erreurs reviennent à l'état
   // précédent). Le compteur d'erreurs cumulé n'est lui jamais "annulé" : une
@@ -681,6 +761,8 @@ export function useGame(manifest, userId = null) {
     setIsFailed(false);
     setRewardImage(null);
     setNextWatermark(null);
+    setActiveRematch(null);
+    setRematchOutcome(null);
     setTempFullReveal(false);
     if (tempRevealTimeoutRef.current) {
       clearTimeout(tempRevealTimeoutRef.current);
@@ -721,6 +803,9 @@ export function useGame(manifest, userId = null) {
     revealProgress,
     canUndo,
     startNewGame,
+    startRematchGame,
+    activeRematch,
+    rematchOutcome,
     resetToMenu,
     setCellValue,
     undo,

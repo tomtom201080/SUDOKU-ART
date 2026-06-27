@@ -21,13 +21,16 @@ export default function WinModal({
   rewardImage,
   watermark,
   challengeMeta,
+  rematchOutcome,
   errorCount,
   elapsedSeconds,
   onReplay,
-  onClose
+  onClose,
+  onRequestRematch
 }) {
   const [showSaveNotice, setShowSaveNotice] = useState(false);
   const [resultSent, setResultSent] = useState(false);
+  const [rematchResultSent, setRematchResultSent] = useState(false);
 
   const isCustomGame = watermark?.isCustom;
   const photoUrl = isCustomGame ? watermark.path : null;
@@ -92,6 +95,21 @@ export default function WinModal({
     setResultSent(true);
   };
 
+  const handleSendRematchResult = async () => {
+    const name = rematchOutcome.challengerName ? `${rematchOutcome.challengerName}, ` : '';
+    const verdict =
+      rematchOutcome.winner === 'recipient' ? "J'ai gagné ! 🏆" :
+      rematchOutcome.winner === 'challenger' ? 'Tu as gagné cette fois 😅' :
+      'Égalité parfaite !';
+    const message =
+      `${name}voici le résultat de notre défi sur la même grille :\n` +
+      `Toi : ${rematchOutcome.challengerErrors} erreur(s), ${formatTime(rematchOutcome.challengerSeconds)}\n` +
+      `Moi : ${rematchOutcome.recipientErrors} erreur(s), ${formatTime(rematchOutcome.recipientSeconds)}\n` +
+      verdict;
+    await shareText(message, 'Résultat du défi Sudoku Art');
+    setRematchResultSent(true);
+  };
+
   return (
     <div className="win-overlay">
       <div className="win-panel">
@@ -102,6 +120,38 @@ export default function WinModal({
           <p className="win-challenge-stats">
             ❌ {errorCount} erreur{errorCount === 1 ? '' : 's'} — ⏱ {formatTime(elapsedSeconds)}
           </p>
+        )}
+
+        {rematchOutcome && (
+          <div className="rematch-outcome">
+            <p className="rematch-outcome-title">
+              {rematchOutcome.winner === 'recipient' && '🏆 Tu as gagné ce défi !'}
+              {rematchOutcome.winner === 'challenger' && '😅 Ton ami a fait mieux cette fois.'}
+              {rematchOutcome.winner === 'tie' && '🤝 Égalité parfaite !'}
+            </p>
+            <table className="rematch-outcome-table">
+              <thead>
+                <tr><th></th><th>Erreurs</th><th>Temps</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{rematchOutcome.challengerName || 'Ton ami'}</td>
+                  <td>{rematchOutcome.challengerErrors}</td>
+                  <td>{formatTime(rematchOutcome.challengerSeconds)}</td>
+                </tr>
+                <tr>
+                  <td>Toi</td>
+                  <td>{rematchOutcome.recipientErrors}</td>
+                  <td>{formatTime(rematchOutcome.recipientSeconds)}</td>
+                </tr>
+              </tbody>
+            </table>
+            {!rematchOutcome.challengerHasAccount && (
+              <button className="win-btn-secondary win-send-result-btn" onClick={handleSendRematchResult}>
+                {rematchResultSent ? '✅ Résultat envoyé' : '📤 Envoyer le résultat par WhatsApp'}
+              </button>
+            )}
+          </div>
         )}
 
         {isCustomGame ? (
@@ -163,6 +213,12 @@ export default function WinModal({
         {isChallengeGame && challengeMeta.senderEmail && (
           <button className="win-btn-secondary win-send-result-btn" onClick={handleSendResult}>
             {resultSent ? '✅ Résultat envoyé' : `📤 Envoyer mon résultat à ${challengeMeta.senderEmail}`}
+          </button>
+        )}
+
+        {!isChallengeGame && (
+          <button className="win-btn-secondary win-send-result-btn" onClick={onRequestRematch}>
+            🎯 Défier un ami avec cette grille
           </button>
         )}
 

@@ -10,6 +10,7 @@ import HintModal from './components/HintModal';
 import { buildHintSteps } from './utils/hintSteps';
 import AuthScreen from './components/AuthScreen';
 import ChallengeComposer from './components/ChallengeComposer';
+import RematchComposer from './components/RematchComposer';
 import UpdatePasswordScreen from './components/UpdatePasswordScreen';
 import InstallAppModal from './components/InstallAppModal';
 import HelpModal from './components/HelpModal';
@@ -27,6 +28,15 @@ import {
   claimChallenge,
   claimChallengeToken
 } from './lib/challenges';
+import {
+  readRematchIdFromUrl,
+  clearRematchFromUrl,
+  fetchRematch,
+  claimRematchToken,
+  fetchUnnotifiedRematchResults,
+  markRematchNotified,
+  determineRematchWinner
+} from './lib/rematches';
 
 const DARK_MODE_KEY = 'sudoku-devoile:darkMode';
 
@@ -79,6 +89,7 @@ export default function App() {
   const [showAuthScreen, setShowAuthScreen] = useState(false);
   const [authIntent, setAuthIntent] = useState(null);
   const [showComposer, setShowComposer] = useState(false);
+  const [showRematchComposer, setShowRematchComposer] = useState(false);
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showKpiDashboard, setShowKpiDashboard] = useState(false);
@@ -87,6 +98,11 @@ export default function App() {
   const [incomingChallengeId] = useState(() => readChallengeIdFromUrl());
   const [incomingChallengeHandled, setIncomingChallengeHandled] = useState(false);
   const [challengeAlreadyOpened, setChallengeAlreadyOpened] = useState(false);
+
+  // Défi "même grille" reçu par lien.
+  const [incomingRematchId] = useState(() => readRematchIdFromUrl());
+  const [incomingRematchHandled, setIncomingRematchHandled] = useState(false);
+  const [rematchNotifications, setRematchNotifications] = useState([]);
 
   useEffect(() => {
     supabase.auth.getSession()
@@ -229,6 +245,52 @@ export default function App() {
       .catch(() => null);
   }, [incomingChallengeId, incomingChallengeHandled, manifestLoading, session, handlePlayChallenge]);
 
+  // Dès qu'un lien de défi "même grille" est ouvert, on charge exactement la
+  // même grille que le challenger et on lance la partie directement —
+  // protégé par le même jeton anti-transfert que les défis classiques.
+  useEffect(() => {
+    if (!incomingRematchId || incomingRematchHandled || manifestLoading) return;
+
+    setIncomingRematchHandled(true);
+    clearRematchFromUrl();
+
+    fetchRematch(incomingRematchId)
+      .then(async rematch => {
+        if (!rematch || rematch.completed) return;
+
+        const { granted } = await claimRematchToken(incomingRematchId);
+        if (!granted) {
+          setChallengeAlreadyOpened(true);
+          return;
+        }
+
+        const photoUrl = rematch.photo_path ? getSharedPhotoPublicUrl(rematch.photo_path) : null;
+        game.startRematchGame(rematch, photoUrl);
+      })
+      .catch(() => null);
+  }, [incomingRematchId, incomingRematchHandled, manifestLoading, game]);
+
+  // Tant qu'on est connecté et sur l'écran d'accueil, on vérifie si des amis
+  // ont terminé un défi "même grille" qu'on leur a envoyé, pour leur montrer
+  // qui a gagné.
+  useEffect(() => {
+    if (!session || game.difficulty) return;
+    let cancelled = false;
+
+    fetchUnnotifiedRematchResults(session.user.id).then(results => {
+      if (!cancelled) setRematchNotifications(results);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [session, game.difficulty]);
+
+  const handleDismissRematchNotification = (rematchId) => {
+    markRematchNotified(rematchId).catch(() => null);
+    setRematchNotifications(prev => prev.filter(r => r.id !== rematchId));
+  };
+
   const handleRequestSendChallenge = () => {
     if (session) {
       setShowComposer(true);
@@ -359,6 +421,23 @@ export default function App() {
             <button onClick={() => setChallengeAlreadyOpened(false)}>✕</button>
           </div>
         )}
+        {rematchNotifications.map(r => {
+          const winner = determineRematchWinner({
+            challengerErrors: r.challenger_result_errors,
+            challengerSeconds: r.challenger_result_seconds,
+            recipientErrors: r.recipient_result_errors,
+            recipientSeconds: r.recipient_result_seconds
+          });
+          return (
+            <div className="challenge-already-opened-banner" key={r.id}>
+              🎯 Ton ami a fini le défi que tu lui as envoyé !{' '}
+              {winner === 'tie' && 'Égalité parfaite.'}
+              {winner === 'challenger' && 'Tu as gagné 🏆'}
+              {winner === 'recipient' && "Il/elle a fait mieux que toi cette fois 😅"}
+              <button onClick={() => handleDismissRematchNotification(r.id)}>✕</button>
+            </div>
+          );
+        })}
         {showHelpModal && (
           <HelpModal onClose={() => setShowHelpModal(false)} />
         )}
@@ -488,11 +567,25 @@ export default function App() {
           rewardImage={game.rewardImage}
           watermark={game.watermark}
           challengeMeta={game.challengeMeta}
+          rematchOutcome={game.rematchOutcome}
           errorCount={game.errorCount}
           elapsedSeconds={game.elapsedSeconds}
           result="won"
           onReplay={handleReplay}
           onClose={game.dismissWinModal}
+          onRequestRematch={() => setShowRematchComposer(true)}
+        />
+      )}
+
+      {showRematchComposer && (
+        <RematchComposer
+          puzzleData={game.puzzleData}
+          difficulty={game.difficulty}
+          errorCount={game.errorCount}
+          elapsedSeconds={game.elapsedSeconds}
+          userId={session?.user?.id ?? null}
+          userEmail={session?.user?.email ?? null}
+          onClose={() => setShowRematchComposer(false)}
         />
       )}
 
