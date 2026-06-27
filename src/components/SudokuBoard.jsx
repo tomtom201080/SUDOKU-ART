@@ -52,10 +52,11 @@ const SudokuBoard = forwardRef(function SudokuBoard({
             const hasError = errorCells.has(`${row}-${col}`);
             const isSelected = selectedCell?.row === row && selectedCell?.col === col;
             const isCelebrating =
-              !!celebrate &&
-              ((celebrate.type === 'box' && boxIndexOf(row, col) === celebrate.index) ||
-                (celebrate.type === 'row' && row === celebrate.index) ||
-                (celebrate.type === 'col' && col === celebrate.index));
+              (celebrate ?? []).some(c =>
+                (c.type === 'box' && boxIndexOf(row, col) === c.index) ||
+                (c.type === 'row' && row === c.index) ||
+                (c.type === 'col' && col === c.index)
+              );
 
             const isPeer =
               showPeerHighlight &&

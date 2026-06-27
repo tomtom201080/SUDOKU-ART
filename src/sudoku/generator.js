@@ -7,12 +7,13 @@ const BOX = 3;
 // Nombre d'indices (cases pré-remplies) selon la difficulté.
 // Plus le nombre est bas, plus la grille est difficile.
 export const DIFFICULTY_CLUES = {
+  facile: 45,
   moyen: 36,
   complique: 30,
   enfer: 24
 };
 
-export const DIFFICULTIES = ['moyen', 'complique', 'enfer'];
+export const DIFFICULTIES = ['facile', 'moyen', 'complique', 'enfer'];
 
 function shuffle(array) {
   const a = [...array];

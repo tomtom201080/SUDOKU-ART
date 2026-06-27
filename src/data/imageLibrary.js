@@ -5,6 +5,7 @@
 export const SEASONS = ['printemps', 'ete', 'automne', 'hiver'];
 
 export const TIERS_BY_DIFFICULTY = {
+  facile: 'commune',
   moyen: 'commune',
   complique: 'rare',
   enfer: 'legendaire'

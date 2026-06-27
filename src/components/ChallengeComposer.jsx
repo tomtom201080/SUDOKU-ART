@@ -2,10 +2,12 @@
 import { useRef, useState } from 'react';
 import { uploadSharedPhoto, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
 import { createChallenge, buildChallengeLink } from '../lib/challenges';
+import { isMobileDevice } from '../utils/device';
 import './ChallengeComposer.css';
 
 const DIFFICULTY_OPTIONS = [
   { value: 'auto', label: 'Automatique (au hasard)' },
+  { value: 'facile', label: 'Facile' },
   { value: 'moyen', label: 'Moyen' },
   { value: 'complique', label: 'Compliqué' },
   { value: 'enfer', label: 'Enfer' }
@@ -71,7 +73,7 @@ export default function ChallengeComposer({ onClose }) {
         `${link}\n` +
         `⚠️ La photo sera supprimée de nos serveurs dans ${SHARE_EXPIRY_DAYS} jours, ne traîne pas !`;
 
-      if (navigator.share) {
+      if (isMobileDevice() && navigator.share) {
         try {
           await navigator.share({ title: 'Défi Sudoku Art', text: message });
           setStatus('done');

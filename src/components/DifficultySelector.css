@@ -60,6 +60,7 @@
   color: var(--text-muted);
 }
 
+.difficulty-facile { border-color: #1A73E8; }
 .difficulty-moyen { border-color: #4caf50; }
 .difficulty-complique { border-color: #ff9800; }
 .difficulty-enfer { border-color: #e53935; }
@@ -201,4 +202,10 @@
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
+}
+
+.send-challenge-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 6px;
 }

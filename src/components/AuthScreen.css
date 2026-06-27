@@ -44,6 +44,16 @@
   border-color: var(--accent);
 }
 
+.auth-cancel-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
 .auth-card {
   background: var(--card-bg);
   border: 1px solid var(--card-border);

@@ -95,7 +95,7 @@
 }
 
 .sudoku-cell.is-same-value .cell-value {
-  color: #2E7D32;
+  color: #0036E8;
 }
 
 .sudoku-cell.has-error .cell-value {
@@ -150,9 +150,9 @@
   }
 }
 
-/* --- Mode sombre : la grille a des couleurs codÃ©es en dur (pas des
-   variables) car les cases doivent rester lisibles quel que soit le thÃ¨me
-   de la photo affichÃ©e derriÃ¨re ; on les redÃ©finit donc explicitement ici. --- */
+/* --- Mode sombre : la grille a des couleurs codées en dur (pas des
+   variables) car les cases doivent rester lisibles quel que soit le thème
+   de la photo affichée derrière ; on les redéfinit donc explicitement ici. --- */
 body.dark .sudoku-cell {
   background-color: #232A35;
 }
@@ -167,7 +167,7 @@ body.dark .cell-value {
 }
 
 body.dark .sudoku-cell.is-same-value .cell-value {
-  color: #6FDB7E;
+  color: #5C8DFF;
 }
 
 body.dark .sudoku-cell.has-error .cell-value {

@@ -1,28 +1,16 @@
 // src/components/DifficultySelector.jsx
 import { useRef, useState } from 'react';
-import ChallengeComposer from './ChallengeComposer';
 import './DifficultySelector.css';
 
 const OPTIONS = [
+  { id: 'facile', label: 'Facile', tier: 'Image commune', icon: '😌' },
   { id: 'moyen', label: 'Moyen', tier: 'Image commune', icon: '🙂' },
   { id: 'complique', label: 'Compliqué', tier: 'Image rare', icon: '😬' },
   { id: 'enfer', label: 'Enfer', tier: 'Image légendaire', icon: '🔥' }
 ];
 
-function formatChallengeDate(dateString) {
-  try {
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      day: 'numeric',
-      month: 'short'
-    });
-  } catch {
-    return '';
-  }
-}
-
-export default function DifficultySelector({ onSelect, pendingChallenges, onPlayChallenge }) {
+export default function DifficultySelector({ onSelect, onRequestSendChallenge }) {
   const [customImage, setCustomImage] = useState(null);
-  const [showComposer, setShowComposer] = useState(false);
   const fileInputRef = useRef(null);
 
   const handlePickPhoto = () => {
@@ -55,28 +43,6 @@ export default function DifficultySelector({ onSelect, pendingChallenges, onPlay
           ? 'Photo personnelle prête — choisis maintenant la difficulté.'
           : "Choisis ta difficulté. Plus c'est dur, plus la récompense est rare."}
       </p>
-
-      {pendingChallenges && pendingChallenges.length > 0 && (
-        <div className="pending-challenges">
-          <p className="pending-challenges-title">🎯 Défis reçus</p>
-          {pendingChallenges.map(challenge => (
-            <div className="pending-challenge-card" key={challenge.id}>
-              <div className="pending-challenge-info">
-                <strong>{challenge.sender_email}</strong> t'a envoyé un défi
-                <span className="pending-challenge-date">
-                  {' '}le {formatChallengeDate(challenge.created_at)}
-                </span>
-              </div>
-              <button
-                className="pending-challenge-play"
-                onClick={() => onPlayChallenge(challenge)}
-              >
-                Jouer
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
 
       {customImage && (
         <div className="custom-photo-preview">
@@ -118,13 +84,10 @@ export default function DifficultySelector({ onSelect, pendingChallenges, onPlay
       )}
 
       <p className="custom-photo-divider">— ou —</p>
-      <button className="send-challenge-btn" onClick={() => setShowComposer(true)}>
+      <button className="send-challenge-btn" onClick={onRequestSendChallenge}>
         🎯 Envoyer une grille personnalisée à un ami
       </button>
-
-      {showComposer && (
-        <ChallengeComposer onClose={() => setShowComposer(false)} />
-      )}
+      <p className="send-challenge-note">Connexion requise pour cette option</p>
     </div>
   );
 }

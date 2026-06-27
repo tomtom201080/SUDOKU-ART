@@ -79,6 +79,28 @@
   font-size: 0.85rem;
 }
 
+.win-challenge-stats {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.win-challenge-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.win-send-result-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-top: 10px;
+}
+
 .save-notice-overlay {
   position: fixed;
   inset: 0;

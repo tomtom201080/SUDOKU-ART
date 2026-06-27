@@ -8,6 +8,7 @@ import WinModal from './components/WinModal';
 import ChallengeFailModal from './components/ChallengeFailModal';
 import HintModal from './components/HintModal';
 import AuthScreen from './components/AuthScreen';
+import ChallengeComposer from './components/ChallengeComposer';
 import UpdatePasswordScreen from './components/UpdatePasswordScreen';
 import { useGame } from './hooks/useGame';
 import { loadManifest } from './data/imageLibrary';
@@ -17,11 +18,8 @@ import { getSharedPhotoPublicUrl } from './lib/sharedPhoto';
 import {
   readChallengeIdFromUrl,
   clearChallengeFromUrl,
-  claimChallenge,
-  fetchPendingChallenges,
-  rememberPendingChallengeId,
-  getRememberedChallengeId,
-  forgetPendingChallengeId
+  fetchChallenge,
+  claimChallenge
 } from './lib/challenges';
 
 const DARK_MODE_KEY = 'sudoku-devoile:darkMode';
@@ -54,15 +52,15 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
-  const [pendingChallengeId, setPendingChallengeId] = useState(() => {
-    const fromUrl = readChallengeIdFromUrl();
-    if (fromUrl) {
-      rememberPendingChallengeId(fromUrl);
-      return fromUrl;
-    }
-    return getRememberedChallengeId();
-  });
-  const [pendingChallenges, setPendingChallenges] = useState([]);
+
+  // Écran de connexion affiché uniquement quand on en a explicitement besoin
+  // (envoyer un défi), jamais comme un mur d'entrée obligatoire.
+  const [showAuthScreen, setShowAuthScreen] = useState(false);
+  const [showComposer, setShowComposer] = useState(false);
+
+  // Défi reçu par lien : on le charge directement, sans exiger de connexion.
+  const [incomingChallengeId] = useState(() => readChallengeIdFromUrl());
+  const [incomingChallengeHandled, setIncomingChallengeHandled] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession()
@@ -103,34 +101,14 @@ export default function App() {
     }
   }, [darkMode]);
 
-  const refreshPendingChallenges = useCallback(() => {
-    fetchPendingChallenges()
-      .then(setPendingChallenges)
-      .catch(() => setPendingChallenges([]));
-  }, []);
-
-  // Si la page a été ouverte via un lien de défi reçu d'un ami, on rattache
-  // ce défi au compte de l'utilisateur dès qu'il est connecté, puis on
-  // nettoie l'URL et on rafraîchit la liste des défis en attente.
+  // Si on vient de se connecter (ou de créer un compte) pour envoyer un défi,
+  // on ouvre automatiquement le composeur juste après.
   useEffect(() => {
-    if (!session || !pendingChallengeId) return;
-    claimChallenge(pendingChallengeId)
-      .catch(() => null)
-      .finally(() => {
-        clearChallengeFromUrl();
-        forgetPendingChallengeId();
-        setPendingChallengeId(null);
-        refreshPendingChallenges();
-      });
-  }, [session, pendingChallengeId, refreshPendingChallenges]);
-
-  // Tant qu'on est sur l'écran de choix de difficulté, on tient la liste des
-  // défis en attente à jour (au cas où un ami en aurait envoyé un nouveau).
-  useEffect(() => {
-    if (session && !pendingChallengeId) {
-      refreshPendingChallenges();
+    if (session && showAuthScreen) {
+      setShowAuthScreen(false);
+      setShowComposer(true);
     }
-  }, [session, pendingChallengeId, refreshPendingChallenges]);
+  }, [session, showAuthScreen]);
 
   const game = useGame(manifest);
 
@@ -145,16 +123,47 @@ export default function App() {
     game.startNewGame(difficultyId, customImageUrl);
   };
 
-  const handlePlayChallenge = (challenge) => {
+  const handlePlayChallenge = useCallback((challenge) => {
     const photoUrl = getSharedPhotoPublicUrl(challenge.photo_path);
     const challengeOptions = {
       id: challenge.id,
       maxErrors: challenge.max_errors,
-      timeLimitMinutes: challenge.time_limit_minutes
+      timeLimitMinutes: challenge.time_limit_minutes,
+      photoPath: challenge.photo_path,
+      senderEmail: challenge.sender_email
     };
     setLastCustomImage(photoUrl);
     setLastChallengeMeta(challengeOptions);
     game.startNewGame(challenge.difficulty_mode, photoUrl, challengeOptions);
+  }, [game]);
+
+  // Dès qu'un lien de défi est ouvert, on charge la photo et on lance la
+  // partie directement sur la grille — aucune connexion requise pour jouer
+  // un défi reçu.
+  useEffect(() => {
+    if (!incomingChallengeId || incomingChallengeHandled || manifestLoading) return;
+
+    setIncomingChallengeHandled(true);
+    clearChallengeFromUrl();
+
+    fetchChallenge(incomingChallengeId)
+      .then(challenge => {
+        if (challenge && !challenge.completed) {
+          handlePlayChallenge(challenge);
+          // Si l'utilisateur est déjà connecté, on rattache le défi à son
+          // compte (purement informatif, pas une condition pour jouer).
+          if (session) claimChallenge(incomingChallengeId).catch(() => null);
+        }
+      })
+      .catch(() => null);
+  }, [incomingChallengeId, incomingChallengeHandled, manifestLoading, session, handlePlayChallenge]);
+
+  const handleRequestSendChallenge = () => {
+    if (session) {
+      setShowComposer(true);
+    } else {
+      setShowAuthScreen(true);
+    }
   };
 
   const handleSelectCell = (row, col) => {
@@ -176,7 +185,6 @@ export default function App() {
 
   const handleCloseGameEnd = () => {
     game.resetToMenu();
-    refreshPendingChallenges();
   };
 
   const handleHintFill = (row, col, value) => {
@@ -221,7 +229,13 @@ export default function App() {
     </button>
   );
 
-  if (sessionLoading) {
+  const accountButton = session ? (
+    <button className="icon-btn" onClick={() => supabase.auth.signOut()} title="Déconnexion">🚪</button>
+  ) : (
+    <button className="icon-btn" onClick={() => setShowAuthScreen(true)} title="Se connecter">👤</button>
+  );
+
+  if (sessionLoading || manifestLoading) {
     return <div className="game-screen">Chargement…</div>;
   }
 
@@ -229,12 +243,8 @@ export default function App() {
     return <UpdatePasswordScreen onDone={() => setIsPasswordRecovery(false)} />;
   }
 
-  if (!session) {
-    return <AuthScreen />;
-  }
-
-  if (manifestLoading) {
-    return <div className="game-screen">Chargement…</div>;
+  if (showAuthScreen) {
+    return <AuthScreen onCancel={() => setShowAuthScreen(false)} />;
   }
 
   if (!game.difficulty) {
@@ -245,16 +255,18 @@ export default function App() {
           <div className="header-actions">
             {darkModeButton}
             <button className="icon-btn" onClick={handleOpenGallery} title="Galerie">🖼</button>
-            <button className="icon-btn" onClick={() => supabase.auth.signOut()} title="Déconnexion">🚪</button>
+            {accountButton}
           </div>
         </header>
         <DifficultySelector
           onSelect={handleSelectDifficulty}
-          pendingChallenges={pendingChallenges}
-          onPlayChallenge={handlePlayChallenge}
+          onRequestSendChallenge={handleRequestSendChallenge}
         />
         {showGallery && (
           <Gallery gallery={galleryData} onClose={() => setShowGallery(false)} />
+        )}
+        {showComposer && (
+          <ChallengeComposer onClose={() => setShowComposer(false)} />
         )}
       </>
     );
@@ -327,6 +339,7 @@ export default function App() {
           onUndo={game.undo}
           canUndo={game.canUndo}
           onHint={() => setShowHint(true)}
+          completedDigits={game.completedDigits}
         />
       </div>
 
@@ -343,6 +356,10 @@ export default function App() {
           difficulty={game.difficulty}
           rewardImage={game.rewardImage}
           watermark={game.watermark}
+          challengeMeta={game.challengeMeta}
+          errorCount={game.errorCount}
+          elapsedSeconds={game.elapsedSeconds}
+          result="won"
           onReplay={handleReplay}
           onClose={handleCloseGameEnd}
         />
@@ -350,6 +367,10 @@ export default function App() {
 
       {game.isFailed && (
         <ChallengeFailModal
+          difficulty={game.difficulty}
+          challengeMeta={game.challengeMeta}
+          errorCount={game.errorCount}
+          elapsedSeconds={game.elapsedSeconds}
           onReplay={handleReplay}
           onClose={handleCloseGameEnd}
         />

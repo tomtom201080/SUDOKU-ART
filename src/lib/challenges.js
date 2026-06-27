@@ -1,5 +1,6 @@
 // src/lib/challenges.js
 import { supabase } from './supabaseClient';
+import { BUCKET } from './sharedPhoto';
 
 const PENDING_KEY = 'sudoku-devoile:pendingChallengeId';
 
@@ -119,4 +120,13 @@ export async function markChallengeCompleted(challengeId, result) {
     .from('challenges')
     .update({ completed: true, result })
     .eq('id', challengeId);
+}
+
+// Une fois le défi terminé (réussi ou perdu), on supprime la photo du
+// stockage et la ligne en base : la grille ne peut pas être rejouée.
+export async function deleteChallenge(challengeId, photoPath) {
+  if (photoPath) {
+    await supabase.storage.from(BUCKET).remove([photoPath]);
+  }
+  await supabase.from('challenges').delete().eq('id', challengeId);
 }

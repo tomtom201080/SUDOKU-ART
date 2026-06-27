@@ -35,6 +35,10 @@
   font-weight: 700;
 }
 
+.number-pad-btn-hidden {
+  visibility: hidden;
+}
+
 .number-pad-btn:active {
   transform: scale(0.95);
 }

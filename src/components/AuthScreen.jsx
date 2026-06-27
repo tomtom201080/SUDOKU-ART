@@ -1,12 +1,13 @@
 // src/components/AuthScreen.jsx
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { isMobileDevice } from '../utils/device';
 import './AuthScreen.css';
 
 const APP_URL = typeof window !== 'undefined' ? window.location.origin : '';
 const SHARE_TEXT = "Sudoku Art : un Sudoku où une photo se dévoile au fil de la partie ! Essaie : ";
 
-export default function AuthScreen() {
+export default function AuthScreen({ onCancel }) {
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup' | 'forgot'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,7 +18,7 @@ export default function AuthScreen() {
   const handleShare = async () => {
     const text = SHARE_TEXT + APP_URL;
     try {
-      if (navigator.share) {
+      if (isMobileDevice() && navigator.share) {
         await navigator.share({ title: 'Sudoku Art', text: SHARE_TEXT, url: APP_URL });
         return;
       }
@@ -64,13 +65,16 @@ export default function AuthScreen() {
 
   return (
     <div className="auth-screen">
+      {onCancel && (
+        <button className="auth-cancel-btn" onClick={onCancel}>← Retour au jeu (sans connexion)</button>
+      )}
       <div className="auth-hero">
         <img src="/favicon.svg" alt="Logo Sudoku Art" className="auth-logo" />
         <h1>Sudoku Art</h1>
         <p className="auth-tagline">
-          Un Sudoku classique avec un twist : complète des carrés pour dévoiler,
-          petit à petit, une photo cachée derrière la grille — la tienne, ou une
-          image surprise qui change selon la saison.
+          {onCancel
+            ? "Un compte permet d'envoyer des défis à tes amis et de garder ta progression. Jouer en solo ne nécessite aucun compte."
+            : "Un Sudoku classique avec un twist : complète des carrés pour dévoiler, petit à petit, une photo cachée derrière la grille — la tienne, ou une image surprise qui change selon la saison."}
         </p>
         <button className="auth-share-btn" onClick={handleShare}>
           📤 Partager l'appli avec un ami

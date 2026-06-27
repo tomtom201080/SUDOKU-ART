@@ -1,13 +1,37 @@
 // src/components/WinModal.jsx
 import { useState } from 'react';
 import { TIER_LABELS } from '../data/imageLibrary';
+import { isMobileDevice, shareText } from '../utils/device';
 import './WinModal.css';
 
-export default function WinModal({ difficulty, rewardImage, watermark, onReplay, onClose }) {
+const DIFFICULTY_LABELS = {
+  moyen: 'Moyen',
+  complique: 'Compliqué',
+  enfer: 'Enfer'
+};
+
+function formatTime(totalSeconds) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+export default function WinModal({
+  difficulty,
+  rewardImage,
+  watermark,
+  challengeMeta,
+  errorCount,
+  elapsedSeconds,
+  onReplay,
+  onClose
+}) {
   const [showSaveNotice, setShowSaveNotice] = useState(false);
+  const [resultSent, setResultSent] = useState(false);
 
   const isCustomGame = watermark?.isCustom;
   const photoUrl = isCustomGame ? watermark.path : null;
+  const isChallengeGame = !!challengeMeta?.id;
 
   const handleSaveClick = () => {
     setShowSaveNotice(true);
@@ -24,6 +48,12 @@ export default function WinModal({ difficulty, rewardImage, watermark, onReplay,
   };
 
   const handleShare = async () => {
+    if (!isMobileDevice()) {
+      const text = 'Regarde la photo que j\'ai dévoilée en finissant mon Sudoku ! 🧩';
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+      return;
+    }
+
     try {
       const response = await fetch(photoUrl);
       const blob = await response.blob();
@@ -53,25 +83,46 @@ export default function WinModal({ difficulty, rewardImage, watermark, onReplay,
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
+  const handleSendResult = async () => {
+    const difficultyLabel = DIFFICULTY_LABELS[difficulty] ?? difficulty;
+    const message =
+      `🎉 J'ai réussi le défi Sudoku Art que tu m'as envoyé !\n` +
+      `Difficulté : ${difficultyLabel} — Erreurs : ${errorCount} — Temps : ${formatTime(elapsedSeconds)}`;
+    await shareText(message, 'Résultat du défi Sudoku Art');
+    setResultSent(true);
+  };
+
   return (
     <div className="win-overlay">
       <div className="win-panel">
         <h2>Grille terminée ! 🎉</h2>
-        <p className="win-difficulty">Difficulté : {difficulty}</p>
+        <p className="win-difficulty">Difficulté : {DIFFICULTY_LABELS[difficulty] ?? difficulty}</p>
+
+        {isChallengeGame && (
+          <p className="win-challenge-stats">
+            ❌ {errorCount} erreur{errorCount === 1 ? '' : 's'} — ⏱ {formatTime(elapsedSeconds)}
+          </p>
+        )}
 
         {isCustomGame ? (
           <>
             <p className="win-reward-label">Ta photo, entièrement dévoilée !</p>
             <img className="win-reward-image" src={photoUrl} alt="Photo personnelle dévoilée" />
 
-            <div className="win-photo-actions">
-              <button className="win-btn-secondary" onClick={handleSaveClick}>
-                💾 Enregistrer la photo
-              </button>
-              <button className="win-btn-secondary" onClick={handleShare}>
-                📤 Envoyer à un ami
-              </button>
-            </div>
+            {isChallengeGame ? (
+              <p className="win-challenge-note">
+                Cette photo et ce défi vont maintenant être supprimés de nos serveurs.
+              </p>
+            ) : (
+              <div className="win-photo-actions">
+                <button className="win-btn-secondary" onClick={handleSaveClick}>
+                  💾 Enregistrer la photo
+                </button>
+                <button className="win-btn-secondary" onClick={handleShare}>
+                  📤 Envoyer à un ami
+                </button>
+              </div>
+            )}
           </>
         ) : rewardImage ? (
           <>
@@ -84,6 +135,12 @@ export default function WinModal({ difficulty, rewardImage, watermark, onReplay,
           <p className="win-reward-label">
             Ajoute des images dans la bibliothèque pour débloquer des récompenses !
           </p>
+        )}
+
+        {isChallengeGame && challengeMeta.senderEmail && (
+          <button className="win-btn-secondary win-send-result-btn" onClick={handleSendResult}>
+            {resultSent ? '✅ Résultat envoyé' : `📤 Envoyer mon résultat à ${challengeMeta.senderEmail}`}
+          </button>
         )}
 
         <div className="win-actions">

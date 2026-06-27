@@ -3,7 +3,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { generateSudoku, isGridComplete, DIFFICULTIES } from '../sudoku/generator';
 import { getCurrentSeason, pickWatermarkImage, pickRewardImage } from '../data/imageLibrary';
 import { addToGallery, getUnlockedIds, recordWin } from '../utils/storage';
-import { markChallengeCompleted } from '../lib/challenges';
+import { markChallengeCompleted, deleteChallenge } from '../lib/challenges';
 
 function cloneGrid(grid) {
   return grid.map(row => [...row]);
@@ -86,7 +86,7 @@ export function useGame(manifest) {
   const [notesMode, setNotesMode] = useState(false);
   const [notesGrid, setNotesGrid] = useState(() => buildEmptyNotes());
   const [history, setHistory] = useState([]);
-  const [celebrate, setCelebrate] = useState(null); // { type: 'box'|'row'|'col', index }
+  const [celebrate, setCelebrate] = useState([]); // [{ type: 'box'|'row'|'col', index }]
   const [challengeMeta, setChallengeMeta] = useState(null); // { id, maxErrors, timeLimitSeconds }
 
   const timerIdRef = useRef(null);
@@ -122,7 +122,7 @@ export function useGame(manifest) {
     setNotesMode(false);
     setNotesGrid(buildEmptyNotes());
     setHistory([]);
-    setCelebrate(null);
+    setCelebrate([]);
     setChallengeMeta(
       challengeOptions
         ? {
@@ -130,7 +130,9 @@ export function useGame(manifest) {
             maxErrors: challengeOptions.maxErrors ?? null,
             timeLimitSeconds: challengeOptions.timeLimitMinutes
               ? challengeOptions.timeLimitMinutes * 60
-              : null
+              : null,
+            photoPath: challengeOptions.photoPath ?? null,
+            senderEmail: challengeOptions.senderEmail ?? null
           }
         : null
     );
@@ -150,7 +152,10 @@ export function useGame(manifest) {
           const next = s + 1;
           if (challengeMeta?.timeLimitSeconds && next >= challengeMeta.timeLimitSeconds) {
             setIsFailed(true);
-            if (challengeMeta.id) markChallengeCompleted(challengeMeta.id, 'lost');
+            if (challengeMeta.id) {
+              markChallengeCompleted(challengeMeta.id, 'lost');
+              deleteChallenge(challengeMeta.id, challengeMeta.photoPath);
+            }
           }
           return next;
         });
@@ -242,7 +247,10 @@ export function useGame(manifest) {
         const nextCount = c + 1;
         if (challengeMeta?.maxErrors != null && nextCount > challengeMeta.maxErrors) {
           setIsFailed(true);
-          if (challengeMeta.id) markChallengeCompleted(challengeMeta.id, 'lost');
+          if (challengeMeta.id) {
+            markChallengeCompleted(challengeMeta.id, 'lost');
+            deleteChallenge(challengeMeta.id, challengeMeta.photoPath);
+          }
         }
         return nextCount;
       });
@@ -286,15 +294,15 @@ export function useGame(manifest) {
         !isColComplete(col, userGrid, puzzleData.solution) &&
         isColComplete(col, next, puzzleData.solution);
 
-      let nextCelebrate = null;
-      if (boxNewlyComplete) nextCelebrate = { type: 'box', index: box };
-      else if (rowNewlyComplete) nextCelebrate = { type: 'row', index: row };
-      else if (colNewlyComplete) nextCelebrate = { type: 'col', index: col };
+      const newCelebrations = [];
+      if (boxNewlyComplete) newCelebrations.push({ type: 'box', index: box });
+      if (rowNewlyComplete) newCelebrations.push({ type: 'row', index: row });
+      if (colNewlyComplete) newCelebrations.push({ type: 'col', index: col });
 
-      if (nextCelebrate) {
-        setCelebrate(nextCelebrate);
+      if (newCelebrations.length > 0) {
+        setCelebrate(newCelebrations);
         if (celebrateTimeoutRef.current) clearTimeout(celebrateTimeoutRef.current);
-        celebrateTimeoutRef.current = setTimeout(() => setCelebrate(null), 1200);
+        celebrateTimeoutRef.current = setTimeout(() => setCelebrate([]), 1200);
       }
     }
 
@@ -303,6 +311,7 @@ export function useGame(manifest) {
       recordWin(difficulty);
       if (challengeMeta?.id) {
         markChallengeCompleted(challengeMeta.id, 'won');
+        deleteChallenge(challengeMeta.id, challengeMeta.photoPath);
       }
       if (manifest) {
         const unlockedIds = getUnlockedIds();
@@ -338,6 +347,26 @@ export function useGame(manifest) {
   const toggleWatermark = useCallback(() => {
     setWatermarkVisible(v => !v);
   }, []);
+
+  // Un chiffre est "entièrement découvert" quand ses 9 occurrences sont
+  // correctement placées dans la grille (données ou trouvées par le joueur).
+  // On le retire alors du pavé numérique, comme dans un sudoku classique.
+  const completedDigits = useMemo(() => {
+    const completed = new Set();
+    if (!puzzleData || !userGrid) return completed;
+
+    const counts = Array(10).fill(0);
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const solutionValue = puzzleData.solution[r][c];
+        if (userGrid[r][c] === solutionValue) counts[solutionValue]++;
+      }
+    }
+    for (let d = 1; d <= 9; d++) {
+      if (counts[d] === 9) completed.add(d);
+    }
+    return completed;
+  }, [puzzleData, userGrid]);
 
   // Logique de révélation :
   // - la case centrale est toujours visible dès le départ (pour montrer que
@@ -438,7 +467,7 @@ export function useGame(manifest) {
     setNotesMode(false);
     setNotesGrid(buildEmptyNotes());
     setHistory([]);
-    setCelebrate(null);
+    setCelebrate([]);
     setChallengeMeta(null);
   }, []);
 
@@ -454,6 +483,7 @@ export function useGame(manifest) {
     isComplete,
     isFailed,
     challengeMeta,
+    completedDigits,
     rewardImage,
     errorCells,
     errorCount,
