@@ -31,14 +31,14 @@ const SudokuBoard = forwardRef(function SudokuBoard({
   highlightValue,
   celebrate,
   isComplete,
-  hintHighlight,
+  hintHighlightZones,
   hintTargetCell,
   onSelectCell
 }, ref) {
   if (!puzzleData || !userGrid) return null;
 
   const watermarkDisabled = (imageIntensity ?? 0.28) <= 0;
-  const hintActive = !!hintHighlight;
+  const hintActive = !!hintTargetCell || (hintHighlightZones && hintHighlightZones.length > 0);
 
   const showPeerHighlight = !!selectedCell && !isComplete && !hintActive;
   const showSameValueHighlight = !!highlightValue && highlightValue !== 0 && !isComplete && !hintActive;
@@ -77,8 +77,18 @@ const SudokuBoard = forwardRef(function SudokuBoard({
 
             const isSameValue = showSameValueHighlight && value === highlightValue;
 
-            const isHintZone =
-              hintHighlight?.cells.some(c => c.row === row && c.col === col);
+            // Parmi toutes les zones déjà montrées (ligne, puis colonne, puis
+            // carré...), on cherche la dernière qui concerne cette case — pour
+            // que la couleur de l'étape la plus récente soit la plus visible
+            // sur les cases partagées par plusieurs zones.
+            let hintZoneColor = null;
+            if (hintHighlightZones) {
+              for (const zone of hintHighlightZones) {
+                if (zone.cells.some(c => c.row === row && c.col === col)) {
+                  hintZoneColor = zone.color;
+                }
+              }
+            }
             const isHintTarget =
               hintTargetCell?.row === row && hintTargetCell?.col === col;
 
@@ -108,7 +118,7 @@ const SudokuBoard = forwardRef(function SudokuBoard({
                   isPeer ? 'is-peer' : '',
                   isSameValue ? 'is-same-value' : '',
                   hasError ? 'has-error' : '',
-                  isHintZone ? `hint-zone-${hintHighlight.color}` : '',
+                  hintZoneColor ? `hint-zone-${hintZoneColor}` : '',
                   isHintTarget ? 'hint-target' : '',
                   thickRight ? 'thick-right' : '',
                   thickBottom ? 'thick-bottom' : ''

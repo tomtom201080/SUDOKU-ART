@@ -2,6 +2,7 @@
 import { supabase } from './supabaseClient';
 
 const DEVICE_TOKEN_KEY = 'sudoku-devoile:deviceToken';
+const STARTED_REMATCHES_KEY = 'sudoku-devoile:startedRematchIds';
 
 function getOrCreateDeviceToken() {
   try {
@@ -13,6 +14,31 @@ function getOrCreateDeviceToken() {
     return token;
   } catch {
     return crypto.randomUUID();
+  }
+}
+
+// Empêche de rouvrir le lien pour relancer la grille à zéro (et retenter
+// indéfiniment jusqu'à avoir un bon score) : une fois qu'un défi a été
+// démarré sur cet appareil, on ne le redémarre plus jamais, même si le lien
+// est rouvert avant d'avoir fini.
+export function hasRematchAlreadyStarted(id) {
+  try {
+    const list = JSON.parse(localStorage.getItem(STARTED_REMATCHES_KEY) || '[]');
+    return list.includes(id);
+  } catch {
+    return false;
+  }
+}
+
+export function markRematchAsStarted(id) {
+  try {
+    const list = JSON.parse(localStorage.getItem(STARTED_REMATCHES_KEY) || '[]');
+    if (!list.includes(id)) {
+      list.push(id);
+      localStorage.setItem(STARTED_REMATCHES_KEY, JSON.stringify(list));
+    }
+  } catch {
+    // stockage indisponible : on ne peut pas mémoriser, tant pis
   }
 }
 

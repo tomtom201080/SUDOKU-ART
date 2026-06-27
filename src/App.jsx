@@ -36,7 +36,9 @@ import {
   claimRematchToken,
   fetchUnnotifiedRematchResults,
   markRematchNotified,
-  determineRematchWinner
+  determineRematchWinner,
+  hasRematchAlreadyStarted,
+  markRematchAsStarted
 } from './lib/rematches';
 
 const DARK_MODE_KEY = 'sudoku-devoile:darkMode';
@@ -99,6 +101,7 @@ export default function App() {
   const [incomingChallengeId] = useState(() => readChallengeIdFromUrl());
   const [incomingChallengeHandled, setIncomingChallengeHandled] = useState(false);
   const [challengeAlreadyOpened, setChallengeAlreadyOpened] = useState(false);
+  const [rematchAlreadyStartedNotice, setRematchAlreadyStartedNotice] = useState(false);
 
   // Défi "même grille" reçu par lien.
   const [incomingRematchId] = useState(() => readRematchIdFromUrl());
@@ -260,6 +263,11 @@ export default function App() {
       .then(async rematch => {
         if (!rematch || rematch.completed) return;
 
+        if (hasRematchAlreadyStarted(incomingRematchId)) {
+          setRematchAlreadyStartedNotice(true);
+          return;
+        }
+
         const { granted } = await claimRematchToken(incomingRematchId);
         if (!granted) {
           setChallengeAlreadyOpened(true);
@@ -267,6 +275,7 @@ export default function App() {
         }
 
         const photoUrl = rematch.photo_path ? getSharedPhotoPublicUrl(rematch.photo_path) : null;
+        markRematchAsStarted(incomingRematchId);
         game.startRematchGame(rematch, photoUrl);
       })
       .catch(() => null);
@@ -333,6 +342,7 @@ export default function App() {
 
   const hintSteps = currentHint ? buildHintSteps(currentHint) : [];
   const activeHintStep = hintSteps[hintStepIndex] ?? null;
+  const accumulatedHintZones = hintSteps.slice(0, hintStepIndex + 1);
 
   const handleOpenHint = () => {
     setHintStepIndex(0);
@@ -421,6 +431,13 @@ export default function App() {
             📷 Le lien de défi que tu as ouvert a déjà été utilisé sur un autre
             appareil — la photo n'est visible que là où il a été ouvert en premier.
             <button onClick={() => setChallengeAlreadyOpened(false)}>✕</button>
+          </div>
+        )}
+        {rematchAlreadyStartedNotice && (
+          <div className="challenge-already-opened-banner">
+            🚫 Tu as déjà commencé ce défi — impossible de relancer la grille
+            à zéro pour retenter ta chance.
+            <button onClick={() => setRematchAlreadyStartedNotice(false)}>✕</button>
           </div>
         )}
         {rematchNotifications.map(r => {
@@ -546,7 +563,7 @@ export default function App() {
           highlightValue={highlightValue}
           celebrate={game.celebrate}
           isComplete={game.isComplete || game.tempFullReveal}
-          hintHighlight={activeHintStep}
+          hintHighlightZones={accumulatedHintZones}
           hintTargetCell={currentHint?.certainty === 'certain' ? { row: currentHint.row, col: currentHint.col } : null}
           onSelectCell={handleSelectCell}
         />
