@@ -129,7 +129,30 @@ export default function WinModal({
             <p className="win-reward-label">
               Image débloquée — {TIER_LABELS[rewardImage.tier] ?? rewardImage.tier}
             </p>
-            <img className="win-reward-image" src={rewardImage.path} alt="Récompense débloquée" />
+            <img className="win-reward-image" src={rewardImage.path} alt={rewardImage.title ?? 'Récompense débloquée'} />
+
+            {rewardImage.title && (
+              <div className="painting-info">
+                <p className="painting-title">{rewardImage.title}</p>
+                <p className="painting-meta">
+                  {rewardImage.artist}{rewardImage.year ? ` — ${rewardImage.year}` : ''}
+                </p>
+                {rewardImage.style && <p className="painting-meta">{rewardImage.style}</p>}
+                {rewardImage.museum && (
+                  <p className="painting-museum">
+                    📍 {rewardImage.museum}
+                    {rewardImage.city ? `, ${rewardImage.city}` : ''}
+                    {rewardImage.country ? ` (${rewardImage.country})` : ''}
+                  </p>
+                )}
+                {rewardImage.funFact && (
+                  <p className="painting-fun-fact">💡 {rewardImage.funFact}</p>
+                )}
+                {rewardImage.observe && (
+                  <p className="painting-observe">👀 À observer : {rewardImage.observe}</p>
+                )}
+              </div>
+            )}
           </>
         ) : (
           <p className="win-reward-label">

@@ -20,7 +20,8 @@ import {
   readChallengeIdFromUrl,
   clearChallengeFromUrl,
   fetchChallenge,
-  claimChallenge
+  claimChallenge,
+  claimChallengeToken
 } from './lib/challenges';
 
 const DARK_MODE_KEY = 'sudoku-devoile:darkMode';
@@ -63,6 +64,7 @@ export default function App() {
   // Défi reçu par lien : on le charge directement, sans exiger de connexion.
   const [incomingChallengeId] = useState(() => readChallengeIdFromUrl());
   const [incomingChallengeHandled, setIncomingChallengeHandled] = useState(false);
+  const [challengeAlreadyOpened, setChallengeAlreadyOpened] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession()
@@ -112,7 +114,7 @@ export default function App() {
     }
   }, [session, showAuthScreen]);
 
-  const game = useGame(manifest);
+  const game = useGame(manifest, session?.user?.id ?? null);
 
   const handleOpenGallery = useCallback(() => {
     setGalleryData(getUnlockedGallery());
@@ -141,7 +143,9 @@ export default function App() {
 
   // Dès qu'un lien de défi est ouvert, on charge la photo et on lance la
   // partie directement sur la grille — aucune connexion requise pour jouer
-  // un défi reçu.
+  // un défi reçu. On vérifie d'abord que ce lien n'a pas déjà été ouvert
+  // depuis un autre appareil (protection contre le transfert involontaire
+  // du lien, qui transférerait sinon l'accès à la photo).
   useEffect(() => {
     if (!incomingChallengeId || incomingChallengeHandled || manifestLoading) return;
 
@@ -149,13 +153,19 @@ export default function App() {
     clearChallengeFromUrl();
 
     fetchChallenge(incomingChallengeId)
-      .then(challenge => {
-        if (challenge && !challenge.completed) {
-          handlePlayChallenge(challenge);
-          // Si l'utilisateur est déjà connecté, on rattache le défi à son
-          // compte (purement informatif, pas une condition pour jouer).
-          if (session) claimChallenge(incomingChallengeId).catch(() => null);
+      .then(async challenge => {
+        if (!challenge || challenge.completed) return;
+
+        const { granted } = await claimChallengeToken(incomingChallengeId);
+        if (!granted) {
+          setChallengeAlreadyOpened(true);
+          return;
         }
+
+        handlePlayChallenge(challenge);
+        // Si l'utilisateur est déjà connecté, on rattache aussi le défi à
+        // son compte (purement informatif, pas une condition pour jouer).
+        if (session) claimChallenge(incomingChallengeId).catch(() => null);
       })
       .catch(() => null);
   }, [incomingChallengeId, incomingChallengeHandled, manifestLoading, session, handlePlayChallenge]);
@@ -265,6 +275,13 @@ export default function App() {
           onSelect={handleSelectDifficulty}
           onRequestSendChallenge={handleRequestSendChallenge}
         />
+        {challengeAlreadyOpened && (
+          <div className="challenge-already-opened-banner">
+            📷 Le lien de défi que tu as ouvert a déjà été utilisé sur un autre
+            appareil — la photo n'est visible que là où il a été ouvert en premier.
+            <button onClick={() => setChallengeAlreadyOpened(false)}>✕</button>
+          </div>
+        )}
         {showInstallModal && (
           <InstallAppModal onClose={() => setShowInstallModal(false)} />
         )}

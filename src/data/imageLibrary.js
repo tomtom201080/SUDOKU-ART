@@ -1,6 +1,7 @@
 // src/data/imageLibrary.js
 // Gère la bibliothèque d'images : saison courante, chargement du manifeste,
 // tirage aléatoire pour le filigrane en jeu, et déblocage selon la difficulté.
+import { getPaintingMetadata } from './paintingsIndex';
 
 export const SEASONS = ['printemps', 'ete', 'automne', 'hiver'];
 
@@ -61,11 +62,23 @@ export function listImagesForSeason(manifest, season) {
   const images = [];
   for (const tier of Object.keys(seasonData)) {
     for (const filename of seasonData[tier]) {
+      const metadata = getPaintingMetadata(filename);
       images.push({
         id: `${season}/${tier}/${filename}`,
         season,
         tier,
-        path: buildPath(season, tier, filename)
+        path: buildPath(season, tier, filename),
+        title: metadata?.title ?? null,
+        artist: metadata?.artist ?? null,
+        year: metadata?.year ?? null,
+        style: metadata?.style ?? null,
+        museum: metadata?.museum ?? null,
+        city: metadata?.city ?? null,
+        country: metadata?.country ?? null,
+        technique: metadata?.technique ?? null,
+        theme: metadata?.theme ?? null,
+        funFact: metadata?.funFact ?? null,
+        observe: metadata?.observe ?? null
       });
     }
   }

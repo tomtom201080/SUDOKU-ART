@@ -3,6 +3,49 @@ import { supabase } from './supabaseClient';
 import { BUCKET } from './sharedPhoto';
 
 const PENDING_KEY = 'sudoku-devoile:pendingChallengeId';
+const DEVICE_TOKEN_KEY = 'sudoku-devoile:deviceToken';
+
+// Identifiant aléatoire propre à ce navigateur, créé une seule fois et
+// réutilisé pour tous les défis ouverts depuis cet appareil.
+function getOrCreateDeviceToken() {
+  try {
+    let token = localStorage.getItem(DEVICE_TOKEN_KEY);
+    if (!token) {
+      token = crypto.randomUUID();
+      localStorage.setItem(DEVICE_TOKEN_KEY, token);
+    }
+    return token;
+  } catch {
+    return crypto.randomUUID(); // pas de stockage possible : token jetable
+  }
+}
+
+// Tente de réclamer ce défi pour cet appareil. Si quelqu'un (un autre
+// appareil) l'a déjà réclamé avant, la photo ne doit plus être montrée ici :
+// c'est ce qui protège contre le transfert involontaire du lien.
+// Retourne { granted: true } si cet appareil a (ou avait déjà) l'accès,
+// { granted: false } si un autre appareil l'a réclamé en premier.
+export async function claimChallengeToken(challengeId) {
+  const deviceToken = getOrCreateDeviceToken();
+
+  // On essaie d'abord de poser notre jeton, uniquement si aucun n'est encore posé.
+  await supabase
+    .from('challenges')
+    .update({ claim_token: deviceToken })
+    .eq('id', challengeId)
+    .is('claim_token', null);
+
+  // Quel que soit le résultat de la tentative, on relit l'état réel : si le
+  // jeton enregistré est bien le nôtre, on a l'accès (qu'on vienne de le
+  // poser, ou qu'on l'ait déjà posé lors d'une précédente ouverture).
+  const { data } = await supabase
+    .from('challenges')
+    .select('claim_token')
+    .eq('id', challengeId)
+    .maybeSingle();
+
+  return { granted: data?.claim_token === deviceToken };
+}
 
 // Crée un défi en base : photo déjà téléversée (photoPath), paramètres de
 // difficulté/erreurs/temps choisis par l'expéditeur. Retourne la ligne créée

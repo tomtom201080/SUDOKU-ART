@@ -148,3 +148,32 @@ body {
   background: var(--accent);
   transition: width 0.4s ease;
 }
+
+.challenge-already-opened-banner {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  max-width: 420px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.8rem;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 150;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.challenge-already-opened-banner button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}

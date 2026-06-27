@@ -92,6 +92,45 @@
   font-size: 0.95rem;
 }
 
+.painting-info {
+  text-align: left;
+  background: var(--bg-color);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 10px;
+}
+
+.painting-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin: 0 0 4px;
+}
+
+.painting-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 2px;
+}
+
+.painting-museum {
+  font-size: 0.8rem;
+  margin: 6px 0 0;
+}
+
+.painting-fun-fact {
+  font-size: 0.8rem;
+  color: var(--text-color);
+  margin: 8px 0 0;
+  font-style: italic;
+}
+
+.painting-observe {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 6px 0 0;
+}
+
 .win-challenge-note {
   font-size: 0.8rem;
   color: var(--text-muted);

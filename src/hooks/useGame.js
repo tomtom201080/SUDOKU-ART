@@ -4,6 +4,7 @@ import { generateSudoku, isGridComplete, DIFFICULTIES } from '../sudoku/generato
 import { getCurrentSeason, pickWatermarkImage, pickRewardImage } from '../data/imageLibrary';
 import { addToGallery, getUnlockedIds, recordWin } from '../utils/storage';
 import { markChallengeCompleted, deleteChallenge } from '../lib/challenges';
+import { getSeenPaintingIds, markPaintingSeen } from '../lib/seenPaintings';
 
 function cloneGrid(grid) {
   return grid.map(row => [...row]);
@@ -70,7 +71,7 @@ function isColComplete(col, grid, solution) {
 const CENTER_ROW = 4;
 const CENTER_COL = 4;
 
-export function useGame(manifest) {
+export function useGame(manifest, userId = null) {
   const [difficulty, setDifficulty] = useState(null);
   const [puzzleData, setPuzzleData] = useState(null); // { puzzle, solution, givenMask }
   const [userGrid, setUserGrid] = useState(null);
@@ -196,6 +197,29 @@ export function useGame(manifest) {
   // Le joueur saisit une valeur (1-9) ou l'efface (0) dans une case.
   // En mode notes, la saisie ajoute/retire un chiffre "candidat" sans toucher
   // à la vraie valeur de la case, et ne compte jamais comme une erreur.
+  // Détermine la prochaine récompense à débloquer, en évitant de retomber sur
+  // un tableau déjà vu (localement, et aussi sur le compte si connecté) tant
+  // qu'il en reste d'inédits. Asynchrone mais non bloquant : la séquence de
+  // fin de partie (étoiles, popup) ne l'attend pas.
+  const resolveReward = useCallback(async () => {
+    let unlockedIds = getUnlockedIds();
+    if (userId) {
+      try {
+        const remoteIds = await getSeenPaintingIds(userId);
+        unlockedIds = [...new Set([...unlockedIds, ...remoteIds])];
+      } catch {
+        // Pas grave : on retombe simplement sur le suivi local uniquement.
+      }
+    }
+
+    const reward = pickRewardImage(manifest, season, difficulty, unlockedIds);
+    if (reward) {
+      addToGallery(reward, { difficulty });
+      setRewardImage(reward);
+      if (userId) markPaintingSeen(userId, reward.id).catch(() => null);
+    }
+  }, [manifest, season, difficulty, userId]);
+
   const setCellValue = useCallback((row, col, value) => {
     if (!puzzleData || !userGrid) return;
     if (isFailed) return; // défi déjà perdu, plus aucune saisie possible
@@ -321,12 +345,7 @@ export function useGame(manifest) {
         deleteChallenge(challengeMeta.id, challengeMeta.photoPath);
       }
       if (manifest) {
-        const unlockedIds = getUnlockedIds();
-        const reward = pickRewardImage(manifest, season, difficulty, unlockedIds);
-        if (reward) {
-          addToGallery(reward, { difficulty });
-          setRewardImage(reward);
-        }
+        resolveReward();
       }
 
       // Étoiles sur toute la grille, puis on laisse admirer la photo complète
@@ -337,7 +356,7 @@ export function useGame(manifest) {
       if (winRevealTimeoutRef.current) clearTimeout(winRevealTimeoutRef.current);
       winRevealTimeoutRef.current = setTimeout(() => setShowWinModal(true), 3000);
     }
-  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, manifest, season, notesMode, isFailed, challengeMeta]);
+  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, manifest, season, notesMode, isFailed, challengeMeta, resolveReward]);
 
   // Annule le dernier coup joué (grille + notes + erreurs reviennent à l'état
   // précédent). Le compteur d'erreurs cumulé n'est lui jamais "annulé" : une

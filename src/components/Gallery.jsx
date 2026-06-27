@@ -50,8 +50,14 @@ export default function Gallery({ gallery, onClose }) {
             <div className="gallery-grid">
               {filtered.map((img, idx) => (
                 <div className={`gallery-item tier-${img.tier}`} key={`${img.id}-${idx}`}>
-                  <img src={img.path} alt="Image débloquée" loading="lazy" />
+                  <img src={img.path} alt={img.title ?? 'Image débloquée'} loading="lazy" />
                   <span className="gallery-item-tier">{TIER_LABELS[img.tier] ?? img.tier}</span>
+                  {img.title && (
+                    <div className="gallery-item-info">
+                      <span className="gallery-item-title">{img.title}</span>
+                      <span className="gallery-item-artist">{img.artist}</span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
