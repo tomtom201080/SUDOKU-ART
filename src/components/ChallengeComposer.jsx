@@ -64,14 +64,12 @@ export default function ChallengeComposer({ onClose }) {
       const link = buildChallengeLink(challenge.id);
       setShareLink(link);
 
-      const difficultyLabel = DIFFICULTY_OPTIONS.find(o => o.value === difficultyMode)?.label ?? '';
-      const errorsLabel = maxErrors === null ? 'illimitées' : `${maxErrors} max`;
-      const timeLabel = timeLimitMinutes === null ? 'illimité' : `${timeLimitMinutes} min`;
       const message =
-        `Je t'envoie un défi Sudoku Art avec une photo à découvrir ! 🧩📷\n` +
-        `Difficulté : ${difficultyLabel} — Erreurs ${errorsLabel} — Temps ${timeLabel}\n` +
-        `${link}\n` +
-        `⚠️ La photo sera supprimée de nos serveurs dans ${SHARE_EXPIRY_DAYS} jours, ne traîne pas !`;
+        `🔮 Je te lance un défi Sudoku Art... avec une photo mystère cachée derrière la grille ! 🧩📸\n` +
+        `Résous-la pour la découvrir 👀\n\n` +
+        `${link}\n\n` +
+        `⚠️ Ce lien donne accès à la photo : ne le transfère qu'à la personne à qui c'est destiné !\n` +
+        `(Elle sera supprimée de nos serveurs dans ${SHARE_EXPIRY_DAYS} jours.)`;
 
       if (isMobileDevice() && navigator.share) {
         try {
