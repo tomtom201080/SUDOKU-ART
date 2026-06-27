@@ -1,10 +1,10 @@
 // src/hooks/useGame.js
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { generateSudoku, isGridComplete, DIFFICULTIES } from '../sudoku/generator';
-import { pickWatermarkImage, pickRewardImage } from '../data/imageLibrary';
-import { addToGallery, getUnlockedIds, recordWin } from '../utils/storage';
+import { pickImageForTier, pickRewardImage, TIERS_BY_DIFFICULTY } from '../data/imageLibrary';
+import { addToGallery, recordWin } from '../utils/storage';
 import { markChallengeCompleted, deleteChallenge } from '../lib/challenges';
-import { getSeenPaintingIds, markPaintingSeen } from '../lib/seenPaintings';
+import { markPaintingSeen, getMergedUnseenIds } from '../lib/seenPaintings';
 
 function cloneGrid(grid) {
   return grid.map(row => [...row]);
@@ -90,15 +90,23 @@ export function useGame(manifest, userId = null) {
   const [history, setHistory] = useState([]);
   const [celebrate, setCelebrate] = useState([]); // [{ type: 'box'|'row'|'col', index }]
   const [challengeMeta, setChallengeMeta] = useState(null); // { id, maxErrors, timeLimitSeconds }
+  const [nextWatermark, setNextWatermark] = useState(null); // filigrane préchargé en avance, pour un "Nouvelle partie" immédiat
+  const [tempFullReveal, setTempFullReveal] = useState(false); // affichage complet temporaire après une zone complétée
 
   const timerIdRef = useRef(null);
   const celebrateTimeoutRef = useRef(null);
   const winRevealTimeoutRef = useRef(null);
+  const tempRevealTimeoutRef = useRef(null);
 
 
   // challengeOptions (optionnel) : { id, maxErrors, timeLimitMinutes } quand
   // la partie est un défi reçu d'un ami, avec des contraintes à respecter.
-  const startNewGame = useCallback((chosenDifficulty, customImageUrl = null, challengeOptions = null) => {
+  // preloadedImage (optionnel) : image déjà choisie et mise en cache par le
+  // navigateur en avance (sur l'écran d'accueil, ou pendant la partie
+  // précédente). C'est cette même image qui sert de filigrane pendant la
+  // partie ET de récompense affichée à la victoire — un seul tirage, plus de
+  // décalage possible entre les deux.
+  const startNewGame = useCallback((chosenDifficulty, customImageUrl = null, challengeOptions = null, preloadedImage = null) => {
     const actualDifficulty =
       chosenDifficulty === 'auto'
         ? DIFFICULTIES[Math.floor(Math.random() * DIFFICULTIES.length)]
@@ -108,7 +116,7 @@ export function useGame(manifest, userId = null) {
     const initialUserGrid = buildInitialUserGrid(data.puzzle);
     const image = customImageUrl
       ? { id: `custom-${Date.now()}`, path: customImageUrl, tier: null, isCustom: true }
-      : (manifest ? pickWatermarkImage(manifest) : null);
+      : preloadedImage; // si absent, l'effet de repli ci-dessous s'en occupera
 
     setDifficulty(actualDifficulty);
     setPuzzleData(data);
@@ -123,6 +131,12 @@ export function useGame(manifest, userId = null) {
     }
     setIsFailed(false);
     setRewardImage(null);
+    setNextWatermark(null);
+    setTempFullReveal(false);
+    if (tempRevealTimeoutRef.current) {
+      clearTimeout(tempRevealTimeoutRef.current);
+      tempRevealTimeoutRef.current = null;
+    }
     setErrorCells(new Set());
     setErrorCount(0);
     setElapsedSeconds(0);
@@ -196,28 +210,47 @@ export function useGame(manifest, userId = null) {
   // Le joueur saisit une valeur (1-9) ou l'efface (0) dans une case.
   // En mode notes, la saisie ajoute/retire un chiffre "candidat" sans toucher
   // à la vraie valeur de la case, et ne compte jamais comme une erreur.
-  // Détermine la prochaine récompense à débloquer, en évitant de retomber sur
-  // un tableau déjà vu (localement, et aussi sur le compte si connecté) tant
-  // qu'il en reste d'inédits. Asynchrone mais non bloquant : la séquence de
-  // fin de partie (étoiles, popup) ne l'attend pas.
-  const resolveReward = useCallback(async () => {
-    let unlockedIds = getUnlockedIds();
-    if (userId) {
-      try {
-        const remoteIds = await getSeenPaintingIds(userId);
-        unlockedIds = [...new Set([...unlockedIds, ...remoteIds])];
-      } catch {
-        // Pas grave : on retombe simplement sur le suivi local uniquement.
-      }
-    }
+  // Filet de sécurité : si la partie démarre sans image préchargée (le
+  // préchargement n'a pas eu le temps de se faire), on en tire une à la
+  // volée pour la rareté en cours, en évitant les tableaux déjà vus.
+  useEffect(() => {
+    if (!difficulty || watermark || !manifest) return;
+    let cancelled = false;
 
-    const reward = pickRewardImage(manifest, difficulty, unlockedIds);
-    if (reward) {
-      addToGallery(reward, { difficulty });
-      setRewardImage(reward);
-      if (userId) markPaintingSeen(userId, reward.id).catch(() => null);
-    }
-  }, [manifest, difficulty, userId]);
+    getMergedUnseenIds(userId).then(unlockedIds => {
+      if (cancelled) return;
+      const fallback = pickRewardImage(manifest, difficulty, unlockedIds);
+      if (fallback) setWatermark(fallback);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [difficulty, watermark, manifest, userId]);
+
+  // Précharge, pendant la partie en cours, l'image qui servirait de filigrane
+  // à une éventuelle partie suivante de même difficulté ("Nouvelle partie"
+  // cliqué juste après la victoire) : comme ça, même un enchaînement
+  // immédiat ne perd pas de temps à charger.
+  useEffect(() => {
+    if (!difficulty || !manifest || watermark?.isCustom || !watermark) return;
+    let cancelled = false;
+    const tier = TIERS_BY_DIFFICULTY[difficulty] ?? 'commune';
+
+    getMergedUnseenIds(userId).then(unlockedIds => {
+      if (cancelled) return;
+      const excludeForNext = [...unlockedIds, watermark.id];
+      const next = pickImageForTier(manifest, tier, excludeForNext);
+      if (next) {
+        setNextWatermark(next);
+        new Image().src = next.path;
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [difficulty, manifest, userId, watermark]);
 
   const setCellValue = useCallback((row, col, value) => {
     if (!puzzleData || !userGrid) return;
@@ -333,6 +366,13 @@ export function useGame(manifest, userId = null) {
         setCelebrate(newCelebrations);
         if (celebrateTimeoutRef.current) clearTimeout(celebrateTimeoutRef.current);
         celebrateTimeoutRef.current = setTimeout(() => setCelebrate([]), 1200);
+
+        // On affiche la grille complète, sans surlignage qui cacherait
+        // l'image, pendant 2 secondes — pour que la nouvelle portion révélée
+        // soit vraiment visible même si le joueur reste sur la même case.
+        setTempFullReveal(true);
+        if (tempRevealTimeoutRef.current) clearTimeout(tempRevealTimeoutRef.current);
+        tempRevealTimeoutRef.current = setTimeout(() => setTempFullReveal(false), 2000);
       }
     }
 
@@ -343,8 +383,10 @@ export function useGame(manifest, userId = null) {
         markChallengeCompleted(challengeMeta.id, 'won');
         deleteChallenge(challengeMeta.id, challengeMeta.photoPath);
       }
-      if (manifest) {
-        resolveReward();
+      if (watermark && !watermark.isCustom) {
+        addToGallery(watermark, { difficulty });
+        setRewardImage(watermark);
+        if (userId) markPaintingSeen(userId, watermark.id).catch(() => null);
       }
 
       // Étoiles sur toute la grille, puis on laisse admirer la photo complète
@@ -355,7 +397,7 @@ export function useGame(manifest, userId = null) {
       if (winRevealTimeoutRef.current) clearTimeout(winRevealTimeoutRef.current);
       winRevealTimeoutRef.current = setTimeout(() => setShowWinModal(true), 3000);
     }
-  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, manifest, notesMode, isFailed, challengeMeta, resolveReward]);
+  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, notesMode, isFailed, challengeMeta, watermark, userId]);
 
   // Annule le dernier coup joué (grille + notes + erreurs reviennent à l'état
   // précédent). Le compteur d'erreurs cumulé n'est lui jamais "annulé" : une
@@ -505,6 +547,12 @@ export function useGame(manifest, userId = null) {
     }
     setIsFailed(false);
     setRewardImage(null);
+    setNextWatermark(null);
+    setTempFullReveal(false);
+    if (tempRevealTimeoutRef.current) {
+      clearTimeout(tempRevealTimeoutRef.current);
+      tempRevealTimeoutRef.current = null;
+    }
     setErrorCells(new Set());
     setErrorCount(0);
     setElapsedSeconds(0);
@@ -529,12 +577,14 @@ export function useGame(manifest, userId = null) {
     challengeMeta,
     completedDigits,
     rewardImage,
+    nextWatermark,
     errorCells,
     errorCount,
     elapsedSeconds,
     notesMode,
     notesGrid,
     celebrate,
+    tempFullReveal,
     revealProgress,
     canUndo,
     startNewGame,

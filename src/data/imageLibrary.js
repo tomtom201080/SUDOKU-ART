@@ -72,25 +72,21 @@ export function listAllImages(manifest) {
   return images;
 }
 
-// Tire une image au hasard pour le filigrane de la partie en cours, toutes
-// raretés confondues.
-export function pickWatermarkImage(manifest) {
-  const pool = listAllImages(manifest);
+// Tire une image pour une rareté donnée, en évitant si possible les
+// tableaux déjà vus (sauf si tous ceux de cette rareté l'ont déjà été,
+// auquel cas on recommence à en proposer).
+export function pickImageForTier(manifest, tier, alreadyUnlockedIds = []) {
+  const inTier = listAllImages(manifest).filter(img => img.tier === tier);
+  const unseenInTier = inTier.filter(img => !alreadyUnlockedIds.includes(img.id));
+  const pool = unseenInTier.length > 0 ? unseenInTier : inTier;
   if (pool.length === 0) return null;
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-// Tire une image à débloquer selon la difficulté (= rareté), en évitant les
-// doublons déjà débloqués si possible (sauf si tous les tableaux de cette
-// rareté ont déjà été vus, auquel cas on recommence à en proposer).
+// Tire l'image à révéler pour une difficulté donnée (= rareté). C'est cette
+// même image qui sert de filigrane pendant la partie ET de récompense
+// affichée à la victoire : il n'y a plus deux tirages séparés.
 export function pickRewardImage(manifest, difficulty, alreadyUnlockedIds = []) {
   const tier = TIERS_BY_DIFFICULTY[difficulty] ?? 'commune';
-
-  const inTier = listAllImages(manifest).filter(img => img.tier === tier);
-  const unseenInTier = inTier.filter(img => !alreadyUnlockedIds.includes(img.id));
-
-  const pool = unseenInTier.length > 0 ? unseenInTier : inTier;
-
-  if (pool.length === 0) return null;
-  return pool[Math.floor(Math.random() * pool.length)];
+  return pickImageForTier(manifest, tier, alreadyUnlockedIds);
 }

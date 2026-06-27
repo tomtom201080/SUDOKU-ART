@@ -12,7 +12,8 @@ import ChallengeComposer from './components/ChallengeComposer';
 import UpdatePasswordScreen from './components/UpdatePasswordScreen';
 import InstallAppModal from './components/InstallAppModal';
 import { useGame } from './hooks/useGame';
-import { loadManifest } from './data/imageLibrary';
+import { loadManifest, pickImageForTier, TIERS_BY_DIFFICULTY } from './data/imageLibrary';
+import { getMergedUnseenIds } from './lib/seenPaintings';
 import { getUnlockedGallery } from './utils/storage';
 import { supabase } from './lib/supabaseClient';
 import { getSharedPhotoPublicUrl } from './lib/sharedPhoto';
@@ -116,6 +117,37 @@ export default function App() {
 
   const game = useGame(manifest, session?.user?.id ?? null);
 
+  const [preloadedByTier, setPreloadedByTier] = useState({});
+
+  // Dès que l'écran d'accueil est affiché (premier chargement, ou retour au
+  // menu après une partie), on choisit déjà une image par rareté (commune,
+  // rare, légendaire) — comme on ne sait pas encore quelle difficulté le
+  // joueur va choisir — et on lance leur téléchargement en arrière-plan, en
+  // évitant si possible les tableaux déjà vus (localement et sur le compte
+  // si connecté). C'est cette même image qui servira ensuite à la fois de
+  // filigrane pendant la partie et de récompense affichée à la victoire.
+  useEffect(() => {
+    if (!manifest || game.difficulty) return;
+    let cancelled = false;
+
+    getMergedUnseenIds(session?.user?.id ?? null).then(unseenIds => {
+      if (cancelled) return;
+      const map = {};
+      for (const tier of ['commune', 'rare', 'legendaire']) {
+        const candidate = pickImageForTier(manifest, tier, unseenIds);
+        if (candidate) {
+          map[tier] = candidate;
+          new Image().src = candidate.path;
+        }
+      }
+      setPreloadedByTier(map);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [manifest, game.difficulty, session]);
+
   const handleOpenGallery = useCallback(() => {
     setGalleryData(getUnlockedGallery());
     setShowGallery(true);
@@ -124,7 +156,8 @@ export default function App() {
   const handleSelectDifficulty = (difficultyId, customImageUrl) => {
     setLastCustomImage(customImageUrl || null);
     setLastChallengeMeta(null);
-    game.startNewGame(difficultyId, customImageUrl);
+    const tier = TIERS_BY_DIFFICULTY[difficultyId] ?? 'commune';
+    game.startNewGame(difficultyId, customImageUrl, null, preloadedByTier[tier] ?? null);
   };
 
   const handlePlayChallenge = useCallback((challenge) => {
@@ -190,7 +223,7 @@ export default function App() {
   };
 
   const handleReplay = () => {
-    game.startNewGame(game.difficulty, lastCustomImage, lastChallengeMeta);
+    game.startNewGame(game.difficulty, lastCustomImage, lastChallengeMeta, game.nextWatermark);
     setSelectedCell(null);
     setHighlightValue(0);
   };
@@ -350,7 +383,7 @@ export default function App() {
           selectedCell={selectedCell}
           highlightValue={highlightValue}
           celebrate={game.celebrate}
-          isComplete={game.isComplete}
+          isComplete={game.isComplete || game.tempFullReveal}
           onSelectCell={handleSelectCell}
         />
 
