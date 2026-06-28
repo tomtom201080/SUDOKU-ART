@@ -2,11 +2,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import './QuestPathMap.css';
 
-const AMPLITUDE = 95;
-const CENTER_X = 140;
-const ROW_HEIGHT = 86;
+const AMPLITUDE = 90;
+const CENTER_X = 170;
+const ROW_HEIGHT = 150; // chemin allongé entre deux étapes
 const FREQUENCY = 0.7;
 const NODE_RADIUS = 26;
+const CANVAS_WIDTH = 340;
 
 function xForIndex(index) {
   return CENTER_X + AMPLITUDE * Math.sin(index * FREQUENCY);
@@ -20,12 +21,45 @@ function yForIndex(index) {
 // pour dessiner un vrai trait sinueux et lisse derrière les étapes.
 function buildCurvePath(stageCount) {
   const points = [];
-  const steps = (stageCount - 1) * 10;
+  const steps = (stageCount - 1) * 14;
   for (let s = 0; s <= steps; s++) {
-    const t = (s / 10);
+    const t = (s / 14);
     points.push(`${xForIndex(t).toFixed(1)},${yForIndex(t).toFixed(1)}`);
   }
   return `M ${points.join(' L ')}`;
+}
+
+// Petite fonction déterministe "pseudo-aléatoire" (toujours le même résultat
+// pour un même index), pour répartir le décor sans qu'il bouge à chaque rendu.
+function seeded(index, salt = 0) {
+  const x = Math.sin(index * 12.9898 + salt * 78.233) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+// Construit le décor (icônes thématiques) placé entre les étapes, alterné de
+// part et d'autre du chemin pour ne jamais recouvrir les ronds d'étape.
+function buildDecorations(stageCount, icons) {
+  if (!icons || icons.length === 0) return [];
+  const decorations = [];
+  for (let i = 0; i < stageCount - 1; i++) {
+    const t = i + 0.5; // entre deux étapes
+    const baseX = xForIndex(t);
+    const baseY = yForIndex(t);
+    const side = i % 2 === 0 ? 1 : -1;
+    const offset = 55 + seeded(i, 1) * 15;
+    const icon = icons[Math.floor(seeded(i, 2) * icons.length)];
+    const rotation = Math.round((seeded(i, 3) - 0.5) * 30);
+    const size = 1.3 + seeded(i, 4) * 0.5;
+    decorations.push({
+      key: `deco-${i}`,
+      icon,
+      x: baseX + side * offset,
+      y: baseY + (seeded(i, 5) - 0.5) * 40,
+      rotation,
+      size
+    });
+  }
+  return decorations;
 }
 
 export default function QuestPathMap({
@@ -34,6 +68,7 @@ export default function QuestPathMap({
   completedStages,
   currentRank,
   trackKey,
+  decorationIcons,
   onPlayStage,
   onClose
 }) {
@@ -47,8 +82,10 @@ export default function QuestPathMap({
 
   // Position de l'avatar : on le fait marcher depuis sa dernière position
   // mémorisée (sur cet appareil) jusqu'à l'étape actuelle, avec une petite
-  // pause avant de partir et des étincelles à l'arrivée.
+  // pause avant de partir, un rebond de marche pendant le trajet, et des
+  // étincelles à l'arrivée.
   const [avatarStage, setAvatarStage] = useState(nextStageNumber);
+  const [isWalking, setIsWalking] = useState(false);
   const [showSparkle, setShowSparkle] = useState(false);
 
   useEffect(() => {
@@ -62,12 +99,20 @@ export default function QuestPathMap({
 
     if (lastSeen !== nextStageNumber && lastSeen >= 1) {
       setAvatarStage(lastSeen);
-      const walkTimeout = setTimeout(() => {
+      const startWalkTimeout = setTimeout(() => {
+        setIsWalking(true);
         setAvatarStage(nextStageNumber);
-        setTimeout(() => setShowSparkle(true), 900);
-        setTimeout(() => setShowSparkle(false), 2100);
       }, 350);
-      return () => clearTimeout(walkTimeout);
+      const stopWalkTimeout = setTimeout(() => {
+        setIsWalking(false);
+        setShowSparkle(true);
+      }, 350 + 1300);
+      const hideSparkleTimeout = setTimeout(() => setShowSparkle(false), 350 + 2500);
+      return () => {
+        clearTimeout(startWalkTimeout);
+        clearTimeout(stopWalkTimeout);
+        clearTimeout(hideSparkleTimeout);
+      };
     }
 
     setAvatarStage(nextStageNumber);
@@ -89,6 +134,10 @@ export default function QuestPathMap({
 
   const pathHeight = yForIndex(stages.length - 1) + 80;
   const curveD = useMemo(() => buildCurvePath(stages.length), [stages.length]);
+  const decorations = useMemo(
+    () => buildDecorations(stages.length, decorationIcons),
+    [stages.length, decorationIcons]
+  );
   const avatarIndex = stages.findIndex(s => s.number === avatarStage);
   const avatarX = xForIndex(avatarIndex >= 0 ? avatarIndex : 0);
   const avatarY = yForIndex(avatarIndex >= 0 ? avatarIndex : 0);
@@ -111,9 +160,25 @@ export default function QuestPathMap({
 
         <div className="quest-path-scroll" ref={containerRef}>
           <div className="quest-path-canvas" style={{ height: pathHeight }}>
-            <svg className="quest-path-svg" width="280" height={pathHeight} viewBox={`0 0 280 ${pathHeight}`}>
+            <svg className="quest-path-svg" width={CANVAS_WIDTH} height={pathHeight} viewBox={`0 0 ${CANVAS_WIDTH} ${pathHeight}`}>
               <path d={curveD} className="quest-path-line" />
             </svg>
+
+            {decorations.map(deco => (
+              <span
+                key={deco.key}
+                className="quest-decoration"
+                style={{
+                  left: deco.x,
+                  top: deco.y,
+                  fontSize: `${deco.size}rem`,
+                  transform: `translate(-50%, -50%) rotate(${deco.rotation}deg)`
+                }}
+                aria-hidden="true"
+              >
+                {deco.icon}
+              </span>
+            ))}
 
             {stages.map((stage, index) => {
               const isCompleted = completedStages.has(stage.number);
@@ -147,7 +212,7 @@ export default function QuestPathMap({
             })}
 
             <div
-              className="quest-avatar-walker"
+              className={`quest-avatar-walker ${isWalking ? 'is-walking' : ''}`}
               style={{ left: avatarX - 16, top: avatarY - 48 }}
             >
               <span className="quest-avatar-icon">{currentRank.icon}</span>

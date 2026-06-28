@@ -34,6 +34,10 @@ export default function MathQuestMap({ userId, onClose, onPlayStage }) {
 
   const currentRank = mathRankForCompletedCount(completedStages.size);
 
+  // Petit décor inspiré des carnets de Léonard de Vinci (engrenages,
+  // croquis, instruments...) disséminé tout le long du chemin.
+  const decorationIcons = ['⚙️', '📐', '🪶', '🧭', '📜', '🦅', '🏰', '⚖️', '🔧', '🗝️'];
+
   return (
     <QuestPathMap
       title="🧠 Quête Sudomath"
@@ -41,6 +45,7 @@ export default function MathQuestMap({ userId, onClose, onPlayStage }) {
       completedStages={completedStages}
       currentRank={currentRank}
       trackKey="sudomath"
+      decorationIcons={decorationIcons}
       onClose={onClose}
       onPlayStage={(stage) => onPlayStage(stage.raw)}
     />

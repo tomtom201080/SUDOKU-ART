@@ -34,6 +34,10 @@ export default function QuestMap({ userId, onClose, onPlayStage }) {
 
   const currentRank = rankForCompletedCount(completedStages.size);
 
+  // Petit décor inspiré des grands courants artistiques (Dalí, Picasso,
+  // surréalisme...) disséminé tout le long du chemin.
+  const decorationIcons = ['🎨', '🖼️', '🕰️', '🌀', '👁️', '♟️', '🗿', '🕊️', '🖌️', '🎭'];
+
   return (
     <QuestPathMap
       title="🏆 Quête Sudokart"
@@ -41,6 +45,7 @@ export default function QuestMap({ userId, onClose, onPlayStage }) {
       completedStages={completedStages}
       currentRank={currentRank}
       trackKey="sudokart"
+      decorationIcons={decorationIcons}
       onClose={onClose}
       onPlayStage={(stage) => onPlayStage(stage.raw)}
     />
