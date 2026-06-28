@@ -1,0 +1,12 @@
+.ad-slot-placeholder {
+  width: 100%;
+  max-width: 600px;
+  margin: 16px auto;
+  padding: 18px;
+  border: 1px dashed var(--card-border);
+  border-radius: 10px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--card-bg);
+}

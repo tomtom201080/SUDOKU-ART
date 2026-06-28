@@ -16,6 +16,10 @@ import UpdatePasswordScreen from './components/UpdatePasswordScreen';
 import InstallAppModal from './components/InstallAppModal';
 import HelpModal from './components/HelpModal';
 import KpiDashboard from './components/KpiDashboard';
+import AdSlot from './components/AdSlot';
+import AdConsentBanner from './components/AdConsentBanner';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import { getAdConsent } from './lib/adConsent';
 import { useGame } from './hooks/useGame';
 import { loadManifest, pickImageForTier, TIERS_BY_DIFFICULTY } from './data/imageLibrary';
 import { getMergedUnseenIds } from './lib/seenPaintings';
@@ -96,6 +100,8 @@ export default function App() {
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showKpiDashboard, setShowKpiDashboard] = useState(false);
+  const [adConsent, setAdConsentState] = useState(() => getAdConsent());
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
   // Défi reçu par lien : on le charge directement, sans exiger de connexion.
   const [incomingChallengeId] = useState(() => readChallengeIdFromUrl());
@@ -426,6 +432,11 @@ export default function App() {
           onSelect={handleSelectDifficulty}
           onRequestSendChallenge={handleRequestSendChallenge}
         />
+
+        {adConsent === 'accepted' && (
+          <AdSlot slot="1234567890" />
+        )}
+
         {challengeAlreadyOpened && (
           <div className="challenge-already-opened-banner">
             📷 Le lien de défi que tu as ouvert a déjà été utilisé sur un autre
@@ -481,6 +492,24 @@ export default function App() {
         )}
         {showGallery && (
           <Gallery gallery={galleryData} onClose={() => setShowGallery(false)} />
+        )}
+
+        {adConsent === null && (
+          <AdConsentBanner
+            onChoice={(value) => setAdConsentState(value)}
+            onShowPrivacy={() => setShowPrivacyPolicy(true)}
+          />
+        )}
+        {showPrivacyPolicy && (
+          <PrivacyPolicy
+            onClose={() => setShowPrivacyPolicy(false)}
+            onConsentChange={(value) => setAdConsentState(value)}
+          />
+        )}
+        {adConsent !== null && (
+          <button className="privacy-footer-link" onClick={() => setShowPrivacyPolicy(true)}>
+            Confidentialité & publicité
+          </button>
         )}
         {showComposer && (
           <ChallengeComposer onClose={() => setShowComposer(false)} />
