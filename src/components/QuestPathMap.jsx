@@ -1,13 +1,14 @@
 // src/components/QuestPathMap.jsx
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { resolveIcon } from './questIcons/index.js';
 import './QuestPathMap.css';
 
 const AMPLITUDE = 90;
-const CENTER_X = 170;
+const CENTER_X = 210;
 const ROW_HEIGHT = 150; // chemin allongé entre deux étapes
 const FREQUENCY = 0.7;
 const NODE_RADIUS = 26;
-const CANVAS_WIDTH = 340;
+const CANVAS_WIDTH = 420;
 
 function xForIndex(index) {
   return CENTER_X + AMPLITUDE * Math.sin(index * FREQUENCY);
@@ -36,7 +37,7 @@ function seeded(index, salt = 0) {
   return x - Math.floor(x);
 }
 
-// Construit le décor (icônes thématiques) placé entre les étapes, alterné de
+// Construit le décor (illustrations SVG) placé entre les étapes, alterné de
 // part et d'autre du chemin pour ne jamais recouvrir les ronds d'étape.
 function buildDecorations(stageCount, icons) {
   if (!icons || icons.length === 0) return [];
@@ -47,14 +48,14 @@ function buildDecorations(stageCount, icons) {
     const baseY = yForIndex(t);
     const side = i % 2 === 0 ? 1 : -1;
     const offset = 55 + seeded(i, 1) * 15;
-    const icon = icons[Math.floor(seeded(i, 2) * icons.length)];
-    const rotation = Math.round((seeded(i, 3) - 0.5) * 30);
-    const size = 1.3 + seeded(i, 4) * 0.5;
+    const Icon = icons[Math.floor(seeded(i, 2) * icons.length)];
+    const rotation = Math.round((seeded(i, 3) - 0.5) * 24);
+    const size = Math.round(54 + seeded(i, 4) * 18);
     decorations.push({
       key: `deco-${i}`,
-      icon,
+      Icon,
       x: baseX + side * offset,
-      y: baseY + (seeded(i, 5) - 0.5) * 40,
+      y: baseY + (seeded(i, 5) - 0.5) * 50,
       rotation,
       size
     });
@@ -69,6 +70,7 @@ export default function QuestPathMap({
   currentRank,
   trackKey,
   decorationIcons,
+  chapters,
   onPlayStage,
   onClose
 }) {
@@ -160,25 +162,56 @@ export default function QuestPathMap({
 
         <div className="quest-path-scroll" ref={containerRef}>
           <div className="quest-path-canvas" style={{ height: pathHeight }}>
+
+            {/* Bandes de chapitre en arrière-plan, chacune avec son ambiance
+                de couleur et son gros motif signature semi-transparent. */}
+            {(chapters ?? []).map(chapter => {
+              const fromY = yForIndex((stages.length - 1) * chapter.from);
+              const toY = yForIndex((stages.length - 1) * Math.min(chapter.to, 1));
+              const MotifIcon = resolveIcon(chapter.motif);
+              const midY = (fromY + toY) / 2;
+              return (
+                <div
+                  key={chapter.label}
+                  className="quest-chapter-band"
+                  style={{
+                    top: fromY,
+                    height: toY - fromY,
+                    background: `linear-gradient(180deg, ${chapter.colorTop}, ${chapter.colorBottom})`
+                  }}
+                >
+                  <span className="quest-chapter-label">{chapter.label}</span>
+                  {MotifIcon && (
+                    <div className="quest-chapter-motif" style={{ top: midY - fromY }}>
+                      <MotifIcon size={190} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
             <svg className="quest-path-svg" width={CANVAS_WIDTH} height={pathHeight} viewBox={`0 0 ${CANVAS_WIDTH} ${pathHeight}`}>
+              <path d={curveD} className="quest-path-line-shadow" />
               <path d={curveD} className="quest-path-line" />
             </svg>
 
-            {decorations.map(deco => (
-              <span
-                key={deco.key}
-                className="quest-decoration"
-                style={{
-                  left: deco.x,
-                  top: deco.y,
-                  fontSize: `${deco.size}rem`,
-                  transform: `translate(-50%, -50%) rotate(${deco.rotation}deg)`
-                }}
-                aria-hidden="true"
-              >
-                {deco.icon}
-              </span>
-            ))}
+            {decorations.map(deco => {
+              const Icon = deco.Icon;
+              return (
+                <div
+                  key={deco.key}
+                  className="quest-decoration"
+                  style={{
+                    left: deco.x,
+                    top: deco.y,
+                    transform: `translate(-50%, -50%) rotate(${deco.rotation}deg)`
+                  }}
+                  aria-hidden="true"
+                >
+                  <Icon size={deco.size} />
+                </div>
+              );
+            })}
 
             {stages.map((stage, index) => {
               const isCompleted = completedStages.has(stage.number);

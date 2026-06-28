@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { MATH_QUEST_STAGES, mathRankForCompletedCount } from '../data/mathQuestStages';
 import { fetchMathQuestProgress } from '../lib/mathQuestProgress';
 import { resolveImagePath } from '../data/imageLibrary';
+import { DAVINCI_ICONS, DAVINCI_CHAPTERS } from './questIcons/index.js';
 import QuestPathMap from './QuestPathMap';
 
 export default function MathQuestMap({ userId, onClose, onPlayStage }) {
@@ -34,10 +35,6 @@ export default function MathQuestMap({ userId, onClose, onPlayStage }) {
 
   const currentRank = mathRankForCompletedCount(completedStages.size);
 
-  // Petit décor inspiré des carnets de Léonard de Vinci (engrenages,
-  // croquis, instruments...) disséminé tout le long du chemin.
-  const decorationIcons = ['⚙️', '📐', '🪶', '🧭', '📜', '🦅', '🏰', '⚖️', '🔧', '🗝️'];
-
   return (
     <QuestPathMap
       title="🧠 Quête Sudomath"
@@ -45,7 +42,8 @@ export default function MathQuestMap({ userId, onClose, onPlayStage }) {
       completedStages={completedStages}
       currentRank={currentRank}
       trackKey="sudomath"
-      decorationIcons={decorationIcons}
+      decorationIcons={DAVINCI_ICONS}
+      chapters={DAVINCI_CHAPTERS}
       onClose={onClose}
       onPlayStage={(stage) => onPlayStage(stage.raw)}
     />

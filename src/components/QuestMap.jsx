@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { QUEST_STAGES, rankForCompletedCount } from '../data/questStages';
 import { fetchQuestProgress } from '../lib/questProgress';
 import { resolveImagePath } from '../data/imageLibrary';
+import { ART_ICONS, ART_CHAPTERS } from './questIcons/index.js';
 import QuestPathMap from './QuestPathMap';
 
 export default function QuestMap({ userId, onClose, onPlayStage }) {
@@ -34,10 +35,6 @@ export default function QuestMap({ userId, onClose, onPlayStage }) {
 
   const currentRank = rankForCompletedCount(completedStages.size);
 
-  // Petit décor inspiré des grands courants artistiques (Dalí, Picasso,
-  // surréalisme...) disséminé tout le long du chemin.
-  const decorationIcons = ['🎨', '🖼️', '🕰️', '🌀', '👁️', '♟️', '🗿', '🕊️', '🖌️', '🎭'];
-
   return (
     <QuestPathMap
       title="🏆 Quête Sudokart"
@@ -45,7 +42,8 @@ export default function QuestMap({ userId, onClose, onPlayStage }) {
       completedStages={completedStages}
       currentRank={currentRank}
       trackKey="sudokart"
-      decorationIcons={decorationIcons}
+      decorationIcons={ART_ICONS}
+      chapters={ART_CHAPTERS}
       onClose={onClose}
       onPlayStage={(stage) => onPlayStage(stage.raw)}
     />
