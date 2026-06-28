@@ -23,16 +23,21 @@ export default function WinModal({
   challengeMeta,
   rematchOutcome,
   activeQuestStage,
+  activeMathQuestStage,
+  onSubmitMathAnswer,
   errorCount,
   elapsedSeconds,
   onReplay,
   onClose,
   onRequestRematch,
-  onReturnToQuest
+  onReturnToQuest,
+  onReturnToMathQuest
 }) {
   const [showSaveNotice, setShowSaveNotice] = useState(false);
   const [resultSent, setResultSent] = useState(false);
   const [rematchResultSent, setRematchResultSent] = useState(false);
+  const [mathAnswer, setMathAnswer] = useState('');
+  const [mathFeedback, setMathFeedback] = useState(null); // null | 'wrong' | 'correct'
 
   const isCustomGame = watermark?.isCustom;
   const photoUrl = isCustomGame ? watermark.path : null;
@@ -112,6 +117,12 @@ export default function WinModal({
     setRematchResultSent(true);
   };
 
+  const handleSubmitMathAnswer = (e) => {
+    e.preventDefault();
+    const correct = onSubmitMathAnswer(mathAnswer);
+    setMathFeedback(correct ? 'correct' : 'wrong');
+  };
+
   return (
     <div className="win-overlay">
       <div className="win-panel">
@@ -132,6 +143,42 @@ export default function WinModal({
             <button className="win-btn-secondary win-send-result-btn" onClick={onReturnToQuest}>
               Retour au parcours
             </button>
+          </div>
+        )}
+
+        {activeMathQuestStage && (
+          <div className="rematch-outcome">
+            {mathFeedback === 'correct' ? (
+              <>
+                <p className="rematch-outcome-title">
+                  🧠 Énigme résolue ! Étape {activeMathQuestStage.number} / 50 de Sudomath terminée !
+                </p>
+                <button className="win-btn-secondary win-send-result-btn" onClick={onReturnToMathQuest}>
+                  Retour au parcours
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="rematch-outcome-title">
+                  🧮 Pour valider cette étape, résous l'énigme :
+                </p>
+                <p className="hint-step-text">{activeMathQuestStage.riddle.question}</p>
+                <form onSubmit={handleSubmitMathAnswer} className="math-answer-form">
+                  <input
+                    type="text"
+                    className="challenge-name-input"
+                    value={mathAnswer}
+                    onChange={(e) => { setMathAnswer(e.target.value); setMathFeedback(null); }}
+                    placeholder="Ta réponse"
+                    autoFocus
+                  />
+                  <button type="submit" className="win-btn-primary">Valider</button>
+                </form>
+                {mathFeedback === 'wrong' && (
+                  <p className="challenge-error-note">Pas tout à fait — réessaie !</p>
+                )}
+              </>
+            )}
           </div>
         )}
 

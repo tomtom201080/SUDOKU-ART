@@ -8,6 +8,8 @@ import { markPaintingSeen, getMergedUnseenIds } from '../lib/seenPaintings';
 import { logGameStart, logGameComplete, logGameFail } from '../lib/analytics';
 import { submitRematchResult, determineRematchWinner } from '../lib/rematches';
 import { markStageCompleted } from '../lib/questProgress';
+import { markMathStageCompleted } from '../lib/mathQuestProgress';
+import { checkRiddleAnswer } from '../data/mathQuestStages';
 
 function cloneGrid(grid) {
   return grid.map(row => [...row]);
@@ -98,6 +100,7 @@ export function useGame(manifest, userId = null) {
   const [activeRematch, setActiveRematch] = useState(null); // { id, challengerName, challengerErrors, challengerSeconds }
   const [rematchOutcome, setRematchOutcome] = useState(null); // résultat comparé, une fois la partie terminée
   const [activeQuestStage, setActiveQuestStage] = useState(null); // étape de la quête en cours, le cas échéant
+  const [activeMathQuestStage, setActiveMathQuestStage] = useState(null); // étape Sudomath en cours, le cas échéant
 
   const timerIdRef = useRef(null);
   const celebrateTimeoutRef = useRef(null);
@@ -141,6 +144,7 @@ export function useGame(manifest, userId = null) {
     setActiveRematch(null);
     setRematchOutcome(null);
     setActiveQuestStage(null);
+    setActiveMathQuestStage(null);
     setTempFullReveal(false);
     if (tempRevealTimeoutRef.current) {
       clearTimeout(tempRevealTimeoutRef.current);
@@ -223,6 +227,7 @@ export function useGame(manifest, userId = null) {
     });
     setRematchOutcome(null);
     setActiveQuestStage(null);
+    setActiveMathQuestStage(null);
 
     logGameStart({ difficulty: rematch.difficulty, userId, isCustomPhoto: !!photoUrl, isChallenge: true });
   }, [userId]);
@@ -280,10 +285,80 @@ export function useGame(manifest, userId = null) {
     setActiveRematch(null);
     setRematchOutcome(null);
     setActiveQuestStage(null);
+    setActiveMathQuestStage(null);
     setActiveQuestStage(stage);
 
     logGameStart({ difficulty: stage.difficulty, userId, isCustomPhoto: false, isChallenge: false });
   }, [userId]);
+
+  // Lance une étape précise du parcours Sudomath : la difficulté et la
+  // trouvaille de Léonard de Vinci à révéler sont imposées par l'étape.
+  // Contrairement à la quête Sudokart, terminer la grille ne suffit pas :
+  // il faudra ensuite répondre correctement à l'énigme (via submitMathAnswer)
+  // pour que l'étape soit vraiment validée.
+  const startMathQuestStage = useCallback((stage) => {
+    const data = generateSudoku(stage.difficulty);
+    const initialUserGrid = buildInitialUserGrid(data.puzzle);
+
+    const finding = stage.finding;
+    const image = {
+      id: finding.id,
+      tier: 'davinci',
+      path: resolveImagePath('davinci', finding, finding.id),
+      title: finding.title,
+      artist: 'Léonard de Vinci',
+      year: finding.year,
+      style: finding.category,
+      museum: null,
+      funFact: finding.description
+    };
+
+    setDifficulty(stage.difficulty);
+    setPuzzleData(data);
+    setUserGrid(initialUserGrid);
+    setWatermark(image);
+    setWatermarkVisible(true);
+    setIsComplete(false);
+    setShowWinModal(false);
+    if (winRevealTimeoutRef.current) {
+      clearTimeout(winRevealTimeoutRef.current);
+      winRevealTimeoutRef.current = null;
+    }
+    setIsFailed(false);
+    setRewardImage(null);
+    setNextWatermark(null);
+    setTempFullReveal(false);
+    if (tempRevealTimeoutRef.current) {
+      clearTimeout(tempRevealTimeoutRef.current);
+      tempRevealTimeoutRef.current = null;
+    }
+    setErrorCells(new Set());
+    setErrorCount(0);
+    setElapsedSeconds(0);
+    setNotesMode(false);
+    setNotesGrid(buildEmptyNotes());
+    setHistory([]);
+    setCelebrate([]);
+    setChallengeMeta(null);
+    setActiveRematch(null);
+    setRematchOutcome(null);
+    setActiveQuestStage(null);
+    setActiveMathQuestStage(null);
+    setActiveMathQuestStage(stage);
+
+    logGameStart({ difficulty: stage.difficulty, userId, isCustomPhoto: false, isChallenge: false });
+  }, [userId]);
+
+  // Vérifie la réponse donnée à l'énigme de l'étape Sudomath en cours. Ne
+  // valide réellement l'étape (en base) que si la réponse est correcte.
+  const submitMathAnswer = useCallback((answer) => {
+    if (!activeMathQuestStage) return false;
+    const correct = checkRiddleAnswer(activeMathQuestStage.riddle, answer);
+    if (correct && userId) {
+      markMathStageCompleted(userId, activeMathQuestStage.number).catch(() => null);
+    }
+    return correct;
+  }, [activeMathQuestStage, userId]);
 
   // Chronomètre : actif uniquement pendant une partie en cours, et mis en
   // pause automatiquement si l'onglet/la page n'est plus visible (l'utilisateur
@@ -830,6 +905,7 @@ export function useGame(manifest, userId = null) {
     setActiveRematch(null);
     setRematchOutcome(null);
     setActiveQuestStage(null);
+    setActiveMathQuestStage(null);
     setTempFullReveal(false);
     if (tempRevealTimeoutRef.current) {
       clearTimeout(tempRevealTimeoutRef.current);
@@ -873,6 +949,9 @@ export function useGame(manifest, userId = null) {
     startRematchGame,
     startQuestStage,
     activeQuestStage,
+    startMathQuestStage,
+    activeMathQuestStage,
+    submitMathAnswer,
     activeRematch,
     rematchOutcome,
     resetToMenu,

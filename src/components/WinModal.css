@@ -180,6 +180,23 @@
   font-weight: 600;
 }
 
+.math-answer-form {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.math-answer-form input {
+  flex: 1;
+}
+
+.math-answer-form button {
+  flex: 0 0 auto;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
 .save-notice-overlay {
   position: fixed;
   inset: 0;

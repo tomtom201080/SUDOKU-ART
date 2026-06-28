@@ -13,6 +13,7 @@ import ChallengeComposer from './components/ChallengeComposer';
 import RematchComposer from './components/RematchComposer';
 import RematchResultDetail from './components/RematchResultDetail';
 import QuestMap from './components/QuestMap';
+import MathQuestMap from './components/MathQuestMap';
 import UpdatePasswordScreen from './components/UpdatePasswordScreen';
 import InstallAppModal from './components/InstallAppModal';
 import HelpModal from './components/HelpModal';
@@ -99,6 +100,7 @@ export default function App() {
   const [showComposer, setShowComposer] = useState(false);
   const [showRematchComposer, setShowRematchComposer] = useState(false);
   const [showQuestMap, setShowQuestMap] = useState(false);
+  const [showMathQuestMap, setShowMathQuestMap] = useState(false);
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showKpiDashboard, setShowKpiDashboard] = useState(false);
@@ -167,6 +169,8 @@ export default function App() {
         setShowComposer(true);
       } else if (authIntent === 'quest') {
         setShowQuestMap(true);
+      } else if (authIntent === 'mathquest') {
+        setShowMathQuestMap(true);
       }
       setAuthIntent(null);
     }
@@ -337,6 +341,22 @@ export default function App() {
     game.startQuestStage(stage);
   };
 
+  const handleRequestMathQuest = () => {
+    if (session) {
+      setShowMathQuestMap(true);
+    } else {
+      setAuthIntent('mathquest');
+      setShowAuthScreen(true);
+    }
+  };
+
+  const handlePlayMathQuestStage = (stage) => {
+    setShowMathQuestMap(false);
+    setLastCustomImage(null);
+    setLastChallengeMeta(null);
+    game.startMathQuestStage(stage);
+  };
+
   const handleSelectCell = (row, col) => {
     setSelectedCell({ row, col });
     const value = game.userGrid ? game.userGrid[row][col] : 0;
@@ -452,6 +472,7 @@ export default function App() {
           onSelect={handleSelectDifficulty}
           onRequestSendChallenge={handleRequestSendChallenge}
           onRequestQuest={handleRequestQuest}
+          onRequestMathQuest={handleRequestMathQuest}
         />
 
         {adConsent === 'accepted' && (
@@ -540,6 +561,13 @@ export default function App() {
             userId={session?.user?.id ?? null}
             onClose={() => setShowQuestMap(false)}
             onPlayStage={handlePlayQuestStage}
+          />
+        )}
+        {showMathQuestMap && (
+          <MathQuestMap
+            userId={session?.user?.id ?? null}
+            onClose={() => setShowMathQuestMap(false)}
+            onPlayStage={handlePlayMathQuestStage}
           />
         )}
       </>
@@ -665,6 +693,9 @@ export default function App() {
           onRequestRematch={() => setShowRematchComposer(true)}
           activeQuestStage={game.activeQuestStage}
           onReturnToQuest={() => { game.resetToMenu(); setShowQuestMap(true); }}
+          activeMathQuestStage={game.activeMathQuestStage}
+          onSubmitMathAnswer={game.submitMathAnswer}
+          onReturnToMathQuest={() => { game.resetToMenu(); setShowMathQuestMap(true); }}
         />
       )}
 

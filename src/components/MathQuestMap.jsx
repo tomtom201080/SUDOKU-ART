@@ -1,15 +1,15 @@
-// src/components/QuestMap.jsx
+// src/components/MathQuestMap.jsx
 import { useEffect, useState } from 'react';
-import { QUEST_STAGES, rankForCompletedCount } from '../data/questStages';
-import { fetchQuestProgress } from '../lib/questProgress';
+import { MATH_QUEST_STAGES, mathRankForCompletedCount } from '../data/mathQuestStages';
+import { fetchMathQuestProgress } from '../lib/mathQuestProgress';
 import { resolveImagePath } from '../data/imageLibrary';
 import QuestPathMap from './QuestPathMap';
 
-export default function QuestMap({ userId, onClose, onPlayStage }) {
+export default function MathQuestMap({ userId, onClose, onPlayStage }) {
   const [completedStages, setCompletedStages] = useState(null);
 
   useEffect(() => {
-    fetchQuestProgress(userId).then(progress => {
+    fetchMathQuestProgress(userId).then(progress => {
       setCompletedStages(new Set(progress.completed_stages));
     });
   }, [userId]);
@@ -22,25 +22,25 @@ export default function QuestMap({ userId, onClose, onPlayStage }) {
     );
   }
 
-  const stages = QUEST_STAGES.map(stage => ({
+  const stages = MATH_QUEST_STAGES.map(stage => ({
     number: stage.number,
     difficulty: stage.difficulty,
     image: {
-      url: resolveImagePath(stage.painting.tier, stage.painting, stage.painting.id),
-      title: stage.painting.title
+      url: resolveImagePath('davinci', stage.finding, stage.finding.id),
+      title: stage.finding.title
     },
     raw: stage
   }));
 
-  const currentRank = rankForCompletedCount(completedStages.size);
+  const currentRank = mathRankForCompletedCount(completedStages.size);
 
   return (
     <QuestPathMap
-      title="🏆 Quête Sudokart"
+      title="🧠 Quête Sudomath"
       stages={stages}
       completedStages={completedStages}
       currentRank={currentRank}
-      trackKey="sudokart"
+      trackKey="sudomath"
       onClose={onClose}
       onPlayStage={(stage) => onPlayStage(stage.raw)}
     />
