@@ -9,7 +9,7 @@ const OPTIONS = [
   { id: 'enfer', label: 'Enfer', tier: 'Image légendaire', icon: '🔥' }
 ];
 
-export default function DifficultySelector({ onSelect, onRequestSendChallenge }) {
+export default function DifficultySelector({ onSelect, onRequestSendChallenge, onRequestQuest }) {
   const [customImage, setCustomImage] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -86,6 +86,12 @@ export default function DifficultySelector({ onSelect, onRequestSendChallenge })
       <p className="custom-photo-divider">— ou —</p>
       <button className="send-challenge-btn" onClick={onRequestSendChallenge}>
         🎯 Envoyer une grille personnalisée à un ami
+      </button>
+      <p className="send-challenge-note">Connexion requise pour cette option</p>
+
+      <p className="custom-photo-divider">— ou —</p>
+      <button className="send-challenge-btn" onClick={onRequestQuest}>
+        🏆 Quête Sudokart
       </button>
       <p className="send-challenge-note">Connexion requise pour cette option</p>
     </div>

@@ -22,11 +22,13 @@ export default function WinModal({
   watermark,
   challengeMeta,
   rematchOutcome,
+  activeQuestStage,
   errorCount,
   elapsedSeconds,
   onReplay,
   onClose,
-  onRequestRematch
+  onRequestRematch,
+  onReturnToQuest
 }) {
   const [showSaveNotice, setShowSaveNotice] = useState(false);
   const [resultSent, setResultSent] = useState(false);
@@ -120,6 +122,17 @@ export default function WinModal({
           <p className="win-challenge-stats">
             ❌ {errorCount} erreur{errorCount === 1 ? '' : 's'} — ⏱ {formatTime(elapsedSeconds)}
           </p>
+        )}
+
+        {activeQuestStage && (
+          <div className="rematch-outcome">
+            <p className="rematch-outcome-title">
+              🏆 Étape {activeQuestStage.number} / 49 de la quête Sudokart terminée !
+            </p>
+            <button className="win-btn-secondary win-send-result-btn" onClick={onReturnToQuest}>
+              Retour au parcours
+            </button>
+          </div>
         )}
 
         {rematchOutcome && (

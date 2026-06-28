@@ -37,7 +37,7 @@ export async function loadManifest() {
 // Si le tableau a une URL externe renseignée (imageUrl), on l'utilise telle
 // quelle (image hébergée ailleurs, ex. Wikimedia Commons). Sinon, on utilise
 // le fichier local attendu dans public/images/{tier}/.
-function resolveImagePath(tier, metadata, fallbackId) {
+export function resolveImagePath(tier, metadata, fallbackId) {
   if (metadata?.imageUrl) return metadata.imageUrl;
   const filename = metadata?.file ?? `${fallbackId}.jpg`;
   return `/images/${tier}/${filename}`;

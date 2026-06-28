@@ -1,12 +1,13 @@
 // src/hooks/useGame.js
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { generateSudoku, isGridComplete, DIFFICULTIES } from '../sudoku/generator';
-import { pickImageForTier, pickRewardImage, TIERS_BY_DIFFICULTY } from '../data/imageLibrary';
+import { pickImageForTier, pickRewardImage, resolveImagePath, TIERS_BY_DIFFICULTY } from '../data/imageLibrary';
 import { addToGallery, recordWin } from '../utils/storage';
 import { markChallengeCompleted, deleteChallenge } from '../lib/challenges';
 import { markPaintingSeen, getMergedUnseenIds } from '../lib/seenPaintings';
 import { logGameStart, logGameComplete, logGameFail } from '../lib/analytics';
 import { submitRematchResult, determineRematchWinner } from '../lib/rematches';
+import { markStageCompleted } from '../lib/questProgress';
 
 function cloneGrid(grid) {
   return grid.map(row => [...row]);
@@ -96,6 +97,7 @@ export function useGame(manifest, userId = null) {
   const [tempFullReveal, setTempFullReveal] = useState(false); // affichage complet temporaire après une zone complétée
   const [activeRematch, setActiveRematch] = useState(null); // { id, challengerName, challengerErrors, challengerSeconds }
   const [rematchOutcome, setRematchOutcome] = useState(null); // résultat comparé, une fois la partie terminée
+  const [activeQuestStage, setActiveQuestStage] = useState(null); // étape de la quête en cours, le cas échéant
 
   const timerIdRef = useRef(null);
   const celebrateTimeoutRef = useRef(null);
@@ -138,6 +140,7 @@ export function useGame(manifest, userId = null) {
     setNextWatermark(null);
     setActiveRematch(null);
     setRematchOutcome(null);
+    setActiveQuestStage(null);
     setTempFullReveal(false);
     if (tempRevealTimeoutRef.current) {
       clearTimeout(tempRevealTimeoutRef.current);
@@ -219,8 +222,67 @@ export function useGame(manifest, userId = null) {
       challengerHasAccount: !!rematch.challenger_user_id
     });
     setRematchOutcome(null);
+    setActiveQuestStage(null);
 
     logGameStart({ difficulty: rematch.difficulty, userId, isCustomPhoto: !!photoUrl, isChallenge: true });
+  }, [userId]);
+
+  // Lance une étape précise du parcours de quête : la difficulté et le
+  // tableau à révéler sont imposés par l'étape (pas de tirage au hasard).
+  const startQuestStage = useCallback((stage) => {
+    const data = generateSudoku(stage.difficulty);
+    const initialUserGrid = buildInitialUserGrid(data.puzzle);
+
+    const painting = stage.painting;
+    const image = {
+      id: painting.id,
+      tier: painting.tier,
+      path: resolveImagePath(painting.tier, painting, painting.id),
+      title: painting.title,
+      artist: painting.artist,
+      year: painting.year,
+      style: painting.style,
+      museum: painting.museum,
+      city: painting.city,
+      country: painting.country,
+      technique: painting.technique,
+      funFact: painting.funFact,
+      observe: painting.observe
+    };
+
+    setDifficulty(stage.difficulty);
+    setPuzzleData(data);
+    setUserGrid(initialUserGrid);
+    setWatermark(image);
+    setWatermarkVisible(true);
+    setIsComplete(false);
+    setShowWinModal(false);
+    if (winRevealTimeoutRef.current) {
+      clearTimeout(winRevealTimeoutRef.current);
+      winRevealTimeoutRef.current = null;
+    }
+    setIsFailed(false);
+    setRewardImage(null);
+    setNextWatermark(null);
+    setTempFullReveal(false);
+    if (tempRevealTimeoutRef.current) {
+      clearTimeout(tempRevealTimeoutRef.current);
+      tempRevealTimeoutRef.current = null;
+    }
+    setErrorCells(new Set());
+    setErrorCount(0);
+    setElapsedSeconds(0);
+    setNotesMode(false);
+    setNotesGrid(buildEmptyNotes());
+    setHistory([]);
+    setCelebrate([]);
+    setChallengeMeta(null);
+    setActiveRematch(null);
+    setRematchOutcome(null);
+    setActiveQuestStage(null);
+    setActiveQuestStage(stage);
+
+    logGameStart({ difficulty: stage.difficulty, userId, isCustomPhoto: false, isChallenge: false });
   }, [userId]);
 
   // Chronomètre : actif uniquement pendant une partie en cours, et mis en
@@ -503,6 +565,10 @@ export function useGame(manifest, userId = null) {
         });
       }
 
+      if (activeQuestStage && userId) {
+        markStageCompleted(userId, activeQuestStage.number).catch(() => null);
+      }
+
       // Étoiles sur toute la grille, puis on laisse admirer la photo complète
       // pendant 3 secondes avant d'afficher la popup de victoire.
       setCelebrate([{ type: 'all', index: 0 }]);
@@ -511,7 +577,7 @@ export function useGame(manifest, userId = null) {
       if (winRevealTimeoutRef.current) clearTimeout(winRevealTimeoutRef.current);
       winRevealTimeoutRef.current = setTimeout(() => setShowWinModal(true), 3000);
     }
-  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, notesMode, isFailed, challengeMeta, watermark, userId, imageIntensity, elapsedSeconds, activeRematch]);
+  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, notesMode, isFailed, challengeMeta, watermark, userId, imageIntensity, elapsedSeconds, activeRematch, activeQuestStage]);
 
   // Annule le dernier coup joué (grille + notes + erreurs reviennent à l'état
   // précédent). Le compteur d'erreurs cumulé n'est lui jamais "annulé" : une
@@ -763,6 +829,7 @@ export function useGame(manifest, userId = null) {
     setNextWatermark(null);
     setActiveRematch(null);
     setRematchOutcome(null);
+    setActiveQuestStage(null);
     setTempFullReveal(false);
     if (tempRevealTimeoutRef.current) {
       clearTimeout(tempRevealTimeoutRef.current);
@@ -804,6 +871,8 @@ export function useGame(manifest, userId = null) {
     canUndo,
     startNewGame,
     startRematchGame,
+    startQuestStage,
+    activeQuestStage,
     activeRematch,
     rematchOutcome,
     resetToMenu,
