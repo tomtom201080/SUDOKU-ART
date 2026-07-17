@@ -99,6 +99,7 @@ export function useGame(manifest, userId = null) {
   const [rewardImage, setRewardImage] = useState(null);
   const [errorCells, setErrorCells] = useState(() => new Set());
   const [errorCount, setErrorCount] = useState(0);
+  const [hintsUsed, setHintsUsed] = useState(0);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [notesMode, setNotesMode] = useState(false);
   const [notesGrid, setNotesGrid] = useState(() => buildEmptyNotes());
@@ -162,6 +163,7 @@ export function useGame(manifest, userId = null) {
     }
     setErrorCells(new Set());
     setErrorCount(0);
+    setHintsUsed(0);
     setElapsedSeconds(0);
     setNotesMode(false);
     setNotesGrid(buildEmptyNotes());
@@ -222,6 +224,7 @@ export function useGame(manifest, userId = null) {
     }
     setErrorCells(new Set());
     setErrorCount(0);
+    setHintsUsed(0);
     setElapsedSeconds(0);
     setNotesMode(false);
     setNotesGrid(buildEmptyNotes());
@@ -286,6 +289,7 @@ export function useGame(manifest, userId = null) {
     }
     setErrorCells(new Set());
     setErrorCount(0);
+    setHintsUsed(0);
     setElapsedSeconds(0);
     setNotesMode(false);
     setNotesGrid(buildEmptyNotes());
@@ -344,6 +348,7 @@ export function useGame(manifest, userId = null) {
     }
     setErrorCells(new Set());
     setErrorCount(0);
+    setHintsUsed(0);
     setElapsedSeconds(0);
     setNotesMode(false);
     setNotesGrid(buildEmptyNotes());
@@ -819,87 +824,25 @@ export function useGame(manifest, userId = null) {
   //   sur deux cases au sein d'une même ligne, colonne ou carré (pas une
   //   certitude totale, mais une vraie information exploitable) ;
   // - sinon, on l'indique clairement : aucun indice direct disponible.
+  // Indice simplifié : choisit une case vide au hasard et révèle son chiffre.
+  // Le choix est aléatoire pour garder la surprise, et la case est mise en
+  // évidence sur la grille (via hintTargetCell dans App.jsx).
   const getHint = useCallback(() => {
     if (!puzzleData || !userGrid) return null;
 
-    const emptyCellsInfo = [];
+    const emptyCells = [];
     for (let r = 0; r < 9; r++) {
       for (let c = 0; c < 9; c++) {
-        if (userGrid[r][c] !== 0) continue;
-
-        const usedInRow = new Set();
-        const usedInCol = new Set();
-        const usedInBox = new Set();
-        const rowCells = [];
-        const colCells = [];
-        const boxCells = [];
-
-        for (let i = 0; i < 9; i++) {
-          const rv = userGrid[r][i];
-          if (rv !== 0) { usedInRow.add(rv); rowCells.push({ row: r, col: i, value: rv }); }
-          const cv = userGrid[i][c];
-          if (cv !== 0) { usedInCol.add(cv); colCells.push({ row: i, col: c, value: cv }); }
-        }
-        const boxRow = Math.floor(r / 3) * 3;
-        const boxCol = Math.floor(c / 3) * 3;
-        for (let rr = boxRow; rr < boxRow + 3; rr++) {
-          for (let cc = boxCol; cc < boxCol + 3; cc++) {
-            const v = userGrid[rr][cc];
-            if (v !== 0) { usedInBox.add(v); boxCells.push({ row: rr, col: cc, value: v }); }
-          }
-        }
-
-        const usedAll = new Set([...usedInRow, ...usedInCol, ...usedInBox]);
-        const candidates = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter(n => !usedAll.has(n));
-
-        emptyCellsInfo.push({
-          row: r,
-          col: c,
-          usedInRow: [...usedInRow].sort((a, b) => a - b),
-          usedInCol: [...usedInCol].sort((a, b) => a - b),
-          usedInBox: [...usedInBox].sort((a, b) => a - b),
-          rowCells,
-          colCells,
-          boxCells,
-          candidates,
-          value: puzzleData.solution[r][c]
-        });
-      }
-    }
-
-    // Catégorie 1 : déduction certaine (un seul candidat possible).
-    const certain = emptyCellsInfo.find(cell => cell.candidates.length === 1);
-    if (certain) {
-      return { certainty: 'certain', ...certain };
-    }
-
-    // Catégorie 2 : piste de repli — un chiffre limité à 2 cases dans une
-    // même ligne, colonne ou carré.
-    const unitLabels = ['ligne', 'colonne', 'carré'];
-    const units = buildUnits();
-    for (let unitIndex = 0; unitIndex < units.length; unitIndex++) {
-      const unit = units[unitIndex];
-      const unitType = unitLabels[Math.floor(unitIndex / 9)];
-      const emptyInUnit = unit.filter(({ row, col }) => userGrid[row][col] === 0);
-      if (emptyInUnit.length < 2) continue;
-
-      for (let n = 1; n <= 9; n++) {
-        const possibleCells = emptyInUnit.filter(({ row, col }) => {
-          const info = emptyCellsInfo.find(e => e.row === row && e.col === col);
-          return info && info.candidates.includes(n);
-        });
-        if (possibleCells.length === 2) {
-          return {
-            certainty: 'partial',
-            digit: n,
-            unitType,
-            cells: possibleCells
-          };
+        if (userGrid[r][c] === 0) {
+          emptyCells.push({ row: r, col: c, value: puzzleData.solution[r][c] });
         }
       }
     }
 
-    return { certainty: 'none' };
+    if (emptyCells.length === 0) return null;
+
+    const pick = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    return { certainty: 'certain', ...pick };
   }, [puzzleData, userGrid]);
 
   // Retour à l'écran de sélection de difficulté, sans générer de nouvelle grille.
@@ -932,6 +875,7 @@ export function useGame(manifest, userId = null) {
     }
     setErrorCells(new Set());
     setErrorCount(0);
+    setHintsUsed(0);
     setElapsedSeconds(0);
     setNotesMode(false);
     setNotesGrid(buildEmptyNotes());
@@ -957,6 +901,8 @@ export function useGame(manifest, userId = null) {
     nextWatermark,
     errorCells,
     errorCount,
+    hintsUsed,
+    setHintsUsed,
     elapsedSeconds,
     notesMode,
     notesGrid,

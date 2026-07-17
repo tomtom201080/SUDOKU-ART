@@ -7,7 +7,6 @@ import Gallery from './components/Gallery';
 import WinModal from './components/WinModal';
 import ChallengeFailModal from './components/ChallengeFailModal';
 import HintModal from './components/HintModal';
-import { buildHintSteps } from './utils/hintSteps';
 import AuthScreen from './components/AuthScreen';
 import ChallengeComposer from './components/ChallengeComposer';
 import RematchComposer from './components/RematchComposer';
@@ -83,9 +82,10 @@ export default function App() {
   const [showGallery, setShowGallery] = useState(false);
   const [galleryData, setGalleryData] = useState([]);
   const [lastCustomImage, setLastCustomImage] = useState(null);
+  const [isClassicMode, setIsClassicMode] = useState(false);
   const [lastChallengeMeta, setLastChallengeMeta] = useState(null);
   const [showHint, setShowHint] = useState(false);
-  const [hintStepIndex, setHintStepIndex] = useState(0);
+  // hintsUsed géré dans useGame
   const [darkMode, setDarkMode] = useState(() => {
     try {
       return localStorage.getItem(DARK_MODE_KEY) === 'true';
@@ -235,6 +235,7 @@ export default function App() {
 
   const handleSelectDifficulty = (difficultyId, customImageUrl) => {
     const isClassic = customImageUrl === 'classic';
+    setIsClassicMode(isClassic);
     setLastCustomImage(isClassic ? null : (customImageUrl || null));
     setLastChallengeMeta(null);
     if (isClassic) {
@@ -404,19 +405,9 @@ export default function App() {
 
   const currentHint = showHint ? game.getHint() : null;
 
-  const hintSteps = currentHint ? buildHintSteps(currentHint) : [];
-  const activeHintStep = hintSteps[hintStepIndex] ?? null;
-  const accumulatedHintZones = hintSteps.slice(0, hintStepIndex + 1);
+  const handleOpenHint = () => setShowHint(true);
 
-  const handleOpenHint = () => {
-    setHintStepIndex(0);
-    setShowHint(true);
-  };
-
-  const handleCloseHint = () => {
-    setShowHint(false);
-    setHintStepIndex(0);
-  };
+  const handleCloseHint = () => setShowHint(false);
 
   // Un clic en dehors de la grille (et du pavé numérique) désélectionne la
   // case en cours : ça désactive le surlignage et fait réapparaître l'image
@@ -629,15 +620,6 @@ export default function App() {
             {game.challengeMeta?.maxErrors != null ? ` / ${game.challengeMeta.maxErrors}` : ''}
           </span>
           {darkModeButton}
-          {session?.user?.email === 't.dabadie@gmail.com' && (
-            <button
-              className="icon-btn"
-              onClick={game.solveGridForTesting}
-              title="[TEST] Compléter la grille instantanément"
-            >
-              🛠️
-            </button>
-          )}
           <button
             className="icon-btn"
             onClick={game.toggleWatermark}
@@ -655,20 +637,22 @@ export default function App() {
       )}
 
       <div className="game-screen">
-        <div className="intensity-control">
-          <label htmlFor="image-intensity">
-            🖼 Intensité du filigrane {game.imageIntensity <= 0 ? '(désactivé)' : ''}
-          </label>
-          <input
-            id="image-intensity"
-            type="range"
-            min="0"
-            max="0.5"
-            step="0.05"
-            value={game.imageIntensity}
-            onChange={(e) => game.setImageIntensity(parseFloat(e.target.value))}
-          />
-        </div>
+        {game.imageIntensity > 0 && game.watermark && (
+          <div className="intensity-control">
+            <label htmlFor="image-intensity">
+              🖼 Intensité du filigrane
+            </label>
+            <input
+              id="image-intensity"
+              type="range"
+              min="0"
+              max="0.5"
+              step="0.05"
+              value={game.imageIntensity}
+              onChange={(e) => game.setImageIntensity(parseFloat(e.target.value))}
+            />
+          </div>
+        )}
 
         <SudokuBoard
           ref={boardRef}
@@ -684,8 +668,8 @@ export default function App() {
           highlightValue={highlightValue}
           celebrate={game.celebrate}
           isComplete={game.isComplete || game.tempFullReveal}
-          hintHighlightZones={accumulatedHintZones}
-          hintTargetCell={currentHint?.certainty === 'certain' ? { row: currentHint.row, col: currentHint.col } : null}
+          hintHighlightZones={currentHint ? [{ color: 'answer', cells: [{ row: currentHint.row, col: currentHint.col }] }] : []}
+          hintTargetCell={currentHint ? { row: currentHint.row, col: currentHint.col } : null}
           onSelectCell={handleSelectCell}
         />
 
@@ -705,20 +689,21 @@ export default function App() {
       {showHint && (
         <HintModal
           hint={currentHint}
-          steps={hintSteps}
-          stepIndex={hintStepIndex}
-          onPrev={() => setHintStepIndex(i => Math.max(0, i - 1))}
-          onNext={() => setHintStepIndex(i => Math.min(hintSteps.length - 1, i + 1))}
-          onFill={handleHintFill}
+          onFill={(row, col, value) => {
+            handleHintFill(row, col, value);
+            game.setHintsUsed(h => h + 1);
+          }}
           onClose={handleCloseHint}
+          hintsUsed={game.hintsUsed}
+          maxHints={game.challengeMeta?.maxHints ?? null}
         />
       )}
 
       {game.showWinModal && (
         <WinModal
           difficulty={game.difficulty}
-          rewardImage={game.rewardImage}
-          watermark={game.watermark}
+          rewardImage={isClassicMode ? null : game.rewardImage}
+          watermark={isClassicMode ? null : game.watermark}
           challengeMeta={game.challengeMeta}
           rematchOutcome={game.rematchOutcome}
           errorCount={game.errorCount}
@@ -762,6 +747,21 @@ export default function App() {
 
       {showGallery && (
         <Gallery gallery={galleryData} onClose={() => setShowGallery(false)} />
+      )}
+
+      {session?.user?.email === 't.dabadie@gmail.com' && (
+        <button
+          onClick={game.solveGridForTesting}
+          title="[TEST] Compléter la grille"
+          style={{
+            position: 'fixed', bottom: 24, right: 16, zIndex: 999,
+            background: '#333', color: '#fff', border: 'none',
+            borderRadius: '50%', width: 44, height: 44, fontSize: '1.2rem',
+            cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.4)'
+          }}
+        >
+          🛠️
+        </button>
       )}
     </>
   );

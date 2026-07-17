@@ -72,7 +72,6 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
   };
 
   const handleSend = async () => {
-    if (!photoFile) return;
     setStatus('sending');
     try {
       const path = await uploadSharedPhoto(photoFile);
@@ -207,7 +206,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
             <button
               className="challenge-btn-primary"
               onClick={handleSend}
-              disabled={!photoFile || status === 'sending'}
+              disabled={status === 'sending'}
             >
               {status === 'sending' ? 'Envoi en cours…' : 'Créer et envoyer le défi'}
             </button>

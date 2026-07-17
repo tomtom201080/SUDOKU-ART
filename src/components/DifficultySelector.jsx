@@ -21,7 +21,7 @@ function HomeScreen({ onPick }) {
       <div className="ds-cards">
         <button className="ds-card" onClick={() => onPick('paintings')}>
           <span className="ds-card-icon">🖼️</span>
-          <span className="ds-card-label">Tableau</span>
+          <span className="ds-card-label">Art</span>
           <span className="ds-card-desc">Découvre une grande œuvre cachée derrière ta grille</span>
         </button>
 
@@ -33,7 +33,7 @@ function HomeScreen({ onPick }) {
 
         <button className="ds-card" onClick={() => onPick('photo')}>
           <span className="ds-card-icon">📷</span>
-          <span className="ds-card-label">Ma photo</span>
+          <span className="ds-card-label">Memories</span>
           <span className="ds-card-desc">Envoie une photo à un ami à dévoiler en jouant</span>
         </button>
 

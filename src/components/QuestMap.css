@@ -90,7 +90,7 @@
 
 .quest-stage.is-next {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(217, 142, 4, 0.25);
+  box-shadow: 0 0 0 3px rgba(15, 123, 108, 0.25);
 }
 
 .quest-stage.is-locked {

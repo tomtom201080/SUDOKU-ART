@@ -4,9 +4,9 @@
   --card-border: #E7DEC8;
   --text-color: #2E2A22;
   --text-muted: #8C8268;
-  --accent: #D98E04;
-  --accent-text: #2E2A22;
-  --grid-border: #D98E04;
+  --accent: #0F7B6C;
+  --accent-text: #FFFFFF;
+  --grid-border: #0F7B6C;
   --grid-line: #3A332A;
 }
 
@@ -16,9 +16,9 @@ body.dark {
   --card-border: #2C3340;
   --text-color: #ECEAE3;
   --text-muted: #9AA3B2;
-  --accent: #E0A53D;
-  --accent-text: #14181F;
-  --grid-border: #E0A53D;
+  --accent: #14A892;
+  --accent-text: #0A1F1C;
+  --grid-border: #14A892;
   --grid-line: #3A4150;
 }
 

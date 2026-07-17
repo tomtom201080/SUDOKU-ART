@@ -46,7 +46,7 @@
 
 .ds-card:hover {
   border-color: var(--accent);
-  box-shadow: 0 4px 16px rgba(217, 142, 4, 0.15);
+  box-shadow: 0 4px 16px rgba(15, 123, 108, 0.15);
 }
 
 .ds-card:active {
@@ -107,17 +107,17 @@
 /* ─── Grille de difficulté ─── */
 .difficulty-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 
 .difficulty-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 12px 4px;
-  border-radius: 12px;
+  gap: 6px;
+  padding: 18px 8px;
+  border-radius: 14px;
   border: 2px solid var(--card-border);
   background: var(--bg-color);
   cursor: pointer;
@@ -130,9 +130,9 @@
 .difficulty-complique:hover { border-color: #ff9800; }
 .difficulty-enfer:hover   { border-color: #f44336; }
 
-.difficulty-icon  { font-size: 1.5rem; }
-.difficulty-label { font-size: 0.78rem; font-weight: 700; color: var(--text-color); }
-.difficulty-tier  { font-size: 0.6rem; color: var(--text-muted); text-align: center; line-height: 1.2; }
+.difficulty-icon  { font-size: 2rem; }
+.difficulty-label { font-size: 1rem; font-weight: 700; color: var(--text-color); }
+.difficulty-tier  { font-size: 0.7rem; color: var(--text-muted); text-align: center; line-height: 1.2; }
 
 /* ─── Photo ─── */
 .ds-photo-preview {
