@@ -74,7 +74,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
   const handleSend = async () => {
     setStatus('sending');
     try {
-      const path = await uploadSharedPhoto(photoFile);
+      const path = photoFile ? await uploadSharedPhoto(photoFile) : null;
       const challenge = await createChallenge({
         photoPath: path,
         difficultyMode,
@@ -84,23 +84,30 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
       const link = buildChallengeLink(challenge.id);
       setShareLink(link);
 
-      const message =
-        `🔮 Je te lance un défi Sudoku Art... avec une photo mystère cachée derrière la grille ! 🧩📸\n` +
-        `Résous-la pour la découvrir 👀\n\n` +
-        `${link}\n\n` +
-        `⚠️ Ce lien donne accès à la photo : ne le transfère qu'à la personne à qui c'est destiné !\n` +
-        `(Elle sera supprimée de nos serveurs dans ${SHARE_EXPIRY_DAYS} jours.)`;
+      const message = path
+        ? `🔮 Je te lance un défi Sudoku Art... avec une photo mystère cachée derrière la grille ! 🧩📸\n` +
+          `Résous-la pour la découvrir 👀\n\n` +
+          `${link}\n\n`
+        : `🧩 Je te lance un défi Sudoku Art !\n` +
+          `Peux-tu résoudre cette grille ?\n\n` +
+          `${link}\n\n`;
 
+      const disclaimer = path
+        ? `⚠️ Ce lien donne accès à la photo : ne le transfère qu'à la personne à qui c'est destiné !\n` +
+          `(Elle sera supprimée de nos serveurs dans ${SHARE_EXPIRY_DAYS} jours.)`
+        : '';
+
+      const fullMessage = message + disclaimer;
       if (isMobileDevice() && navigator.share) {
         try {
-          await navigator.share({ title: 'Défi Sudoku Art', text: message });
+          await navigator.share({ title: 'Défi Sudoku Art', text: fullMessage });
           setStatus('done');
           return;
         } catch {
           // partage annulé : on retombe sur WhatsApp Web ci-dessous
         }
       }
-      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+      window.open(`https://wa.me/?text=${encodeURIComponent(fullMessage)}`, '_blank');
       setStatus('done');
     } catch (err) {
       console.error(err);

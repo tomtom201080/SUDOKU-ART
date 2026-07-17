@@ -136,25 +136,36 @@ function PhotoScreen({ onSelectDifficulty, onSendChallenge, onBack }) {
   );
 }
 
-// Sous-écran : défi
-function ChallengeScreen({ onRequestSendChallenge, onBack }) {
+// Sous-écran : défi — explique le concept puis choisit la difficulté pour jouer
+function ChallengeScreen({ onSelect, onBack }) {
+  const [step, setStep] = useState('explain'); // 'explain' | 'difficulty'
+
+  if (step === 'difficulty') {
+    return (
+      <DifficultyScreen
+        title="Choisis la difficulté"
+        onSelectDifficulty={(diff) => onSelect(diff, null)}
+        onBack={() => setStep('explain')}
+      />
+    );
+  }
+
   return (
     <div className="ds-sub">
       <button className="ds-back" onClick={onBack}>← Retour</button>
       <p className="ds-sub-title">Défi entre amis</p>
       <p className="ds-sub-desc">
         Termine une grille, puis envoie-la à un ami via WhatsApp.
-        Il joue exactement la même grille — on compare les scores et on désigne le gagnant !
+        Il joue la même grille — on compare les scores et on désigne le gagnant !
       </p>
       <div className="ds-challenge-steps">
         <div className="ds-step"><span>1</span> Joue et termine une grille</div>
-        <div className="ds-step"><span>2</span> Envoie-la à un ami</div>
+        <div className="ds-step"><span>2</span> Clique "Défier un ami" à la victoire</div>
         <div className="ds-step"><span>3</span> Comparez vos scores</div>
       </div>
-      <button className="send-challenge-btn" onClick={onRequestSendChallenge}>
-        Commencer maintenant
+      <button className="send-challenge-btn" onClick={() => setStep('difficulty')}>
+        Commencer une partie
       </button>
-      <p className="send-challenge-note">Connexion requise pour cette option</p>
     </div>
   );
 }
@@ -195,7 +206,7 @@ export default function DifficultySelector({ onSelect, onRequestSendChallenge })
   if (screen === 'challenge') {
     return (
       <ChallengeScreen
-        onRequestSendChallenge={() => onRequestSendChallenge(null)}
+        onSelect={onSelect}
         onBack={() => setScreen('home')}
       />
     );
