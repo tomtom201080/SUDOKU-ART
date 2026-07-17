@@ -12,17 +12,23 @@ import AuthScreen from './components/AuthScreen';
 import ChallengeComposer from './components/ChallengeComposer';
 import RematchComposer from './components/RematchComposer';
 import RematchResultDetail from './components/RematchResultDetail';
-import QuestMap from './components/QuestMap';
-import MathQuestMap from './components/MathQuestMap';
+// QUEST_DISABLED: import QuestMap from './components/QuestMap';
+// QUEST_DISABLED: import MathQuestMap from './components/MathQuestMap';
 import UpdatePasswordScreen from './components/UpdatePasswordScreen';
 import InstallAppModal from './components/InstallAppModal';
 import HelpModal from './components/HelpModal';
 import KpiDashboard from './components/KpiDashboard';
 import AdSlot from './components/AdSlot';
 import AdConsentBanner from './components/AdConsentBanner';
-import PrivacyPolicy from './components/PrivacyPolicy';
+import AdInterstitial from './components/AdInterstitial';
+import { TermsModal, PrivacyModal } from './components/LegalModal';
+import DeleteAccountModal from './components/DeleteAccountModal';
+import OnboardingModal from './components/OnboardingModal';
+import HomeProgress from './components/HomeProgress';
 import { getAdConsent } from './lib/adConsent';
 import { useGame } from './hooks/useGame';
+import { useNetworkStatus } from './hooks/useNetworkStatus';
+import './components/LegalModal.css';
 import { loadManifest, pickImageForTier, TIERS_BY_DIFFICULTY } from './data/imageLibrary';
 import { getMergedUnseenIds } from './lib/seenPaintings';
 import { getUnlockedGallery } from './utils/storage';
@@ -99,13 +105,28 @@ export default function App() {
   const [authIntent, setAuthIntent] = useState(null);
   const [showComposer, setShowComposer] = useState(false);
   const [showRematchComposer, setShowRematchComposer] = useState(false);
-  const [showQuestMap, setShowQuestMap] = useState(false);
-  const [showMathQuestMap, setShowMathQuestMap] = useState(false);
+  // Interstitielle pub : quelle action est en attente après la pub
+  const [pendingAdAction, setPendingAdAction] = useState(null); // null | 'challenge' | 'rematch'
+  // QUEST_DISABLED: const [showQuestMap, setShowQuestMap] = useState(false);
+  // QUEST_DISABLED: const [showMathQuestMap, setShowMathQuestMap] = useState(false);
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showKpiDashboard, setShowKpiDashboard] = useState(false);
   const [adConsent, setAdConsentState] = useState(() => getAdConsent());
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const isOnline = useNetworkStatus();
+
+  // Onboarding : affiché une seule fois au premier lancement
+  const ONBOARDING_KEY = 'sudoku-devoile:onboardingDone';
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    try { return !localStorage.getItem(ONBOARDING_KEY); } catch { return false; }
+  });
+  const handleCloseOnboarding = () => {
+    try { localStorage.setItem(ONBOARDING_KEY, '1'); } catch {}
+    setShowOnboarding(false);
+  };
 
   // Défi reçu par lien : on le charge directement, sans exiger de connexion.
   const [incomingChallengeId] = useState(() => readChallengeIdFromUrl());
@@ -167,10 +188,7 @@ export default function App() {
       setShowAuthScreen(false);
       if (authIntent === 'challenge') {
         setShowComposer(true);
-      } else if (authIntent === 'quest') {
-        setShowQuestMap(true);
-      } else if (authIntent === 'mathquest') {
-        setShowMathQuestMap(true);
+      // QUEST_DISABLED
       }
       setAuthIntent(null);
     }
@@ -316,46 +334,31 @@ export default function App() {
     setRematchNotifications(prev => prev.filter(r => r.id !== rematchId));
   };
 
+  // Ouvre la pub interstitielle puis l'action cible (défi classique ou même-grille).
   const handleRequestSendChallenge = () => {
-    if (session) {
-      setShowComposer(true);
-    } else {
+    if (!session) {
       setAuthIntent('challenge');
       setShowAuthScreen(true);
+      return;
     }
+    setPendingAdAction('challenge');
   };
 
-  const handleRequestQuest = () => {
-    if (session) {
-      setShowQuestMap(true);
-    } else {
-      setAuthIntent('quest');
-      setShowAuthScreen(true);
-    }
+  // Appelé depuis WinModal — on passe par la pub avant d'ouvrir RematchComposer
+  const handleRequestRematchWithAd = () => {
+    setPendingAdAction('rematch');
   };
 
-  const handlePlayQuestStage = (stage) => {
-    setShowQuestMap(false);
-    setLastCustomImage(null);
-    setLastChallengeMeta(null);
-    game.startQuestStage(stage);
+  const handleAdContinue = () => {
+    const action = pendingAdAction;
+    setPendingAdAction(null);
+    if (action === 'challenge') setShowComposer(true);
+    if (action === 'rematch') setShowRematchComposer(true);
   };
 
-  const handleRequestMathQuest = () => {
-    if (session) {
-      setShowMathQuestMap(true);
-    } else {
-      setAuthIntent('mathquest');
-      setShowAuthScreen(true);
-    }
-  };
+  const handleAdClose = () => setPendingAdAction(null);
 
-  const handlePlayMathQuestStage = (stage) => {
-    setShowMathQuestMap(false);
-    setLastCustomImage(null);
-    setLastChallengeMeta(null);
-    game.startMathQuestStage(stage);
-  };
+  // QUEST_DISABLED: handleRequestQuest, handlePlayQuestStage, handleRequestMathQuest
 
   const handleSelectCell = (row, col) => {
     setSelectedCell({ row, col });
@@ -375,7 +378,13 @@ export default function App() {
   };
 
   const handleCloseGameEnd = () => {
-    game.resetToMenu();
+    if (game.isComplete || game.isFailed) {
+      game.resetToMenu();
+      return;
+    }
+    if (window.confirm('Abandonner la partie en cours ? Ta progression sera perdue.')) {
+      game.resetToMenu();
+    }
   };
 
   const handleHintFill = (row, col, value) => {
@@ -471,12 +480,18 @@ export default function App() {
         <DifficultySelector
           onSelect={handleSelectDifficulty}
           onRequestSendChallenge={handleRequestSendChallenge}
-          onRequestQuest={handleRequestQuest}
-          onRequestMathQuest={handleRequestMathQuest}
         />
+
+        <HomeProgress userId={session?.user?.id ?? null} />
 
         {adConsent === 'accepted' && (
           <AdSlot slot="1234567890" />
+        )}
+
+        {!isOnline && (
+          <div className="challenge-already-opened-banner" style={{ background: 'rgba(180,80,0,0.12)' }}>
+            📵 Pas de connexion internet — les fonctionnalités réseau sont indisponibles.
+          </div>
         )}
 
         {challengeAlreadyOpened && (
@@ -535,41 +550,52 @@ export default function App() {
         {showGallery && (
           <Gallery gallery={galleryData} onClose={() => setShowGallery(false)} />
         )}
-
+        {showTerms && (
+          <TermsModal onClose={() => setShowTerms(false)} />
+        )}
+        {showPrivacyPolicy && (
+          <PrivacyModal
+            onClose={() => setShowPrivacyPolicy(false)}
+            onConsentChange={(value) => setAdConsentState(value)}
+          />
+        )}
+        {showDeleteAccount && (
+          <DeleteAccountModal
+            onClose={() => setShowDeleteAccount(false)}
+            onDeleted={() => { setShowDeleteAccount(false); }}
+          />
+        )}
         {adConsent === null && (
           <AdConsentBanner
             onChoice={(value) => setAdConsentState(value)}
             onShowPrivacy={() => setShowPrivacyPolicy(true)}
           />
         )}
-        {showPrivacyPolicy && (
-          <PrivacyPolicy
-            onClose={() => setShowPrivacyPolicy(false)}
-            onConsentChange={(value) => setAdConsentState(value)}
-          />
-        )}
-        {adConsent !== null && (
-          <button className="privacy-footer-link" onClick={() => setShowPrivacyPolicy(true)}>
-            Confidentialité & publicité
-          </button>
-        )}
+        <div className="home-footer">
+          <button className="privacy-footer-link" onClick={() => setShowTerms(true)}>CGU</button>
+          <span className="privacy-footer-sep">·</span>
+          <button className="privacy-footer-link" onClick={() => setShowPrivacyPolicy(true)}>Confidentialité</button>
+          {session && (
+            <>
+              <span className="privacy-footer-sep">·</span>
+              <button className="privacy-footer-link privacy-footer-danger" onClick={() => setShowDeleteAccount(true)}>Supprimer mon compte</button>
+            </>
+          )}
+        </div>
+
         {showComposer && (
           <ChallengeComposer onClose={() => setShowComposer(false)} />
         )}
-        {showQuestMap && (
-          <QuestMap
-            userId={session?.user?.id ?? null}
-            onClose={() => setShowQuestMap(false)}
-            onPlayStage={handlePlayQuestStage}
+        {pendingAdAction && (
+          <AdInterstitial
+            onContinue={handleAdContinue}
+            onClose={handleAdClose}
           />
         )}
-        {showMathQuestMap && (
-          <MathQuestMap
-            userId={session?.user?.id ?? null}
-            onClose={() => setShowMathQuestMap(false)}
-            onPlayStage={handlePlayMathQuestStage}
-          />
+        {showOnboarding && (
+          <OnboardingModal onClose={handleCloseOnboarding} />
         )}
+        {/* QUEST_DISABLED: QuestMap + MathQuestMap */}
       </>
     );
   }
@@ -690,12 +716,7 @@ export default function App() {
           result="won"
           onReplay={handleReplay}
           onClose={game.dismissWinModal}
-          onRequestRematch={() => setShowRematchComposer(true)}
-          activeQuestStage={game.activeQuestStage}
-          onReturnToQuest={() => { game.resetToMenu(); setShowQuestMap(true); }}
-          activeMathQuestStage={game.activeMathQuestStage}
-          onSubmitMathAnswer={game.submitMathAnswer}
-          onReturnToMathQuest={() => { game.resetToMenu(); setShowMathQuestMap(true); }}
+          onRequestRematch={handleRequestRematchWithAd}
         />
       )}
 
@@ -708,6 +729,13 @@ export default function App() {
           userId={session?.user?.id ?? null}
           userEmail={session?.user?.email ?? null}
           onClose={() => setShowRematchComposer(false)}
+        />
+      )}
+
+      {pendingAdAction && (
+        <AdInterstitial
+          onContinue={handleAdContinue}
+          onClose={handleAdClose}
         />
       )}
 

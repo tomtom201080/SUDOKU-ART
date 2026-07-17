@@ -43,6 +43,25 @@ export function resolveImagePath(tier, metadata, fallbackId) {
   return `/images/${tier}/${filename}`;
 }
 
+// Renvoie une URL de miniature réduite pour les images Wikimedia Commons,
+// suffisante pour le filigrane derrière la grille (la grille fait ~360px de
+// large au maximum). Utiliser une miniature plutôt que l'original (parfois
+// plusieurs Mo) réduit considérablement le lag pendant la partie.
+// Pour les images locales (pas d'imageUrl), on laisse le chemin inchangé.
+export function resolveImagePathLow(tier, metadata, fallbackId) {
+  const url = metadata?.imageUrl;
+  if (!url) return `/images/${tier}/${metadata?.file ?? `${fallbackId}.jpg`}`;
+
+  // Wikimedia Commons supporte le paramètre ?width= sur Special:FilePath
+  if (url.includes('commons.wikimedia.org/wiki/Special:FilePath')) {
+    return `${url}${url.includes('?') ? '&' : '?'}width=480`;
+  }
+
+  // Autre hébergeur : on n'a pas de mécanisme de miniature disponible,
+  // on retombe sur l'original.
+  return url;
+}
+
 // Construit une liste plate { id, tier, path, ...métadonnées } de toutes les
 // images disponibles, toutes raretés confondues.
 export function listAllImages(manifest) {
@@ -54,7 +73,8 @@ export function listAllImages(manifest) {
       images.push({
         id: paintingId,
         tier,
-        path: resolveImagePath(tier, metadata, paintingId),
+        path: resolveImagePath(tier, metadata, paintingId),    // URL HD (victoire)
+        pathLow: resolveImagePathLow(tier, metadata, paintingId), // URL miniature (filigrane)
         title: metadata?.title ?? null,
         artist: metadata?.artist ?? null,
         year: metadata?.year ?? null,

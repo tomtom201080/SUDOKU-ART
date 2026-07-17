@@ -1,7 +1,7 @@
 // src/hooks/useGame.js
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { generateSudoku, isGridComplete, DIFFICULTIES } from '../sudoku/generator';
-import { pickImageForTier, pickRewardImage, resolveImagePath, TIERS_BY_DIFFICULTY } from '../data/imageLibrary';
+import { resolveImagePath, resolveImagePathLow, listAllImages, pickImageForTier, pickRewardImage, TIERS_BY_DIFFICULTY } from '../data/imageLibrary';
 import { addToGallery, recordWin } from '../utils/storage';
 import { markChallengeCompleted, deleteChallenge } from '../lib/challenges';
 import { markPaintingSeen, getMergedUnseenIds } from '../lib/seenPaintings';
@@ -82,7 +82,17 @@ export function useGame(manifest, userId = null) {
   const [userGrid, setUserGrid] = useState(null);
   const [watermark, setWatermark] = useState(null);
   const [watermarkVisible, setWatermarkVisible] = useState(true);
-  const [imageIntensity, setImageIntensity] = useState(0.28);
+  const INTENSITY_KEY = 'sudoku-devoile:imageIntensity';
+  const [imageIntensity, setImageIntensityState] = useState(() => {
+    try {
+      const stored = localStorage.getItem(INTENSITY_KEY);
+      return stored !== null ? parseFloat(stored) : 0.28;
+    } catch { return 0.28; }
+  });
+  const setImageIntensity = (v) => {
+    setImageIntensityState(v);
+    try { localStorage.setItem(INTENSITY_KEY, String(v)); } catch {}
+  };
   const [isComplete, setIsComplete] = useState(false);
   const [showWinModal, setShowWinModal] = useState(false);
   const [isFailed, setIsFailed] = useState(false);
@@ -614,6 +624,13 @@ export function useGame(manifest, userId = null) {
         addToGallery(watermark, { difficulty });
         setRewardImage(watermark);
         if (userId) markPaintingSeen(userId, watermark.id).catch(() => null);
+        // La popup de victoire s'ouvre 3 secondes après — on profite de ce
+        // délai pour précharger la version HD (path) dans le cache navigateur,
+        // afin qu'elle s'affiche immédiatement sans à-coup à l'ouverture.
+        if (watermark.pathLow && watermark.path !== watermark.pathLow) {
+          const hdImg = new Image();
+          hdImg.src = watermark.path;
+        }
       }
 
       if (activeRematch?.id) {
@@ -676,9 +693,11 @@ export function useGame(manifest, userId = null) {
       addToGallery(watermark, { difficulty });
       setRewardImage(watermark);
       if (userId) markPaintingSeen(userId, watermark.id).catch(() => null);
+      if (watermark.pathLow && watermark.path !== watermark.pathLow) {
+        const hdImg = new Image();
+        hdImg.src = watermark.path;
+      }
     }
-
-    setCelebrate([{ type: 'all', index: 0 }]);
     if (celebrateTimeoutRef.current) clearTimeout(celebrateTimeoutRef.current);
     celebrateTimeoutRef.current = setTimeout(() => setCelebrate([]), 3000);
     if (winRevealTimeoutRef.current) clearTimeout(winRevealTimeoutRef.current);

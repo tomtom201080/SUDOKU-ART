@@ -21,7 +21,40 @@ function extensionFromFile(file) {
 // Téléverse la photo choisie vers Supabase Storage, dans un dossier dédié aux
 // photos partagées par lien. Retourne le chemin de stockage (pas l'URL
 // publique complète, pour garder le lien plus court).
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+const MAX_FILE_SIZE_MB = 10;
+
+// Valide et uploade une photo. Renvoie une erreur explicite si le fichier
+// est trop grand, pas une image, ou a un type MIME non autorisé.
 export async function uploadSharedPhoto(file) {
+  // 1. Type MIME
+  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+    throw new Error(`Format non supporté (${file.type}). Utilise une photo au format JPG, PNG ou WebP.`);
+  }
+
+  // 2. Taille
+  if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+    throw new Error(`Photo trop lourde (${(file.size / 1024 / 1024).toFixed(1)} Mo). Maximum : ${MAX_FILE_SIZE_MB} Mo.`);
+  }
+
+  // 3. Vérification que c'est vraiment une image lisible (header magic bytes)
+  const isImage = await new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const arr = new Uint8Array(e.target.result);
+      // JPEG: FF D8 FF | PNG: 89 50 4E 47 | WebP: 52 49 46 46
+      const isJpeg = arr[0] === 0xFF && arr[1] === 0xD8 && arr[2] === 0xFF;
+      const isPng = arr[0] === 0x89 && arr[1] === 0x50 && arr[2] === 0x4E && arr[3] === 0x47;
+      const isWebp = arr[0] === 0x52 && arr[1] === 0x49 && arr[2] === 0x46 && arr[3] === 0x46;
+      resolve(isJpeg || isPng || isWebp || file.type.includes('heic') || file.type.includes('heif'));
+    };
+    reader.readAsArrayBuffer(file.slice(0, 12));
+  });
+
+  if (!isImage) {
+    throw new Error("Le fichier ne semble pas être une image valide.");
+  }
+
   const ext = extensionFromFile(file);
   const path = `${SHARED_FOLDER}/${randomId()}.${ext}`;
 

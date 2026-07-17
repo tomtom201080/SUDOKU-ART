@@ -98,7 +98,10 @@ const SudokuBoard = forwardRef(function SudokuBoard({
             const bgStyle =
               watermark && watermarkVisible && !watermarkDisabled
                 ? {
-                    backgroundImage: `url(${watermark.path})`,
+                    // On utilise la miniature (pathLow) pendant la partie pour
+                    // éviter de charger un fichier de plusieurs Mo derrière
+                    // la grille — la HD (path) sera utilisée à la victoire.
+                    backgroundImage: `url(${watermark.pathLow ?? watermark.path})`,
                     backgroundSize: '900% 900%',
                     backgroundPosition: backgroundPositionFor(row, col)
                   }

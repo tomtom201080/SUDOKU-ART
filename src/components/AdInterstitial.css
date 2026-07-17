@@ -1,0 +1,73 @@
+.ad-interstitial-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 320;
+  padding: 16px;
+}
+
+.ad-interstitial-panel {
+  background: var(--card-bg);
+  border-radius: 16px;
+  width: min(94vw, 400px);
+  overflow: hidden;
+}
+
+.ad-interstitial-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--bg-color);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.ad-interstitial-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ad-interstitial-close {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.ad-interstitial-slot {
+  min-height: 250px;
+  width: 100%;
+  background: var(--bg-color);
+}
+
+.ad-interstitial-footer {
+  padding: 14px;
+  text-align: center;
+  border-top: 1px solid var(--card-border);
+}
+
+.ad-interstitial-footer p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.ad-interstitial-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  border: none;
+  color: var(--accent-text);
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}

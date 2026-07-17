@@ -193,3 +193,21 @@ body {
   cursor: pointer;
   text-align: center;
 }
+
+.home-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 20px 0 8px;
+  flex-wrap: wrap;
+}
+
+.privacy-footer-sep {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.privacy-footer-danger {
+  color: #D32F2F !important;
+}

@@ -22,22 +22,15 @@ export default function WinModal({
   watermark,
   challengeMeta,
   rematchOutcome,
-  activeQuestStage,
-  activeMathQuestStage,
-  onSubmitMathAnswer,
   errorCount,
   elapsedSeconds,
   onReplay,
   onClose,
   onRequestRematch,
-  onReturnToQuest,
-  onReturnToMathQuest
 }) {
   const [showSaveNotice, setShowSaveNotice] = useState(false);
   const [resultSent, setResultSent] = useState(false);
   const [rematchResultSent, setRematchResultSent] = useState(false);
-  const [mathAnswer, setMathAnswer] = useState('');
-  const [mathFeedback, setMathFeedback] = useState(null); // null | 'wrong' | 'correct'
 
   const isCustomGame = watermark?.isCustom;
   const photoUrl = isCustomGame ? watermark.path : null;
@@ -57,40 +50,39 @@ export default function WinModal({
     setShowSaveNotice(false);
   };
 
+  const shareAchievementText = () => {
+    const diff = DIFFICULTY_LABELS[difficulty] ?? difficulty ?? '';
+    const title = rewardImage?.title;
+    const time = formatTime(elapsedSeconds);
+    const errors = errorCount === 0 ? 'aucune erreur 🏆' : `${errorCount} erreur${errorCount > 1 ? 's' : ''}`;
+    const painting = title ? `J'ai dévoilé "${title}" en finissant mon Sudoku Art ! 🎨\n` : '';
+    return `${painting}Difficulté : ${diff} — ${time} — ${errors}\nJoue aussi : https://sudoku-art.vercel.app`;
+  };
+
   const handleShare = async () => {
-    if (!isMobileDevice()) {
-      const text = 'Regarde la photo que j\'ai dévoilée en finissant mon Sudoku ! 🧩';
-      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-      return;
-    }
+    const text = shareAchievementText();
+    const rewardUrl = rewardImage?.path ?? photoUrl;
 
-    try {
-      const response = await fetch(photoUrl);
-      const blob = await response.blob();
-      const file = new File([blob], 'sudoku-devoile-photo.jpg', { type: blob.type || 'image/jpeg' });
-
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: 'Sudoku Art',
-          text: 'Regarde la photo que j\'ai dévoilée en finissant mon Sudoku ! 🧩'
-        });
-        return;
+    if (isMobileDevice()) {
+      try {
+        if (rewardUrl) {
+          const response = await fetch(rewardUrl);
+          const blob = await response.blob();
+          const file = new File([blob], 'sudoku-art.jpg', { type: blob.type || 'image/jpeg' });
+          if (navigator.canShare?.({ files: [file] })) {
+            await navigator.share({ files: [file], title: 'Sudoku Art', text });
+            return;
+          }
+        }
+        if (navigator.share) {
+          await navigator.share({ title: 'Sudoku Art', url: 'https://sudoku-art.vercel.app', text });
+          return;
+        }
+      } catch {
+        // annulé ou non supporté — on retombe sur WhatsApp
       }
-
-      if (navigator.share) {
-        await navigator.share({
-          title: 'Sudoku Art',
-          text: 'Regarde la photo que j\'ai dévoilée en finissant mon Sudoku ! 🧩'
-        });
-        return;
-      }
-    } catch {
-      // Le partage natif a échoué ou a été annulé : on retombe sur WhatsApp Web.
     }
-
-    const text = encodeURIComponent('Regarde la photo que j\'ai dévoilée en finissant mon Sudoku ! 🧩');
-    window.open(`https://wa.me/?text=${text}`, '_blank');
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   const handleSendResult = async () => {
@@ -117,12 +109,6 @@ export default function WinModal({
     setRematchResultSent(true);
   };
 
-  const handleSubmitMathAnswer = (e) => {
-    e.preventDefault();
-    const correct = onSubmitMathAnswer(mathAnswer);
-    setMathFeedback(correct ? 'correct' : 'wrong');
-  };
-
   return (
     <div className="win-overlay">
       <div className="win-panel">
@@ -133,53 +119,6 @@ export default function WinModal({
           <p className="win-challenge-stats">
             ❌ {errorCount} erreur{errorCount === 1 ? '' : 's'} — ⏱ {formatTime(elapsedSeconds)}
           </p>
-        )}
-
-        {activeQuestStage && (
-          <div className="rematch-outcome">
-            <p className="rematch-outcome-title">
-              🏆 Étape {activeQuestStage.number} / 49 de la quête Sudokart terminée !
-            </p>
-            <button className="win-btn-secondary win-send-result-btn" onClick={onReturnToQuest}>
-              Retour au parcours
-            </button>
-          </div>
-        )}
-
-        {activeMathQuestStage && (
-          <div className="rematch-outcome">
-            {mathFeedback === 'correct' ? (
-              <>
-                <p className="rematch-outcome-title">
-                  🧠 Énigme résolue ! Étape {activeMathQuestStage.number} / 50 de Sudomath terminée !
-                </p>
-                <button className="win-btn-secondary win-send-result-btn" onClick={onReturnToMathQuest}>
-                  Retour au parcours
-                </button>
-              </>
-            ) : (
-              <>
-                <p className="rematch-outcome-title">
-                  🧮 Pour valider cette étape, résous l'énigme :
-                </p>
-                <p className="hint-step-text">{activeMathQuestStage.riddle.question}</p>
-                <form onSubmit={handleSubmitMathAnswer} className="math-answer-form">
-                  <input
-                    type="text"
-                    className="challenge-name-input"
-                    value={mathAnswer}
-                    onChange={(e) => { setMathAnswer(e.target.value); setMathFeedback(null); }}
-                    placeholder="Ta réponse"
-                    autoFocus
-                  />
-                  <button type="submit" className="win-btn-primary">Valider</button>
-                </form>
-                {mathFeedback === 'wrong' && (
-                  <p className="challenge-error-note">Pas tout à fait — réessaie !</p>
-                )}
-              </>
-            )}
-          </div>
         )}
 
         {rematchOutcome && (
