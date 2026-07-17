@@ -1,5 +1,5 @@
 // src/components/ChallengeComposer.jsx
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { uploadSharedPhoto, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
 import { createChallenge, buildChallengeLink } from '../lib/challenges';
 import { isMobileDevice } from '../utils/device';
@@ -30,9 +30,19 @@ const TIME_OPTIONS = [
   { value: 30, label: '30 min' }
 ];
 
-export default function ChallengeComposer({ onClose }) {
+export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null }) {
   const [photoFile, setPhotoFile] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(preloadedPhotoUrl);
+
+  useEffect(() => {
+    if (!preloadedPhotoUrl) return;
+    fetch(preloadedPhotoUrl)
+      .then(r => r.blob())
+      .then(blob => {
+        setPhotoFile(new File([blob], 'photo-perso.jpg', { type: blob.type || 'image/jpeg' }));
+      })
+      .catch(() => null);
+  }, [preloadedPhotoUrl]);
   const [difficultyMode, setDifficultyMode] = useState('auto');
   const [maxErrors, setMaxErrors] = useState(3);
   const [timeLimitMinutes, setTimeLimitMinutes] = useState(null);

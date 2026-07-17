@@ -9,7 +9,7 @@ const DIFFICULTY_OPTIONS = [
   { id: 'enfer',     label: 'Enfer',     icon: '🔥', sub: 'Tableau légendaire' }
 ];
 
-// Écran principal : 3 vignettes homogènes
+// Écran principal : 4 vignettes en grille 2x2
 function HomeScreen({ onPick }) {
   return (
     <div className="ds-home">
@@ -25,10 +25,16 @@ function HomeScreen({ onPick }) {
           <span className="ds-card-desc">Découvre une grande œuvre cachée derrière ta grille</span>
         </button>
 
+        <button className="ds-card" onClick={() => onPick('classic')}>
+          <span className="ds-card-icon">🔢</span>
+          <span className="ds-card-label">Sudoku</span>
+          <span className="ds-card-desc">Le sudoku classique, sans image, pour se concentrer</span>
+        </button>
+
         <button className="ds-card" onClick={() => onPick('photo')}>
           <span className="ds-card-icon">📷</span>
           <span className="ds-card-label">Ma photo</span>
-          <span className="ds-card-desc">Utilise l'une de tes photos comme fond à dévoiler</span>
+          <span className="ds-card-desc">Envoie une photo à un ami à dévoiler en jouant</span>
         </button>
 
         <button className="ds-card" onClick={() => onPick('challenge')}>
@@ -67,9 +73,10 @@ function DifficultyScreen({ title, customImage, onSelectDifficulty, onBack }) {
   );
 }
 
-// Sous-écran : photo perso — d'abord choisir la photo, puis la difficulté
-function PhotoScreen({ onSelectDifficulty, onBack }) {
+// Sous-écran : photo perso — choisir la photo, puis jouer seul ou envoyer
+function PhotoScreen({ onSelectDifficulty, onSendChallenge, onBack }) {
   const [customImage, setCustomImage] = useState(null);
+  const [mode, setMode] = useState(null); // null | 'play' | 'send'
   const fileInputRef = useRef(null);
 
   const handleFileChange = (e) => {
@@ -77,35 +84,55 @@ function PhotoScreen({ onSelectDifficulty, onBack }) {
     if (!file) return;
     if (customImage) URL.revokeObjectURL(customImage);
     setCustomImage(URL.createObjectURL(file));
+    setMode(null);
   };
 
-  if (customImage) {
+  // Étape 1 : choisir la photo
+  if (!customImage) {
     return (
-      <DifficultyScreen
-        title="Choisis la difficulté"
-        customImage={customImage}
-        onSelectDifficulty={(diff) => onSelectDifficulty(diff, customImage)}
-        onBack={() => { URL.revokeObjectURL(customImage); setCustomImage(null); }}
-      />
+      <div className="ds-sub">
+        <button className="ds-back" onClick={onBack}>← Retour</button>
+        <p className="ds-sub-title">Choisis une photo</p>
+        <p className="ds-sub-desc">Elle se révèlera au fur et à mesure que tu remplis la grille.</p>
+        <button className="ds-photo-pick-btn" onClick={() => fileInputRef.current?.click()}>
+          📷 Choisir depuis ma galerie
+        </button>
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+      </div>
     );
   }
 
+  // Étape 2 : que veux-tu faire avec cette photo ?
+  if (!mode) {
+    return (
+      <div className="ds-sub">
+        <button className="ds-back" onClick={() => { URL.revokeObjectURL(customImage); setCustomImage(null); }}>← Changer de photo</button>
+        <img className="ds-photo-preview" src={customImage} alt="Ta photo" />
+        <p className="ds-sub-title">Que veux-tu faire ?</p>
+        <div className="ds-photo-choice">
+          <button className="ds-choice-btn" onClick={() => setMode('play')}>
+            <span className="ds-choice-icon">🎮</span>
+            <span className="ds-choice-label">Jouer seul</span>
+            <span className="ds-choice-desc">Découvre ta photo en jouant pour toi</span>
+          </button>
+          <button className="ds-choice-btn" onClick={() => { onSendChallenge(customImage); }}>
+            <span className="ds-choice-icon">📤</span>
+            <span className="ds-choice-label">Envoyer à un ami</span>
+            <span className="ds-choice-desc">Crée un défi avec ta photo et partage le lien WhatsApp</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Étape 3 : choisir la difficulté (mode jouer seul)
   return (
-    <div className="ds-sub">
-      <button className="ds-back" onClick={onBack}>← Retour</button>
-      <p className="ds-sub-title">Choisis une photo</p>
-      <p className="ds-sub-desc">Elle se révèlera au fur et à mesure que tu remplis la grille.</p>
-      <button className="ds-photo-pick-btn" onClick={() => fileInputRef.current?.click()}>
-        📷 Choisir depuis ma galerie
-      </button>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-        style={{ display: 'none' }}
-      />
-    </div>
+    <DifficultyScreen
+      title="Choisis la difficulté"
+      customImage={customImage}
+      onSelectDifficulty={(diff) => onSelectDifficulty(diff, customImage)}
+      onBack={() => setMode(null)}
+    />
   );
 }
 
@@ -133,7 +160,7 @@ function ChallengeScreen({ onRequestSendChallenge, onBack }) {
 }
 
 export default function DifficultySelector({ onSelect, onRequestSendChallenge }) {
-  const [screen, setScreen] = useState('home'); // 'home' | 'paintings' | 'photo' | 'challenge'
+  const [screen, setScreen] = useState('home');
 
   if (screen === 'paintings') {
     return (
@@ -145,10 +172,21 @@ export default function DifficultySelector({ onSelect, onRequestSendChallenge })
     );
   }
 
+  if (screen === 'classic') {
+    return (
+      <DifficultyScreen
+        title="Sudoku classique"
+        onSelectDifficulty={(diff) => onSelect(diff, 'classic')}
+        onBack={() => setScreen('home')}
+      />
+    );
+  }
+
   if (screen === 'photo') {
     return (
       <PhotoScreen
         onSelectDifficulty={(diff, img) => onSelect(diff, img)}
+        onSendChallenge={(img) => onRequestSendChallenge(img)}
         onBack={() => setScreen('home')}
       />
     );
@@ -157,7 +195,7 @@ export default function DifficultySelector({ onSelect, onRequestSendChallenge })
   if (screen === 'challenge') {
     return (
       <ChallengeScreen
-        onRequestSendChallenge={onRequestSendChallenge}
+        onRequestSendChallenge={() => onRequestSendChallenge(null)}
         onBack={() => setScreen('home')}
       />
     );

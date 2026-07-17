@@ -104,6 +104,7 @@ export default function App() {
   const [showAuthScreen, setShowAuthScreen] = useState(false);
   const [authIntent, setAuthIntent] = useState(null);
   const [showComposer, setShowComposer] = useState(false);
+  const [composerPreloadedPhoto, setComposerPreloadedPhoto] = useState(null);
   const [showRematchComposer, setShowRematchComposer] = useState(false);
   // Interstitielle pub : quelle action est en attente après la pub
   const [pendingAdAction, setPendingAdAction] = useState(null); // null | 'challenge' | 'rematch'
@@ -233,10 +234,17 @@ export default function App() {
   }, []);
 
   const handleSelectDifficulty = (difficultyId, customImageUrl) => {
-    setLastCustomImage(customImageUrl || null);
+    const isClassic = customImageUrl === 'classic';
+    setLastCustomImage(isClassic ? null : (customImageUrl || null));
     setLastChallengeMeta(null);
-    const tier = TIERS_BY_DIFFICULTY[difficultyId] ?? 'commune';
-    game.startNewGame(difficultyId, customImageUrl, null, preloadedByTier[tier] ?? null);
+    if (isClassic) {
+      // Sudoku classique : on lance sans image et on force l'intensité à 0
+      game.setImageIntensity(0);
+      game.startNewGame(difficultyId, null, null, null);
+    } else {
+      const tier = TIERS_BY_DIFFICULTY[difficultyId] ?? 'commune';
+      game.startNewGame(difficultyId, customImageUrl, null, preloadedByTier[tier] ?? null);
+    }
   };
 
   const handlePlayChallenge = useCallback((challenge) => {
@@ -335,7 +343,8 @@ export default function App() {
   };
 
   // Ouvre la pub interstitielle puis l'action cible (défi classique ou même-grille).
-  const handleRequestSendChallenge = () => {
+  const handleRequestSendChallenge = (preloadedPhoto = null) => {
+    setComposerPreloadedPhoto(preloadedPhoto ?? null);
     if (!session) {
       setAuthIntent('challenge');
       setShowAuthScreen(true);
@@ -482,8 +491,6 @@ export default function App() {
           onRequestSendChallenge={handleRequestSendChallenge}
         />
 
-        <HomeProgress userId={session?.user?.id ?? null} />
-
         {adConsent === 'accepted' && (
           <AdSlot slot="1234567890" />
         )}
@@ -584,7 +591,10 @@ export default function App() {
         </div>
 
         {showComposer && (
-          <ChallengeComposer onClose={() => setShowComposer(false)} />
+          <ChallengeComposer
+            preloadedPhotoUrl={composerPreloadedPhoto}
+            onClose={() => { setShowComposer(false); setComposerPreloadedPhoto(null); }}
+          />
         )}
         {pendingAdAction && (
           <AdInterstitial
