@@ -150,6 +150,13 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
 
             {error && <p className="challenge-error-note">{error}</p>}
 
+            {!userId && (
+              <div className="defi-no-account-warning">
+                💡 Sans compte, tu ne sauras pas si ton ami a joué ni qui a gagné.
+                Le défi fonctionnera quand même pour lui.
+              </div>
+            )}
+
             <button
               className="challenge-btn-primary"
               disabled={!difficulty || step === 'sending'}

@@ -51,3 +51,13 @@
   padding: 20px 0;
   text-align: center;
 }
+
+.defi-no-account-warning {
+  background: color-mix(in srgb, var(--accent) 10%, var(--card-bg));
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  color: var(--text-color);
+  line-height: 1.45;
+}

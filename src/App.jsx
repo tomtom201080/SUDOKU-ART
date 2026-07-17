@@ -189,10 +189,6 @@ export default function App() {
   useEffect(() => {
     if (session && showAuthScreen) {
       setShowAuthScreen(false);
-      if (authIntent === 'challenge') {
-        setShowComposer(true);
-      // QUEST_DISABLED
-      }
       setAuthIntent(null);
     }
   }, [session, showAuthScreen, authIntent]);
@@ -348,11 +344,6 @@ export default function App() {
   // Ouvre la pub interstitielle puis l'action cible (défi classique ou même-grille).
   const handleRequestSendChallenge = (preloadedPhoto = null) => {
     setComposerPreloadedPhoto(preloadedPhoto ?? null);
-    if (!session) {
-      setAuthIntent('challenge');
-      setShowAuthScreen(true);
-      return;
-    }
     setPendingAdAction('challenge');
   };
 

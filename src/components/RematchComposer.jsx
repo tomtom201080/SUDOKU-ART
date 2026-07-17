@@ -125,6 +125,12 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
               <p className="challenge-error-note">L'envoi a échoué, réessaie dans un instant.</p>
             )}
 
+            {!userId && (
+              <div className="defi-no-account-warning">
+                💡 Sans compte, tu ne sauras pas si ton ami a joué ni qui a gagné.
+              </div>
+            )}
+
             <button
               className="challenge-btn-primary"
               onClick={handleSend}
