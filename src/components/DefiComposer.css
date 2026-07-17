@@ -1,0 +1,53 @@
+.defi-difficulty-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.defi-diff-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 4px;
+  border-radius: 12px;
+  border: 2px solid var(--card-border);
+  background: var(--bg-color);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-color);
+  transition: border-color 0.15s, transform 0.1s;
+}
+
+.defi-diff-btn span:first-child {
+  font-size: 1.4rem;
+}
+
+.defi-diff-btn.is-selected {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.defi-diff-btn:active { transform: scale(0.95); }
+
+.defi-photo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.defi-photo-thumb {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+}
+
+.defi-done {
+  padding: 20px 0;
+  text-align: center;
+}

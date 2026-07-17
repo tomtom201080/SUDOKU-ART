@@ -10,6 +10,7 @@ import HintModal from './components/HintModal';
 import AuthScreen from './components/AuthScreen';
 import ChallengeComposer from './components/ChallengeComposer';
 import RematchComposer from './components/RematchComposer';
+import DefiComposer from './components/DefiComposer';
 import RematchResultDetail from './components/RematchResultDetail';
 // QUEST_DISABLED: import QuestMap from './components/QuestMap';
 // QUEST_DISABLED: import MathQuestMap from './components/MathQuestMap';
@@ -106,6 +107,7 @@ export default function App() {
   const [showComposer, setShowComposer] = useState(false);
   const [composerPreloadedPhoto, setComposerPreloadedPhoto] = useState(null);
   const [showRematchComposer, setShowRematchComposer] = useState(false);
+  const [showDefiComposer, setShowDefiComposer] = useState(false);
   // Interstitielle pub : quelle action est en attente après la pub
   const [pendingAdAction, setPendingAdAction] = useState(null); // null | 'challenge' | 'rematch'
   // QUEST_DISABLED: const [showQuestMap, setShowQuestMap] = useState(false);
@@ -364,9 +366,24 @@ export default function App() {
     setPendingAdAction(null);
     if (action === 'challenge') setShowComposer(true);
     if (action === 'rematch') setShowRematchComposer(true);
+    if (action === 'defi') setShowDefiComposer(true);
   };
 
   const handleAdClose = () => setPendingAdAction(null);
+
+  // Ouvre DefiComposer avec une pub interstitielle avant
+  const handleOpenDefi = () => {
+    setPendingAdAction('defi');
+  };
+
+  // Appelé par DefiComposer quand la grille est prête à jouer
+  const handleDefiStartGame = ({ rematch, puzzleData, photoUrl }) => {
+    setShowDefiComposer(false);
+    setLastCustomImage(photoUrl ?? null);
+    setIsClassicMode(false);
+    setLastChallengeMeta(null);
+    game.startRematchGame(rematch, photoUrl);
+  };
 
   // QUEST_DISABLED: handleRequestQuest, handlePlayQuestStage, handleRequestMathQuest
 
@@ -480,6 +497,7 @@ export default function App() {
         <DifficultySelector
           onSelect={handleSelectDifficulty}
           onRequestSendChallenge={handleRequestSendChallenge}
+          onOpenDefi={handleOpenDefi}
         />
 
         {adConsent === 'accepted' && (
@@ -585,6 +603,14 @@ export default function App() {
           <ChallengeComposer
             preloadedPhotoUrl={composerPreloadedPhoto}
             onClose={() => { setShowComposer(false); setComposerPreloadedPhoto(null); }}
+          />
+        )}
+        {showDefiComposer && (
+          <DefiComposer
+            onClose={() => setShowDefiComposer(false)}
+            onStartGame={handleDefiStartGame}
+            userId={session?.user?.id ?? null}
+            userEmail={session?.user?.email ?? null}
           />
         )}
         {pendingAdAction && (

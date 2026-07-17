@@ -3,14 +3,14 @@ import { useRef, useState } from 'react';
 import './DifficultySelector.css';
 
 const DIFFICULTY_OPTIONS = [
-  { id: 'facile',    label: 'Facile',    icon: '😌', sub: 'Tableau commun' },
-  { id: 'moyen',     label: 'Moyen',     icon: '🙂', sub: 'Tableau commun' },
-  { id: 'complique', label: 'Compliqué', icon: '😬', sub: 'Tableau rare' },
-  { id: 'enfer',     label: 'Enfer',     icon: '🔥', sub: 'Tableau légendaire' }
+  { id: 'facile',    label: 'Facile',    icon: '😌' },
+  { id: 'moyen',     label: 'Moyen',     icon: '🙂' },
+  { id: 'complique', label: 'Compliqué', icon: '😬' },
+  { id: 'enfer',     label: 'Enfer',     icon: '🔥' }
 ];
 
 // Écran principal : 4 vignettes en grille 2x2
-function HomeScreen({ onPick }) {
+function HomeScreen({ onPick, onOpenDefi }) {
   return (
     <div className="ds-home">
       <div className="ds-logo-block">
@@ -37,10 +37,10 @@ function HomeScreen({ onPick }) {
           <span className="ds-card-desc">Envoie une photo à un ami à dévoiler en jouant</span>
         </button>
 
-        <button className="ds-card" onClick={() => onPick('challenge')}>
+        <button className="ds-card" onClick={onOpenDefi}>
           <span className="ds-card-icon">🎯</span>
           <span className="ds-card-label">Défi</span>
-          <span className="ds-card-desc">Joue puis envoie la même grille à un ami — qui gagne ?</span>
+          <span className="ds-card-desc">Configure, envoie à un ami et jouez la même grille</span>
         </button>
       </div>
     </div>
@@ -65,7 +65,6 @@ function DifficultyScreen({ title, customImage, onSelectDifficulty, onBack }) {
           >
             <span className="difficulty-icon">{opt.icon}</span>
             <span className="difficulty-label">{opt.label}</span>
-            <span className="difficulty-tier">{opt.sub}</span>
           </button>
         ))}
       </div>
@@ -170,7 +169,7 @@ function ChallengeScreen({ onSelect, onBack }) {
   );
 }
 
-export default function DifficultySelector({ onSelect, onRequestSendChallenge }) {
+export default function DifficultySelector({ onSelect, onRequestSendChallenge, onOpenDefi }) {
   const [screen, setScreen] = useState('home');
 
   if (screen === 'paintings') {
@@ -203,14 +202,5 @@ export default function DifficultySelector({ onSelect, onRequestSendChallenge })
     );
   }
 
-  if (screen === 'challenge') {
-    return (
-      <ChallengeScreen
-        onSelect={onSelect}
-        onBack={() => setScreen('home')}
-      />
-    );
-  }
-
-  return <HomeScreen onPick={setScreen} />;
+  return <HomeScreen onPick={setScreen} onOpenDefi={onOpenDefi} />;
 }
