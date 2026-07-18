@@ -13,6 +13,7 @@ import RematchComposer from './components/RematchComposer';
 import DefiComposer from './components/DefiComposer';
 import DefiDashboard from './components/DefiDashboard';
 import QuitConfirmModal from './components/QuitConfirmModal';
+import MaxErrorsModal from './components/MaxErrorsModal';
 import RematchResultDetail from './components/RematchResultDetail';
 // QUEST_DISABLED: import QuestMap from './components/QuestMap';
 // QUEST_DISABLED: import MathQuestMap from './components/MathQuestMap';
@@ -198,7 +199,11 @@ export default function App() {
     }
   }, [session, showAuthScreen, authIntent]);
 
-  const game = useGame(manifest, session?.user?.id ?? null);
+  const [showMaxErrors, setShowMaxErrors] = useState(false);
+
+  const game = useGame(manifest, session?.user?.id ?? null, {
+    onMaxErrorsReached: () => setShowMaxErrors(true)
+  });
 
   const [preloadedByTier, setPreloadedByTier] = useState({});
 
@@ -382,6 +387,8 @@ export default function App() {
     setLastCustomImage(photoUrl ?? null);
     setIsClassicMode(false);
     setLastChallengeMeta(null);
+    // L'expéditeur peut toujours jouer sa propre grille — pas de blocage
+    // anti-relance ici (c'est réservé au destinataire)
     game.startRematchGame(rematch, photoUrl);
   };
 
@@ -431,16 +438,19 @@ export default function App() {
     setShowAuthScreen(true);
   };
 
-  const handleHintFill = (row, col, value) => {
+  const [hintRevealCell, setHintRevealCell] = useState(null); // { row, col, value }
+
+  const handleRevealHint = (row, col, value) => {
+    // 1. Place le chiffre dans la grille
     game.setCellValue(row, col, value);
+    game.setHintsUsed(h => h + 1);
     setShowHint(false);
-    setHintStepIndex(0);
+    // 2. Déclenche l'animation étoiles sur cette case
+    setHintRevealCell({ row, col, value });
+    setTimeout(() => setHintRevealCell(null), 2200);
   };
 
-  const currentHint = showHint ? game.getHint() : null;
-
   const handleOpenHint = () => setShowHint(true);
-
   const handleCloseHint = () => setShowHint(false);
 
   // Un clic en dehors de la grille (et du pavé numérique) désélectionne la
@@ -659,36 +669,22 @@ export default function App() {
 
   return (
     <>
-      <header className="app-header app-header-game">
+      <header className="app-header">
         <img src="/favicon.svg" alt="Sudoku Art" className="app-logo" />
-        <div className="game-header-right">
-          <div className="game-stats-row">
-            <span className="stat-pill stat-pill-timer" title="Temps de jeu">
-              ⏱ {formatTime(game.elapsedSeconds)}
-              {game.challengeMeta?.timeLimitSeconds
-                ? ` / ${formatTime(game.challengeMeta.timeLimitSeconds)}`
-                : ''}
-            </span>
-            <span className="stat-pill" title="Difficulté">
-              {DIFFICULTY_ICONS[game.difficulty] ?? '🎯'} {DIFFICULTY_LABELS[game.difficulty] ?? game.difficulty}
-            </span>
-            <span className="stat-pill" title="Nombre d'erreurs">
-              ❌ {game.errorCount}
-              {game.challengeMeta?.maxErrors != null ? ` / ${game.challengeMeta.maxErrors}` : ''}
-            </span>
-          </div>
-          <div className="game-buttons-row">
-            {darkModeButton}
-            <button
-              className="icon-btn"
-              onClick={game.toggleWatermark}
-              title={game.watermarkVisible ? 'Masquer le filigrane' : 'Afficher le filigrane'}
-            >
-              {game.watermarkVisible ? '🙈' : '🙉'}
-            </button>
-            <button className="icon-btn" onClick={handleOpenGallery} title={t('gallery_title')}>🖼</button>
-            <button className="icon-btn" onClick={handleCloseGameEnd} title="Menu">↩</button>
-          </div>
+        <div className="header-actions">
+          <span className="stat-pill stat-pill-timer">
+            ⏱ {formatTime(game.elapsedSeconds)}
+            {game.challengeMeta?.timeLimitSeconds ? ` / ${formatTime(game.challengeMeta.timeLimitSeconds)}` : ''}
+          </span>
+          <span className="stat-pill">
+            {DIFFICULTY_ICONS[game.difficulty] ?? '🎯'} {DIFFICULTY_LABELS[game.difficulty] ?? game.difficulty}
+          </span>
+          <span className="stat-pill">❌ {game.errorCount} / {game.challengeMeta?.maxErrors ?? 3}</span>
+          {darkModeButton}
+          <button className="icon-btn" onClick={game.toggleWatermark} title="Filigrane">
+            {game.watermarkVisible ? '🙈' : '🙉'}
+          </button>
+          <button className="icon-btn" onClick={handleCloseGameEnd} title="Menu">↩</button>
         </div>
       </header>
 
@@ -728,8 +724,9 @@ export default function App() {
           highlightValue={highlightValue}
           celebrate={game.celebrate}
           isComplete={game.isComplete || game.tempFullReveal}
-          hintHighlightZones={currentHint ? [{ color: 'answer', cells: [{ row: currentHint.row, col: currentHint.col }] }] : []}
-          hintTargetCell={currentHint ? { row: currentHint.row, col: currentHint.col } : null}
+          hintHighlightZones={hintRevealCell ? [{ color: 'answer', cells: [{ row: hintRevealCell.row, col: hintRevealCell.col }] }] : []}
+          hintTargetCell={hintRevealCell ?? null}
+          hintRevealCell={hintRevealCell}
           onSelectCell={handleSelectCell}
         />
 
@@ -748,11 +745,9 @@ export default function App() {
 
       {showHint && (
         <HintModal
-          hint={currentHint}
-          onFill={(row, col, value) => {
-            handleHintFill(row, col, value);
-            game.setHintsUsed(h => h + 1);
-          }}
+          userGrid={game.userGrid}
+          puzzleSolution={game.puzzleData?.solution}
+          onRevealHint={handleRevealHint}
           onClose={handleCloseHint}
           hintsUsed={game.hintsUsed}
           maxHints={game.challengeMeta?.maxHints ?? null}
@@ -814,6 +809,22 @@ export default function App() {
           onContinue={() => setShowQuitConfirm(false)}
           onLogin={handleQuitAndLogin}
           onQuit={handleQuitConfirmed}
+        />
+      )}
+
+      {showMaxErrors && (
+        <MaxErrorsModal
+          errorCount={game.errorCount}
+          maxErrors={3}
+          onContinue={() => {
+            setShowMaxErrors(false);
+            // Réinitialise le compteur à 2/3 (une erreur "offerte")
+            game.resetErrorCount(2);
+          }}
+          onGameOver={() => {
+            setShowMaxErrors(false);
+            game.triggerFail();
+          }}
         />
       )}
 

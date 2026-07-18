@@ -58,8 +58,8 @@ export async function createRematch({
   const { data, error } = await supabase
     .from('rematches')
     .insert({
-      puzzle,
-      solution,
+      puzzle: JSON.stringify(puzzle),
+      solution: JSON.stringify(solution),
       difficulty,
       photo_path: photoPath ?? null,
       challenger_name: challengerName ?? null,

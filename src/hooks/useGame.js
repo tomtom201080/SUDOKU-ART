@@ -76,7 +76,7 @@ function isColComplete(col, grid, solution) {
 const CENTER_ROW = 4;
 const CENTER_COL = 4;
 
-export function useGame(manifest, userId = null) {
+export function useGame(manifest, userId = null, { onMaxErrorsReached } = {}) {
   const [difficulty, setDifficulty] = useState(null);
   const [puzzleData, setPuzzleData] = useState(null); // { puzzle, solution, givenMask }
   const [userGrid, setUserGrid] = useState(null);
@@ -195,8 +195,10 @@ export function useGame(manifest, userId = null) {
   // défi "même grille") : on ne génère rien, on rejoue exactement le même
   // puzzle que le challenger, pour pouvoir comparer les résultats à la fin.
   const startRematchGame = useCallback((rematch, photoUrl) => {
-    const puzzle = rematch.puzzle;
-    const solution = rematch.solution;
+    // puzzle/solution peuvent être stockés en JSON string ou en tableau selon
+    // la version de la table — on supporte les deux formats.
+    const puzzle   = typeof rematch.puzzle   === 'string' ? JSON.parse(rematch.puzzle)   : rematch.puzzle;
+    const solution = typeof rematch.solution === 'string' ? JSON.parse(rematch.solution) : rematch.solution;
     const givenMask = puzzle.map(row => row.map(v => v !== 0));
 
     const image = photoUrl
@@ -531,19 +533,11 @@ export function useGame(manifest, userId = null) {
     if (isWrong && value !== previousValue) {
       setErrorCount(c => {
         const nextCount = c + 1;
-        if (challengeMeta?.maxErrors != null && nextCount > challengeMeta.maxErrors) {
-          setIsFailed(true);
-          logGameFail({
-            difficulty,
-            userId,
-            errorCount: nextCount,
-            elapsedSeconds,
-            isChallenge: !!challengeMeta?.id
-          });
-          if (challengeMeta.id) {
-            markChallengeCompleted(challengeMeta.id, 'lost');
-            deleteChallenge(challengeMeta.id, challengeMeta.photoPath);
-          }
+        const maxErr = challengeMeta?.maxErrors ?? 3; // 3 erreurs max par défaut
+        if (nextCount >= maxErr) {
+          // On signale au composant parent qu'on a atteint le max
+          // sans déclencher isFailed directement : le popup pub décide
+          onMaxErrorsReached?.();
         }
         return nextCount;
       });
@@ -903,6 +897,11 @@ export function useGame(manifest, userId = null) {
     errorCount,
     hintsUsed,
     setHintsUsed,
+    triggerFail: () => {
+      setIsFailed(true);
+      logGameFail({ difficulty, userId, errorCount, elapsedSeconds, isChallenge: false });
+    },
+    resetErrorCount: (n) => setErrorCount(n),
     elapsedSeconds,
     notesMode,
     notesGrid,

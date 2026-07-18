@@ -94,3 +94,38 @@
   color: var(--accent);
   line-height: 1;
 }
+
+.hint-pick-question {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 6px 0 10px;
+  color: var(--text-color);
+}
+
+.hint-digit-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+  margin-bottom: 4px;
+}
+
+.hint-digit-btn {
+  aspect-ratio: 1;
+  font-size: 1.3rem;
+  font-weight: 700;
+  background: var(--bg-color);
+  border: 2px solid var(--card-border);
+  border-radius: 10px;
+  color: var(--accent);
+  cursor: pointer;
+  transition: transform 0.1s, border-color 0.15s;
+}
+
+.hint-digit-btn:hover {
+  border-color: var(--accent);
+  transform: scale(1.08);
+}
+
+.hint-digit-btn:active {
+  transform: scale(0.93);
+}

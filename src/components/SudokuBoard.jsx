@@ -33,6 +33,7 @@ const SudokuBoard = forwardRef(function SudokuBoard({
   isComplete,
   hintHighlightZones,
   hintTargetCell,
+  hintRevealCell,
   onSelectCell
 }, ref) {
   if (!puzzleData || !userGrid) return null;
@@ -91,6 +92,8 @@ const SudokuBoard = forwardRef(function SudokuBoard({
             }
             const isHintTarget =
               hintTargetCell?.row === row && hintTargetCell?.col === col;
+            const isHintRevealed =
+              hintRevealCell?.row === row && hintRevealCell?.col === col;
 
             const thickRight = col === 2 || col === 5;
             const thickBottom = row === 2 || row === 5;
@@ -123,6 +126,7 @@ const SudokuBoard = forwardRef(function SudokuBoard({
                   hasError ? 'has-error' : '',
                   hintZoneColor ? `hint-zone-${hintZoneColor}` : '',
                   isHintTarget ? 'hint-target' : '',
+                  isHintRevealed ? 'hint-revealed' : '',
                   thickRight ? 'thick-right' : '',
                   thickBottom ? 'thick-bottom' : ''
                 ].join(' ').trim()}
@@ -146,6 +150,7 @@ const SudokuBoard = forwardRef(function SudokuBoard({
                   <span className="cell-value">{value !== 0 ? value : ''}</span>
                 )}
                 {isCelebrating && <span className="cell-sparkle" aria-hidden="true">✨</span>}
+                {isHintRevealed && <span className="cell-hint-stars" aria-hidden="true">⭐</span>}
               </button>
             );
           })}
