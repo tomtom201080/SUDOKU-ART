@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/DefiDashboard.jsx
 import { useEffect, useState } from 'react';
 import { fetchSentRematches, fetchReceivedRematches, determineRematchWinner } from '../lib/rematches';
@@ -16,6 +17,7 @@ function formatDate(iso) {
 }
 
 function StatusBadge({ r, isSent }) {
+  const { t } = useT();
   if (!r.completed) {
     return <span className="defi-badge defi-badge-pending">En attente</span>;
   }
@@ -43,9 +45,10 @@ function StatusBadge({ r, isSent }) {
 }
 
 function RematchRow({ r, isSent }) {
+  const { t } = useT();
   const opponent = isSent
-    ? (r.recipient_user_id ? 'Ami connecté' : 'Ami')
-    : (r.challenger_name || 'Ami');
+    ? (r.recipient_user_id ? t('defi_connected_friend') : t('defi_friend'))
+    : (r.challenger_name || t('defi_friend'));
 
   const myErrors   = isSent ? r.challenger_result_errors  : r.recipient_result_errors;
   const mySeconds  = isSent ? r.challenger_result_seconds : r.recipient_result_seconds;
@@ -74,6 +77,7 @@ function RematchRow({ r, isSent }) {
 }
 
 export default function DefiDashboard({ userId, onClose, onCreateDefi }) {
+  const { t } = useT();
   const [tab, setTab] = useState('sent'); // 'sent' | 'received'
   const [sent, setSent] = useState(null);
   const [received, setReceived] = useState(null);
@@ -117,7 +121,7 @@ export default function DefiDashboard({ userId, onClose, onCreateDefi }) {
           {list === null && <p className="defi-dash-empty">Chargement…</p>}
           {list?.length === 0 && (
             <p className="defi-dash-empty">
-              {isSent ? 'Tu n\'as pas encore envoyé de défi.' : 'Tu n\'as pas encore reçu de défi.'}
+              {isSent ? t('defi_empty_sent') : t('defi_empty_received')}
             </p>
           )}
           {list?.map(r => (

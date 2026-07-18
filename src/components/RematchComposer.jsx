@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/RematchComposer.jsx
 import { useRef, useState } from 'react';
 import { uploadSharedPhoto, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
@@ -6,6 +7,7 @@ import { isMobileDevice } from '../utils/device';
 import './ChallengeComposer.css';
 
 export default function RematchComposer({ puzzleData, difficulty, errorCount, elapsedSeconds, userId, userEmail, onClose }) {
+  const { t } = useT();
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [challengerName, setChallengerName] = useState('');
@@ -122,12 +124,12 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
             </div>
 
             {status === 'error' && (
-              <p className="challenge-error-note">L'envoi a échoué, réessaie dans un instant.</p>
+              <p className="challenge-error-note">{t('rematch_error')}</p>
             )}
 
             {!userId && (
               <div className="defi-no-account-warning">
-                💡 Sans compte, tu ne sauras pas si ton ami a joué ni qui a gagné.
+                {t('rematch_no_account')}
               </div>
             )}
 
@@ -136,7 +138,7 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
               onClick={handleSend}
               disabled={status === 'sending'}
             >
-              {status === 'sending' ? 'Envoi en cours…' : 'Envoyer le défi'}
+              {status === 'sending' ? t('rematch_sending') : t('rematch_send')}
             </button>
           </>
         )}

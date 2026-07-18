@@ -1,12 +1,14 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/LegalModal.jsx
 import './LegalModal.css';
 
 export function TermsModal({ onClose }) {
+  const { t } = useT();
   return (
     <div className="legal-overlay" onClick={onClose}>
       <div className="legal-panel" onClick={e => e.stopPropagation()}>
         <div className="legal-header">
-          <h2>Conditions Générales d'Utilisation</h2>
+          <h2>{t('legal_terms_title')}</h2>
           <button className="legal-close" onClick={onClose}>✕</button>
         </div>
         <p className="legal-date">En vigueur depuis le 1er juillet 2025</p>
@@ -52,18 +54,19 @@ export function TermsModal({ onClose }) {
           <p>Les présentes CGU sont soumises au droit français. En cas de litige, les tribunaux français sont seuls compétents.</p>
         </section>
 
-        <button className="legal-close-btn" onClick={onClose}>J'ai compris</button>
+        <button className="legal-close-btn" onClick={onClose}>{t('legal_close')}</button>
       </div>
     </div>
   );
 }
 
 export function PrivacyModal({ onClose, onConsentChange }) {
+  const { t } = useT();
   return (
     <div className="legal-overlay" onClick={onClose}>
       <div className="legal-panel" onClick={e => e.stopPropagation()}>
         <div className="legal-header">
-          <h2>Politique de confidentialité</h2>
+          <h2>{t('legal_privacy_title')}</h2>
           <button className="legal-close" onClick={onClose}>✕</button>
         </div>
         <p className="legal-date">Conforme RGPD — mise à jour le 1er juillet 2025</p>
@@ -109,7 +112,7 @@ export function PrivacyModal({ onClose, onConsentChange }) {
             <p className="legal-consent-title">Changer mon choix publicitaire :</p>
             <div className="legal-consent-btns">
               <button className="legal-consent-reject" onClick={() => { onConsentChange('rejected'); onClose(); }}>Refuser la pub personnalisée</button>
-              <button className="legal-consent-accept" onClick={() => { onConsentChange('accepted'); onClose(); }}>Accepter</button>
+              <button className="legal-consent-accept" onClick={() => { onConsentChange('accepted'); onClose(); }}>{t('legal_consent_accept')}</button>
             </div>
           </div>
         )}

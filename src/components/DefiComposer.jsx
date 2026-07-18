@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/DefiComposer.jsx
 // Flux Défi : configure (difficulté + photo optionnelle) → envoie → lance la grille
 import { useRef, useState } from 'react';
@@ -16,6 +17,7 @@ const DIFFICULTY_OPTIONS = [
 ];
 
 export default function DefiComposer({ onClose, onStartGame, userId, userEmail }) {
+  const { t } = useT();
   const [step, setStep]               = useState('config'); // 'config' | 'sending' | 'done'
   const [difficulty, setDifficulty]   = useState(null);
   const [photoFile, setPhotoFile]     = useState(null);
@@ -143,7 +145,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
                   type="text"
                   value={challengerName}
                   onChange={e => setChallengerName(e.target.value)}
-                  placeholder="Ex : Thomas"
+                  placeholder={t('defi_prenom_placeholder')}
                 />
               </>
             )}
@@ -162,7 +164,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
               disabled={!difficulty || step === 'sending'}
               onClick={handleSend}
             >
-              {step === 'sending' ? 'Envoi en cours…' : '📤 Envoyer et jouer'}
+              {step === 'sending' ? t('defi_sending') : t('defi_send')}
             </button>
           </>
         )}

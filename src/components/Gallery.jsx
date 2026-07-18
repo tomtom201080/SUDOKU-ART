@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/Gallery.jsx
 import { useMemo, useState } from 'react';
 import { TIER_LABELS } from '../data/imageLibrary';
@@ -5,6 +6,7 @@ import PaintingDetailModal from './PaintingDetailModal';
 import './Gallery.css';
 
 export default function Gallery({ gallery, onClose }) {
+  const { t } = useT();
   const [activeTier, setActiveTier] = useState('all');
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -21,13 +23,13 @@ export default function Gallery({ gallery, onClose }) {
     <div className="gallery-overlay">
       <div className="gallery-panel">
         <div className="gallery-header">
-          <h2>Galerie ({gallery.length})</h2>
+          <h2>{t('gallery_title')} ({gallery.length})</h2>
           <button className="gallery-close" onClick={onClose}>✕</button>
         </div>
 
         {gallery.length === 0 ? (
           <p className="gallery-empty">
-            Termine un sudoku pour débloquer ta première image !
+            {t('gallery_empty')}
           </p>
         ) : (
           <>

@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/NumberPad.jsx
 import { forwardRef } from 'react';
 import './NumberPad.css';
@@ -12,6 +13,7 @@ const NumberPad = forwardRef(function NumberPad({
   onHint,
   completedDigits
 }, ref) {
+  const { t } = useT();
   return (
     <div className="number-pad" ref={ref}>
       <div className="number-pad-digits">
@@ -37,7 +39,7 @@ const NumberPad = forwardRef(function NumberPad({
           onClick={() => onInput(0)}
           disabled={disabled}
         >
-          ✕ Effacer
+          {t('game_erase')}
         </button>
 
         <button
@@ -45,7 +47,7 @@ const NumberPad = forwardRef(function NumberPad({
           onClick={onToggleNotes}
           disabled={disabled}
         >
-          {notesMode ? '✏️ Désactiver' : '✏️ Notes'}
+          {notesMode ? '✏️ Off' : t('game_notes')}
         </button>
 
         <button
@@ -53,7 +55,7 @@ const NumberPad = forwardRef(function NumberPad({
           onClick={onUndo}
           disabled={disabled || !canUndo}
         >
-          ↩️ Annuler
+          {t('game_undo')}
         </button>
 
         <button
@@ -61,7 +63,7 @@ const NumberPad = forwardRef(function NumberPad({
           onClick={onHint}
           disabled={disabled}
         >
-          💡 Indice
+          {t('game_hint')}
         </button>
       </div>
     </div>

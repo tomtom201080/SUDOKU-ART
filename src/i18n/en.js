@@ -1,0 +1,192 @@
+export default {
+  // ── Difficulties ─────────────────────────────────────────────
+  diff_facile: 'Easy',
+  diff_moyen: 'Medium',
+  diff_complique: 'Hard',
+  diff_enfer: 'Hell',
+
+  // ── Home ──────────────────────────────────────────────────────
+  home_title: 'Sudoku Art',
+  home_subtitle: 'Solve the grid, reveal a work of art',
+  home_art_label: 'Art',
+  home_art_desc: 'Discover a famous artwork hidden behind your grid',
+  home_sudoku_label: 'Sudoku',
+  home_sudoku_desc: 'Classic sudoku, no image, pure focus',
+  home_memories_label: 'Memories',
+  home_memories_desc: 'Send a photo to a friend to reveal while playing',
+  home_defi_label: 'Challenge',
+  home_defi_desc: 'Set up a challenge, send it to a friend, play the same grid',
+  home_back: '← Back',
+  home_choose_diff: 'Choose difficulty',
+  home_classic_title: 'Classic Sudoku',
+  home_choose_photo: 'Choose a photo',
+  home_photo_hint: 'It will reveal itself as you fill in the grid.',
+  home_photo_pick: '📷 Choose from my gallery',
+  home_photo_change: 'Change photo',
+  home_photo_remove: '✕ Remove photo',
+  home_what_todo: 'What do you want to do?',
+  home_play_solo: 'Play solo',
+  home_play_solo_desc: 'Reveal your photo by playing for yourself',
+  home_send_friend: 'Send to a friend',
+  home_send_friend_desc: 'Create a challenge with your photo and share the WhatsApp link',
+
+  // ── In game ───────────────────────────────────────────────────
+  game_intensity: '🖼 Watermark intensity',
+  game_erase: '✕ Erase',
+  game_notes: '✏️ Notes',
+  game_undo: '↩️ Undo',
+  game_hint: '💡 Hint',
+
+  // ── Win ───────────────────────────────────────────────────────
+  win_title: 'Grid complete! 🎉',
+  win_difficulty: 'Difficulty: ',
+  win_photo_revealed: 'Your photo, fully revealed!',
+  win_challenge_note: 'This photo and challenge will now be deleted from our servers.',
+  win_save_photo: '💾 Save photo',
+  win_share: '📤 Share',
+  win_send_result: '📤 Send my result to ',
+  win_challenge_friend: '🎯 Challenge a friend with this grid',
+  win_play_again: '🔄 New game',
+  win_close: 'Close',
+  win_rematch_title_win: '🏆 You won this challenge!',
+  win_rematch_title_lose: '😅 Your friend did better this time.',
+  win_rematch_title_tie: '🤝 Perfect tie!',
+  win_rematch_send: '📤 Send result via WhatsApp',
+  win_rematch_sent: '✅ Result sent',
+  win_me: 'You',
+  win_errors: 'Errors',
+  win_time: 'Time',
+
+  // ── Fail ──────────────────────────────────────────────────────
+  fail_title: 'Game over 😞',
+  fail_try_again: 'Try again',
+
+  // ── Hint ──────────────────────────────────────────────────────
+  hint_ad_label: '📢 Ad',
+  hint_wait: 'Hint available in {n} second{s}…',
+  hint_counter: 'Hint {n}',
+  hint_counter_max: 'Hint {n} / {max}',
+  hint_revealed: 'The highlighted green cell contains the number {v}.',
+  hint_place: 'Place {v}',
+  hint_none: 'No hint available.',
+  hint_close: 'Close',
+
+  // ── Onboarding ────────────────────────────────────────────────
+  onboarding_skip: 'Skip',
+  onboarding_next: 'Next →',
+  onboarding_start: 'Let\'s go! 🚀',
+  onboarding_s1_title: 'A Sudoku like no other',
+  onboarding_s1_text: 'Fill the grid with numbers 1 to 9: each row, column and 3×3 square must contain each number exactly once.',
+  onboarding_s2_title: 'A hidden photo behind',
+  onboarding_s2_text: 'A work of art (or your own photo) hides behind the grid and reveals itself cell by cell as you fill in correct answers.',
+  onboarding_s3_title: 'Complete a row, admire the image',
+  onboarding_s3_text: 'When you complete a row, column or square, the grid clears for 2 seconds so you can admire the revealed portion.',
+  onboarding_s4_title: 'Challenge your friends!',
+  onboarding_s4_text: 'Finish a grid, then send the exact same one to a friend via WhatsApp. Compare scores and see who wins!',
+
+  // ── Help ──────────────────────────────────────────────────────
+  help_title: '❓ Rules & how to play',
+  help_close: 'Close',
+  help_go: 'Got it, let\'s play!',
+
+  // ── Auth ──────────────────────────────────────────────────────
+  auth_signin: 'Sign in',
+  auth_signup: 'Create account',
+  auth_free_play: '🎮 Play without an account',
+  auth_email: 'Email',
+  auth_password: 'Password',
+  auth_forgot: 'Forgot password?',
+  auth_submit_signin: 'Sign in',
+  auth_submit_signup: 'Create my account',
+  auth_share: '📤 Share the app with a friend',
+
+  // ── Challenge composer ────────────────────────────────────────
+  defi_title: '🎯 Create a challenge',
+  defi_step1: '1. Choose difficulty',
+  defi_step2: '2. Add a photo (optional)',
+  defi_step3: '3. Your name (for the result)',
+  defi_prenom_placeholder: 'E.g.: Thomas',
+  defi_pick_photo: '📷 Choose a photo',
+  defi_change: 'Change',
+  defi_remove: 'Remove',
+  defi_send: '📤 Send and play',
+  defi_sending: 'Sending…',
+  defi_no_account: '💡 Without an account, you won\'t know if your friend played or who won. The challenge will still work for them.',
+  defi_error: 'Send failed. Try again in a moment.',
+  defi_done: '✅ Challenge sent! Loading grid…',
+
+  // ── Challenge dashboard ───────────────────────────────────────
+  defi_dash_title: '🎯 My challenges',
+  defi_dash_create: '➕ Create a new challenge',
+  defi_tab_sent: 'Sent',
+  defi_tab_received: 'Received',
+  defi_empty_sent: 'You haven\'t sent any challenges yet.',
+  defi_empty_received: 'You haven\'t received any challenges yet.',
+  defi_waiting: 'Not played yet',
+  defi_badge_win: 'Won 🏆',
+  defi_badge_lose: 'Lost',
+  defi_badge_tie: 'Tie',
+  defi_badge_pending: 'Pending',
+  defi_friend: 'Friend',
+  defi_connected_friend: 'Connected friend',
+  defi_score_me: 'Me: ',
+  defi_loading: 'Loading…',
+
+  // ── Gallery ───────────────────────────────────────────────────
+  gallery_title: 'Gallery',
+  gallery_empty: 'Finish a sudoku to unlock your first image!',
+  gallery_all: 'All',
+
+  // ── Quit ──────────────────────────────────────────────────────
+  quit_title: 'Quit game?',
+  quit_desc: 'Your progress will be lost. Sign in to save it and find your gallery on all your devices.',
+  quit_continue: '▶ Keep playing',
+  quit_login: '👤 Sign in / Create account',
+  quit_anyway: 'Quit without saving',
+
+  // ── Delete account ────────────────────────────────────────────
+  delete_title: 'Delete my account',
+  delete_warning: 'This action is irreversible. The following will be permanently deleted:',
+  delete_item1: 'Your email address and credentials',
+  delete_item2: 'Your unlocked artwork gallery',
+  delete_item3: 'Your progress (views, stats)',
+  delete_item4: 'All challenges you sent or received',
+  delete_note: 'Photos uploaded in challenges are already automatically deleted after 7 days.',
+  delete_cancel: 'Cancel',
+  delete_confirm1: 'Delete anyway',
+  delete_last: 'Final confirmation: you are about to permanently delete your Sudoku Art account.',
+  delete_confirm2: 'Yes, delete my account',
+  delete_deleting: 'Deleting…',
+  delete_error: 'An error occurred. Please try again.',
+
+  // ── Legal ─────────────────────────────────────────────────────
+  legal_terms_title: 'Terms of Service',
+  legal_privacy_title: 'Privacy Policy',
+  legal_close: 'Got it',
+  legal_close_plain: 'Close without changing',
+  legal_consent_reject: 'Reject personalised ads',
+  legal_consent_accept: 'Accept',
+  footer_cgu: 'Terms',
+  footer_privacy: 'Privacy',
+  footer_delete: 'Delete my account',
+
+  // ── Painting ──────────────────────────────────────────────────
+  painting_observe: '👀 Look for: ',
+
+  // ── Install ────────────────────────────────────────────────────
+  install_title: '📲 Install app',
+
+  // ── Rematch composer ──────────────────────────────────────────
+  rematch_title: '🎯 Challenge a friend with this grid',
+  rematch_desc: 'Your friend will play the exact same grid as you.',
+  rematch_photo_title: 'Add a personal photo to reveal (optional)',
+  rematch_prenom_title: 'Your name (optional)',
+  rematch_pick_photo: '📷 Choose a photo',
+  rematch_change: 'Change photo',
+  rematch_send: 'Send challenge',
+  rematch_sending: 'Sending…',
+  rematch_success: 'Challenge sent! We\'ll let you know when your friend finishes.',
+  rematch_close: 'Close',
+  rematch_error: 'Send failed, try again.',
+  rematch_no_account: '💡 Without an account, you won\'t know if your friend played or who won.',
+};

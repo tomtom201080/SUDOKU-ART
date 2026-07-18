@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/WinModal.jsx
 import { useState } from 'react';
 import { isMobileDevice, shareText } from '../utils/device';
@@ -27,6 +28,7 @@ export default function WinModal({
   onClose,
   onRequestRematch,
 }) {
+  const { t } = useT();
   const [showSaveNotice, setShowSaveNotice] = useState(false);
   const [resultSent, setResultSent] = useState(false);
   const [rematchResultSent, setRematchResultSent] = useState(false);
@@ -111,7 +113,7 @@ export default function WinModal({
   return (
     <div className="win-overlay">
       <div className="win-panel">
-        <h2>Grille terminée ! 🎉</h2>
+        <h2>{t('win_title')}</h2>
         <p className="win-difficulty">Difficulté : {DIFFICULTY_LABELS[difficulty] ?? difficulty}</p>
 
         {isChallengeGame && (
@@ -123,13 +125,13 @@ export default function WinModal({
         {rematchOutcome && (
           <div className="rematch-outcome">
             <p className="rematch-outcome-title">
-              {rematchOutcome.winner === 'recipient' && '🏆 Tu as gagné ce défi !'}
-              {rematchOutcome.winner === 'challenger' && '😅 Ton ami a fait mieux cette fois.'}
-              {rematchOutcome.winner === 'tie' && '🤝 Égalité parfaite !'}
+              {rematchOutcome.winner === 'recipient' && t('win_rematch_title_win')}
+              {rematchOutcome.winner === 'challenger' && t('win_rematch_title_lose')}
+              {rematchOutcome.winner === 'tie' && t('win_rematch_title_tie')}
             </p>
             <table className="rematch-outcome-table">
               <thead>
-                <tr><th></th><th>Erreurs</th><th>Temps</th></tr>
+                <tr><th></th><th>{t('win_errors')}</th><th>{t('win_time')}</th></tr>
               </thead>
               <tbody>
                 <tr>
@@ -138,7 +140,7 @@ export default function WinModal({
                   <td>{formatTime(rematchOutcome.challengerSeconds)}</td>
                 </tr>
                 <tr>
-                  <td>Toi</td>
+                  <td>{t('win_me')}</td>
                   <td>{rematchOutcome.recipientErrors}</td>
                   <td>{formatTime(rematchOutcome.recipientSeconds)}</td>
                 </tr>
@@ -146,7 +148,7 @@ export default function WinModal({
             </table>
             {!rematchOutcome.challengerHasAccount && (
               <button className="win-btn-secondary win-send-result-btn" onClick={handleSendRematchResult}>
-                {rematchResultSent ? '✅ Résultat envoyé' : '📤 Envoyer le résultat par WhatsApp'}
+                {rematchResultSent ? t('win_rematch_sent') : t('win_rematch_send')}
               </button>
             )}
           </div>
@@ -154,20 +156,20 @@ export default function WinModal({
 
         {isCustomGame ? (
           <>
-            <p className="win-reward-label">Ta photo, entièrement dévoilée !</p>
+            <p className="win-reward-label">{t('win_photo_revealed')}</p>
             <img className="win-reward-image" src={photoUrl} alt="Photo personnelle dévoilée" />
 
             {isChallengeGame ? (
               <p className="win-challenge-note">
-                Cette photo et ce défi vont maintenant être supprimés de nos serveurs.
+                {t('win_challenge_note')}
               </p>
             ) : (
               <div className="win-photo-actions">
                 <button className="win-btn-secondary" onClick={handleSaveClick}>
-                  💾 Enregistrer la photo
+                  {t('win_save_photo')}
                 </button>
                 <button className="win-btn-secondary" onClick={handleShare}>
-                  📤 Partager
+                  {t('win_share')}
                 </button>
               </div>
             )}
@@ -194,7 +196,7 @@ export default function WinModal({
                   <p className="painting-fun-fact">💡 {rewardImage.funFact}</p>
                 )}
                 {rewardImage.observe && (
-                  <p className="painting-observe">👀 À observer : {rewardImage.observe}</p>
+                  <p className="painting-observe">{t('painting_observe')}{rewardImage.observe}</p>
                 )}
               </div>
             )}
@@ -207,19 +209,19 @@ export default function WinModal({
 
         {isChallengeGame && challengeMeta.senderEmail && (
           <button className="win-btn-secondary win-send-result-btn" onClick={handleSendResult}>
-            {resultSent ? '✅ Résultat envoyé' : `📤 Envoyer mon résultat à ${challengeMeta.senderEmail}`}
+            {resultSent ? t('win_rematch_sent') : `${t('win_send_result')}${challengeMeta.senderEmail}`}
           </button>
         )}
 
         {!isChallengeGame && (
           <button className="win-btn-secondary win-send-result-btn" onClick={onRequestRematch}>
-            🎯 Défier un ami avec cette grille
+            {t('win_challenge_friend')}
           </button>
         )}
 
         <div className="win-actions">
           <button className="win-btn-primary" onClick={onReplay}>Nouvelle partie</button>
-          <button className="win-btn-secondary" onClick={onClose}>Fermer</button>
+          <button className="win-btn-secondary" onClick={onClose}>{t('win_close')}</button>
         </div>
       </div>
 

@@ -28,6 +28,7 @@ import DeleteAccountModal from './components/DeleteAccountModal';
 import OnboardingModal from './components/OnboardingModal';
 import HomeProgress from './components/HomeProgress';
 import { getAdConsent } from './lib/adConsent';
+import { useT } from './i18n/index.jsx';
 import { useGame } from './hooks/useGame';
 import { useNetworkStatus } from './hooks/useNetworkStatus';
 import './components/LegalModal.css';
@@ -57,13 +58,6 @@ import {
 
 const DARK_MODE_KEY = 'sudoku-devoile:darkMode';
 
-const DIFFICULTY_LABELS = {
-  facile: 'Facile',
-  moyen: 'Moyen',
-  complique: 'Compliqué',
-  enfer: 'Enfer'
-};
-
 const DIFFICULTY_ICONS = {
   facile: '😌',
   moyen: '🙂',
@@ -78,6 +72,14 @@ function formatTime(totalSeconds) {
 }
 
 export default function App() {
+  const { lang, setLang, t } = useT();
+
+  const DIFFICULTY_LABELS = {
+    facile: t('diff_facile'),
+    moyen: t('diff_moyen'),
+    complique: t('diff_complique'),
+    enfer: t('diff_enfer'),
+  };
   const [manifest, setManifest] = useState(null);
   const [manifestLoading, setManifestLoading] = useState(true);
   const [selectedCell, setSelectedCell] = useState(null);
@@ -500,12 +502,15 @@ export default function App() {
           <img src="/favicon.svg" alt="Sudoku Art" className="app-logo" />
           <div className="header-actions">
             {darkModeButton}
-            <button className="icon-btn" onClick={() => setShowHelpModal(true)} title="Règles & aide">❓</button>
-            <button className="icon-btn" onClick={() => setShowInstallModal(true)} title="Installer l'app">📲</button>
+            <button className="icon-btn" onClick={() => setShowHelpModal(true)} title="Rules">❓</button>
+            <button className="icon-btn" onClick={() => setLang(lang === 'fr' ? 'en' : 'fr')} title="Language">
+              {lang === 'fr' ? '🇬🇧' : '🇫🇷'}
+            </button>
+            <button className="icon-btn" onClick={() => setShowInstallModal(true)} title="Install">📲</button>
             {session?.user?.email === 't.dabadie@gmail.com' && (
               <button className="icon-btn" onClick={() => setShowKpiDashboard(true)} title="Statistiques">📊</button>
             )}
-            <button className="icon-btn" onClick={handleOpenGallery} title="Galerie">🖼</button>
+            <button className="icon-btn" onClick={handleOpenGallery} title={t('gallery_title')}>🖼</button>
             {accountButton}
           </div>
         </header>
@@ -603,13 +608,13 @@ export default function App() {
           />
         )}
         <div className="home-footer">
-          <button className="privacy-footer-link" onClick={() => setShowTerms(true)}>CGU</button>
+          <button className="privacy-footer-link" onClick={() => setShowTerms(true)}>{t('footer_cgu')}</button>
           <span className="privacy-footer-sep">·</span>
-          <button className="privacy-footer-link" onClick={() => setShowPrivacyPolicy(true)}>Confidentialité</button>
+          <button className="privacy-footer-link" onClick={() => setShowPrivacyPolicy(true)}>{t('footer_privacy')}</button>
           {session && (
             <>
               <span className="privacy-footer-sep">·</span>
-              <button className="privacy-footer-link privacy-footer-danger" onClick={() => setShowDeleteAccount(true)}>Supprimer mon compte</button>
+              <button className="privacy-footer-link privacy-footer-danger" onClick={() => setShowDeleteAccount(true)}>{t('footer_delete')}</button>
             </>
           )}
         </div>
@@ -680,7 +685,7 @@ export default function App() {
           >
             {game.watermarkVisible ? '🙈' : '🙉'}
           </button>
-          <button className="icon-btn" onClick={handleOpenGallery} title="Galerie">🖼</button>
+          <button className="icon-btn" onClick={handleOpenGallery} title={t('gallery_title')}>🖼</button>
           <button className="icon-btn" onClick={handleCloseGameEnd} title="Menu">↩</button>
         </div>
       </header>
