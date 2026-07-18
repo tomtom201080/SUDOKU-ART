@@ -661,32 +661,34 @@ export default function App() {
     <>
       <header className="app-header app-header-game">
         <img src="/favicon.svg" alt="Sudoku Art" className="app-logo" />
-        <div className="game-stats-row">
-          <span className="stat-pill stat-pill-timer" title="Temps de jeu">
-            ⏱ {formatTime(game.elapsedSeconds)}
-            {game.challengeMeta?.timeLimitSeconds
-              ? ` / ${formatTime(game.challengeMeta.timeLimitSeconds)}`
-              : ''}
-          </span>
-          <span className="stat-pill" title="Difficulté">
-            {DIFFICULTY_ICONS[game.difficulty] ?? '🎯'} {DIFFICULTY_LABELS[game.difficulty] ?? game.difficulty}
-          </span>
-          <span className="stat-pill" title="Nombre d'erreurs">
-            ❌ {game.errorCount}
-            {game.challengeMeta?.maxErrors != null ? ` / ${game.challengeMeta.maxErrors}` : ''}
-          </span>
-        </div>
-        <div className="game-buttons-row">
-          {darkModeButton}
-          <button
-            className="icon-btn"
-            onClick={game.toggleWatermark}
-            title={game.watermarkVisible ? 'Masquer le filigrane' : 'Afficher le filigrane'}
-          >
-            {game.watermarkVisible ? '🙈' : '🙉'}
-          </button>
-          <button className="icon-btn" onClick={handleOpenGallery} title={t('gallery_title')}>🖼</button>
-          <button className="icon-btn" onClick={handleCloseGameEnd} title="Menu">↩</button>
+        <div className="game-header-right">
+          <div className="game-stats-row">
+            <span className="stat-pill stat-pill-timer" title="Temps de jeu">
+              ⏱ {formatTime(game.elapsedSeconds)}
+              {game.challengeMeta?.timeLimitSeconds
+                ? ` / ${formatTime(game.challengeMeta.timeLimitSeconds)}`
+                : ''}
+            </span>
+            <span className="stat-pill" title="Difficulté">
+              {DIFFICULTY_ICONS[game.difficulty] ?? '🎯'} {DIFFICULTY_LABELS[game.difficulty] ?? game.difficulty}
+            </span>
+            <span className="stat-pill" title="Nombre d'erreurs">
+              ❌ {game.errorCount}
+              {game.challengeMeta?.maxErrors != null ? ` / ${game.challengeMeta.maxErrors}` : ''}
+            </span>
+          </div>
+          <div className="game-buttons-row">
+            {darkModeButton}
+            <button
+              className="icon-btn"
+              onClick={game.toggleWatermark}
+              title={game.watermarkVisible ? 'Masquer le filigrane' : 'Afficher le filigrane'}
+            >
+              {game.watermarkVisible ? '🙈' : '🙉'}
+            </button>
+            <button className="icon-btn" onClick={handleOpenGallery} title={t('gallery_title')}>🖼</button>
+            <button className="icon-btn" onClick={handleCloseGameEnd} title="Menu">↩</button>
+          </div>
         </div>
       </header>
 
