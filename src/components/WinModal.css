@@ -243,3 +243,15 @@
   cursor: pointer;
   font-weight: 600;
 }
+
+.win-score {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 16px 0;
+  padding: 14px;
+  background: var(--bg-color);
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+}

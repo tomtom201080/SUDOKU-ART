@@ -1,6 +1,5 @@
 // src/components/WinModal.jsx
 import { useState } from 'react';
-import { TIER_LABELS } from '../data/imageLibrary';
 import { isMobileDevice, shareText } from '../utils/device';
 import './WinModal.css';
 
@@ -168,17 +167,14 @@ export default function WinModal({
                   💾 Enregistrer la photo
                 </button>
                 <button className="win-btn-secondary" onClick={handleShare}>
-                  📤 Envoyer à un ami
+                  📤 Partager
                 </button>
               </div>
             )}
           </>
         ) : rewardImage ? (
           <>
-            <p className="win-reward-label">
-              Image débloquée — {TIER_LABELS[rewardImage.tier] ?? rewardImage.tier}
-            </p>
-            <img className="win-reward-image" src={rewardImage.path} alt={rewardImage.title ?? 'Récompense débloquée'} />
+            <img className="win-reward-image" src={rewardImage.path} alt={rewardImage.title ?? 'Tableau débloqué'} />
 
             {rewardImage.title && (
               <div className="painting-info">
@@ -204,8 +200,8 @@ export default function WinModal({
             )}
           </>
         ) : (
-          <p className="win-reward-label">
-            Ajoute des images dans la bibliothèque pour débloquer des récompenses !
+          <p className="win-score">
+            ⏱ {formatTime(elapsedSeconds)} — ❌ {errorCount} erreur{errorCount !== 1 ? 's' : ''}
           </p>
         )}
 

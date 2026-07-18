@@ -45,6 +45,27 @@ body {
   padding: 8px 16px;
 }
 
+/* Header en jeu : logo à gauche, stats + boutons à droite en colonne */
+.app-header-game {
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.game-stats-row {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-wrap: nowrap;
+  flex: 1;
+}
+
+.game-buttons-row {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .app-title {
   font-size: 1.1rem;
   font-weight: 700;
@@ -52,9 +73,11 @@ body {
 }
 
 .app-logo {
-  height: 34px;
-  width: 34px;
+  height: 38px;
+  width: 38px;
   border-radius: 8px;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .header-actions {
@@ -93,6 +116,12 @@ body {
   font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+/* Le timer a une largeur minimale fixe pour éviter les sauts de layout */
+.stat-pill-timer {
+  min-width: 80px;
+  justify-content: center;
 }
 
 .game-screen {

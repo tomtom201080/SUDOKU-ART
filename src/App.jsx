@@ -11,6 +11,8 @@ import AuthScreen from './components/AuthScreen';
 import ChallengeComposer from './components/ChallengeComposer';
 import RematchComposer from './components/RematchComposer';
 import DefiComposer from './components/DefiComposer';
+import DefiDashboard from './components/DefiDashboard';
+import QuitConfirmModal from './components/QuitConfirmModal';
 import RematchResultDetail from './components/RematchResultDetail';
 // QUEST_DISABLED: import QuestMap from './components/QuestMap';
 // QUEST_DISABLED: import MathQuestMap from './components/MathQuestMap';
@@ -108,6 +110,7 @@ export default function App() {
   const [composerPreloadedPhoto, setComposerPreloadedPhoto] = useState(null);
   const [showRematchComposer, setShowRematchComposer] = useState(false);
   const [showDefiComposer, setShowDefiComposer] = useState(false);
+  const [showDefiDashboard, setShowDefiDashboard] = useState(false);
   // Interstitielle pub : quelle action est en attente après la pub
   const [pendingAdAction, setPendingAdAction] = useState(null); // null | 'challenge' | 'rematch'
   // QUEST_DISABLED: const [showQuestMap, setShowQuestMap] = useState(false);
@@ -364,7 +367,11 @@ export default function App() {
 
   // Ouvre DefiComposer avec une pub interstitielle avant
   const handleOpenDefi = () => {
-    setPendingAdAction('defi');
+    if (session) {
+      setShowDefiDashboard(true);
+    } else {
+      setPendingAdAction('defi');
+    }
   };
 
   // Appelé par DefiComposer quand la grille est prête à jouer
@@ -395,14 +402,31 @@ export default function App() {
     setHighlightValue(0);
   };
 
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+
   const handleCloseGameEnd = () => {
     if (game.isComplete || game.isFailed) {
       game.resetToMenu();
       return;
     }
-    if (window.confirm('Abandonner la partie en cours ? Ta progression sera perdue.')) {
+    // Si connecté : progression sauvegardée, on peut quitter directement
+    if (session) {
       game.resetToMenu();
+      return;
     }
+    // Si non connecté : proposer de se connecter pour ne pas perdre la progression
+    setShowQuitConfirm(true);
+  };
+
+  const handleQuitConfirmed = () => {
+    setShowQuitConfirm(false);
+    game.resetToMenu();
+  };
+
+  const handleQuitAndLogin = () => {
+    setShowQuitConfirm(false);
+    game.resetToMenu();
+    setShowAuthScreen(true);
   };
 
   const handleHintFill = (row, col, value) => {
@@ -604,6 +628,16 @@ export default function App() {
             userEmail={session?.user?.email ?? null}
           />
         )}
+        {showDefiDashboard && (
+          <DefiDashboard
+            userId={session?.user?.id ?? null}
+            onClose={() => setShowDefiDashboard(false)}
+            onCreateDefi={() => {
+              setShowDefiDashboard(false);
+              setPendingAdAction('defi');
+            }}
+          />
+        )}
         {pendingAdAction && (
           <AdInterstitial
             onContinue={handleAdContinue}
@@ -620,22 +654,24 @@ export default function App() {
 
   return (
     <>
-      <header className="app-header">
+      <header className="app-header app-header-game">
         <img src="/favicon.svg" alt="Sudoku Art" className="app-logo" />
-        <div className="header-actions">
-          <span className="stat-pill" title="Difficulté">
-            {DIFFICULTY_ICONS[game.difficulty] ?? '🎯'} {DIFFICULTY_LABELS[game.difficulty] ?? game.difficulty}
-          </span>
-          <span className="stat-pill" title="Temps de jeu (en pause hors de cet onglet)">
+        <div className="game-stats-row">
+          <span className="stat-pill stat-pill-timer" title="Temps de jeu">
             ⏱ {formatTime(game.elapsedSeconds)}
             {game.challengeMeta?.timeLimitSeconds
               ? ` / ${formatTime(game.challengeMeta.timeLimitSeconds)}`
               : ''}
           </span>
+          <span className="stat-pill" title="Difficulté">
+            {DIFFICULTY_ICONS[game.difficulty] ?? '🎯'} {DIFFICULTY_LABELS[game.difficulty] ?? game.difficulty}
+          </span>
           <span className="stat-pill" title="Nombre d'erreurs">
             ❌ {game.errorCount}
             {game.challengeMeta?.maxErrors != null ? ` / ${game.challengeMeta.maxErrors}` : ''}
           </span>
+        </div>
+        <div className="game-buttons-row">
           {darkModeButton}
           <button
             className="icon-btn"
@@ -764,6 +800,14 @@ export default function App() {
 
       {showGallery && (
         <Gallery gallery={galleryData} onClose={() => setShowGallery(false)} />
+      )}
+
+      {showQuitConfirm && (
+        <QuitConfirmModal
+          onContinue={() => setShowQuitConfirm(false)}
+          onLogin={handleQuitAndLogin}
+          onQuit={handleQuitConfirmed}
+        />
       )}
 
       {session?.user?.email === 't.dabadie@gmail.com' && (

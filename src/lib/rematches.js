@@ -165,3 +165,27 @@ export function determineRematchWinner({ challengerErrors, challengerSeconds, re
   if (recipientSeconds > challengerSeconds) return 'challenger';
   return 'tie';
 }
+
+// Récupère tous les défis envoyés par cet utilisateur
+export async function fetchSentRematches(userId) {
+  if (!userId) return [];
+  const { data } = await supabase
+    .from('rematches')
+    .select('*')
+    .eq('challenger_user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  return data ?? [];
+}
+
+// Récupère tous les défis reçus et joués par cet utilisateur
+export async function fetchReceivedRematches(userId) {
+  if (!userId) return [];
+  const { data } = await supabase
+    .from('rematches')
+    .select('*')
+    .eq('recipient_user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(20);
+  return data ?? [];
+}
