@@ -2,7 +2,7 @@
 let scriptLoaded = false;
 
 export function getAdsenseClientId() {
-  return import.meta.env.VITE_ADSENSE_CLIENT_ID || null;
+  return import.meta.env.VITE_ADSENSE_CLIENT_ID || 'ca-pub-9595415133348818';
 }
 
 // Charge le script AdSense une seule fois, et seulement si un identifiant
