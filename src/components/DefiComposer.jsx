@@ -11,6 +11,7 @@ import './DefiComposer.css';
 
 
 export default function DefiComposer({ onClose, onStartGame, userId, userEmail }) {
+  const { lang } = useT();
   const DIFFICULTY_OPTIONS = [
     { id: 'facile',    label: t('diff_facile'), icon: '😌' },
     { id: 'moyen',     label: t('diff_moyen'),  icon: '🙂' },

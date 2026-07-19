@@ -22,6 +22,7 @@ export default function ChallengeFailModal({
   onReplay,
   onClose
 }) {
+  const { lang } = useT();
   const [resultSent, setResultSent] = useState(false);
 
   const handleSendResult = async () => {

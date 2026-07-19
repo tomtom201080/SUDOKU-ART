@@ -29,6 +29,7 @@ const TIME_OPTIONS = [
 ];
 
 export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null }) {
+  const { lang } = useT();
 
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(preloadedPhotoUrl);

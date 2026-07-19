@@ -13,6 +13,7 @@ const DIFFICULTY_LABELS = {
 };
 
 export default function KpiDashboard({ onClose }) {
+  const { lang } = useT();
   const [kpis, setKpis] = useState(null);
   const [error, setError] = useState(null);
 

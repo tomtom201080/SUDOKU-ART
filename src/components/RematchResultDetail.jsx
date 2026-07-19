@@ -10,6 +10,7 @@ function formatTime(totalSeconds) {
 }
 
 export default function RematchResultDetail({ rematch, winner, onClose }) {
+  const { lang } = useT();
   if (!rematch) return null;
 
   return (

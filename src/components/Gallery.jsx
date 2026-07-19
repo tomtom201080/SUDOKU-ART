@@ -6,6 +6,7 @@ import PaintingDetailModal from './PaintingDetailModal';
 import './Gallery.css';
 
 export default function Gallery({ gallery, onClose }) {
+  const { lang } = useT();
   const [activeTier, setActiveTier] = useState('all');
   const [selectedImage, setSelectedImage] = useState(null);
 

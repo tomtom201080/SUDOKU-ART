@@ -14,6 +14,7 @@ const NumberPad = forwardRef(function NumberPad({
   hintsDisabled,
   completedDigits
 }, ref) {
+  const { lang } = useT();
   return (
     <div className="number-pad" ref={ref}>
       <div className="number-pad-digits">

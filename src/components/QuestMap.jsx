@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/QuestMap.jsx
 import { useEffect, useState } from 'react';
 import { QUEST_STAGES, rankForCompletedCount } from '../data/questStages';
@@ -7,6 +8,7 @@ import { ART_ICONS, ART_CHAPTERS } from './questIcons/index.js';
 import QuestPathMap from './QuestPathMap';
 
 export default function QuestMap({ userId, onClose, onPlayStage }) {
+  const { lang } = useT();
   const [completedStages, setCompletedStages] = useState(null);
 
   useEffect(() => {

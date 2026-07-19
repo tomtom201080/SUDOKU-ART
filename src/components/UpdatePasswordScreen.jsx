@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabaseClient';
 import './AuthScreen.css';
 
 export default function UpdatePasswordScreen({ onDone }) {
+  const { lang } = useT();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);

@@ -10,6 +10,7 @@ function detectPlatform() {
 }
 
 export default function InstallAppModal({ onClose }) {
+  const { lang } = useT();
 
   const { isIOS, isAndroid } = detectPlatform();
   return (

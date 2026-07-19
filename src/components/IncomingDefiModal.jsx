@@ -20,6 +20,7 @@ async function checkPseudoAvailableForDefi(rematchId, pseudo) {
 }
 
 export default function IncomingDefiModal({ rematch, onLogin, onPlayFree }) {
+  const { lang } = useT();
   const [step, setStep] = useState('choice'); // 'choice' | 'pseudo' // 'choice' | 'pseudo'
   const [pseudo, setPseudo] = useState('');
   const [error, setError] = useState(null);

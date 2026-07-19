@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/QuestPathMap.jsx
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { resolveIcon } from './questIcons/index.js';
@@ -74,6 +75,7 @@ export default function QuestPathMap({
   onPlayStage,
   onClose
 }) {
+  const { lang } = useT();
   const containerRef = useRef(null);
   const avatarMemoryKey = `sudoku-devoile:questAvatarStage:${trackKey}`;
 

@@ -30,6 +30,7 @@ export default function WinModal({
   onClose,
   onRequestRematch,
 }) {
+  const { lang } = useT();
   const diffLabel = (d) => translate(d === 'facile' ? 'diff_facile' : d === 'moyen' ? 'diff_moyen' : d === 'complique' ? 'diff_complique' : 'diff_enfer');
   const [showSaveNotice, setShowSaveNotice] = useState(false);
   const [resultSent, setResultSent] = useState(false);

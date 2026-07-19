@@ -9,6 +9,7 @@ const APP_URL = typeof window !== 'undefined' ? window.location.origin : '';
 const SHARE_TEXT = lang === "fr" ? "Sudoku Art : un Sudoku où une photo se dévoile ! Essaie : " : "Sudoku Art: a Sudoku where a photo reveals itself! Try it: ";
 
 export default function AuthScreen({ onCancel }) {
+  const { lang } = useT();
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup' | 'forgot'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

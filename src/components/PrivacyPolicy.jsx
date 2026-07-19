@@ -4,6 +4,7 @@ import { setAdConsent } from '../lib/adConsent';
 import './PrivacyPolicy.css';
 
 export default function PrivacyPolicy({ onClose, onConsentChange }) {
+  const { lang } = useT();
   const handleChoice = (value) => {
     setAdConsent(value);
     if (onConsentChange) onConsentChange(value);

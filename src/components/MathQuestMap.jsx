@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/MathQuestMap.jsx
 import { useEffect, useState } from 'react';
 import { MATH_QUEST_STAGES, mathRankForCompletedCount } from '../data/mathQuestStages';
@@ -7,6 +8,7 @@ import { DAVINCI_ICONS, DAVINCI_CHAPTERS } from './questIcons/index.js';
 import QuestPathMap from './QuestPathMap';
 
 export default function MathQuestMap({ userId, onClose, onPlayStage }) {
+  const { lang } = useT();
   const [completedStages, setCompletedStages] = useState(null);
 
   useEffect(() => {
