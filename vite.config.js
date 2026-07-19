@@ -24,12 +24,15 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,jpeg,webp}'],
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/commons\.wikimedia\.org\//,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'wikimedia-images',
+              cacheName: 'wikimedia-images-v2',
               expiration: { maxEntries: 60, maxAgeSeconds: 7 * 24 * 60 * 60 }
             }
           }

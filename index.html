@@ -31,7 +31,17 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/icon-192.png" />
 
-    <!-- AdSense — chargé une seule fois, en async -->
+    <!-- Force SW update on deploy -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+          regs.forEach(r => r.update());
+        });
+        caches.keys().then(keys => {
+          keys.filter(k => !k.includes('wikimedia-images-v2')).forEach(k => caches.delete(k));
+        });
+      }
+    </script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9595415133348818"
      crossorigin="anonymous"></script>
   </head>
