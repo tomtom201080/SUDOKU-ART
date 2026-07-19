@@ -411,8 +411,12 @@ export default function App() {
   const handleOpenDefi = () => {
     if (session) {
       setShowDefiDashboard(true);
-    } else {
+    } else if (adConsent === 'accepted') {
+      // Pub consentie → montrer l'interstitielle
       setPendingAdAction('defi');
+    } else {
+      // Pas de pub → aller directement au composer
+      setShowDefiComposer(true);
     }
   };
 

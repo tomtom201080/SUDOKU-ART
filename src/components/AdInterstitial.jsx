@@ -17,29 +17,20 @@ export default function AdInterstitial({ onContinue, onClose }) {
   const hasAdsense = !!getAdsenseClientId();
 
   useEffect(() => {
-    // Si pas de consentement ou pas d'AdSense configuré → on passe directement
-    if (consent !== 'accepted' || !hasAdsense) {
-      onContinue();
-      return;
-    }
+    if (consent !== 'accepted' || !hasAdsense) return;
 
     loadAdsenseScript();
-    try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch {}
+    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
 
     intervalRef.current = setInterval(() => {
       setCountdown(c => {
-        if (c <= 1) {
-          clearInterval(intervalRef.current);
-          return 0;
-        }
+        if (c <= 1) { clearInterval(intervalRef.current); return 0; }
         return c - 1;
       });
     }, 1000);
 
     return () => clearInterval(intervalRef.current);
-  }, [consent, hasAdsense, onContinue]);
+  }, [consent, hasAdsense]);
 
   // Si pas de pub à montrer → ne rien rendre (onContinue déjà appelé)
   if (consent !== 'accepted' || !hasAdsense) return null;
