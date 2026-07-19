@@ -194,57 +194,65 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached } = {}) {
   // Démarre une partie à partir d'une grille déjà déterminée (reçue via un
   // défi "même grille") : on ne génère rien, on rejoue exactement le même
   // puzzle que le challenger, pour pouvoir comparer les résultats à la fin.
-  const startRematchGame = useCallback((rematch, photoUrl) => {
-    // puzzle/solution peuvent être stockés en JSON string ou en tableau selon
-    // la version de la table — on supporte les deux formats.
-    const puzzle   = typeof rematch.puzzle   === 'string' ? JSON.parse(rematch.puzzle)   : rematch.puzzle;
-    const solution = typeof rematch.solution === 'string' ? JSON.parse(rematch.solution) : rematch.solution;
-    const givenMask = puzzle.map(row => row.map(v => v !== 0));
+  const startRematchGame = useCallback((rematch, photoUrl, localPuzzleData = null) => {
+    try {
+      // On privilégie le puzzleData local (passé depuis DefiComposer) pour éviter
+      // tout problème de parsing depuis Supabase (JSONB vs string).
+      let puzzle, solution;
+      if (localPuzzleData) {
+        puzzle   = localPuzzleData.puzzle;
+        solution = localPuzzleData.solution;
+      } else {
+        // Fallback : depuis la DB — supporte JSON string et objet JSONB
+        puzzle   = typeof rematch.puzzle   === 'string' ? JSON.parse(rematch.puzzle)   : rematch.puzzle;
+        solution = typeof rematch.solution === 'string' ? JSON.parse(rematch.solution) : rematch.solution;
+      }
 
-    const image = photoUrl
-      ? { id: `rematch-${rematch.id}`, path: photoUrl, tier: null, isCustom: true }
-      : null;
+      if (!puzzle || !solution) throw new Error('Puzzle invalide');
 
-    setDifficulty(rematch.difficulty);
-    setPuzzleData({ puzzle, solution, givenMask });
-    setUserGrid(buildInitialUserGrid(puzzle));
-    setWatermark(image);
-    setWatermarkVisible(true);
-    setIsComplete(false);
-    setShowWinModal(false);
-    if (winRevealTimeoutRef.current) {
-      clearTimeout(winRevealTimeoutRef.current);
-      winRevealTimeoutRef.current = null;
+      const givenMask = puzzle.map(row => row.map(v => v !== 0));
+      const image = photoUrl
+        ? { id: `rematch-${rematch.id}`, path: photoUrl, pathLow: photoUrl, tier: null, isCustom: true }
+        : null;
+
+      setDifficulty(rematch.difficulty);
+      setPuzzleData({ puzzle, solution, givenMask });
+      setUserGrid(buildInitialUserGrid(puzzle));
+      setWatermark(image);
+      setWatermarkVisible(true);
+      setIsComplete(false);
+      setShowWinModal(false);
+      if (winRevealTimeoutRef.current) { clearTimeout(winRevealTimeoutRef.current); winRevealTimeoutRef.current = null; }
+      setIsFailed(false);
+      setRewardImage(null);
+      setNextWatermark(null);
+      setTempFullReveal(false);
+      if (tempRevealTimeoutRef.current) { clearTimeout(tempRevealTimeoutRef.current); tempRevealTimeoutRef.current = null; }
+      setErrorCells(new Set());
+      setErrorCount(0);
+      setHintsUsed(0);
+      setElapsedSeconds(0);
+      setNotesMode(false);
+      setNotesGrid(buildEmptyNotes());
+      setHistory([]);
+      setCelebrate([]);
+      setChallengeMeta(null);
+      setActiveRematch({
+        id: rematch.id,
+        challengerName: rematch.challenger_name,
+        challengerErrors: rematch.challenger_result_errors,
+        challengerSeconds: rematch.challenger_result_seconds,
+        challengerHasAccount: !!rematch.challenger_user_id,
+        hintsLimit: rematch.hints_limit ?? null,
+        groupMode: rematch.group_mode ?? false,
+      });
+      setRematchOutcome(null);
+
+      logGameStart({ difficulty: rematch.difficulty, userId, isCustomPhoto: !!photoUrl, isChallenge: true });
+    } catch (err) {
+      console.error('startRematchGame error:', err);
+      // En cas d'erreur, on reste sur l'accueil plutôt que de planter
     }
-    setIsFailed(false);
-    setRewardImage(null);
-    setNextWatermark(null);
-    setTempFullReveal(false);
-    if (tempRevealTimeoutRef.current) {
-      clearTimeout(tempRevealTimeoutRef.current);
-      tempRevealTimeoutRef.current = null;
-    }
-    setErrorCells(new Set());
-    setErrorCount(0);
-    setHintsUsed(0);
-    setElapsedSeconds(0);
-    setNotesMode(false);
-    setNotesGrid(buildEmptyNotes());
-    setHistory([]);
-    setCelebrate([]);
-    setChallengeMeta(null);
-    setActiveRematch({
-      id: rematch.id,
-      challengerName: rematch.challenger_name,
-      challengerErrors: rematch.challenger_result_errors,
-      challengerSeconds: rematch.challenger_result_seconds,
-      challengerHasAccount: !!rematch.challenger_user_id
-    });
-    setRematchOutcome(null);
-    setActiveQuestStage(null);
-    setActiveMathQuestStage(null);
-
-    logGameStart({ difficulty: rematch.difficulty, userId, isCustomPhoto: !!photoUrl, isChallenge: true });
   }, [userId]);
 
   // Lance une étape précise du parcours de quête : la difficulté et le

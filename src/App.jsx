@@ -417,7 +417,8 @@ export default function App() {
     setLastCustomImage(photoUrl ?? null);
     setIsClassicMode(false);
     setLastChallengeMeta(null);
-    game.startRematchGame(rematch, photoUrl);
+    // On passe puzzleData local pour éviter tout pb de parsing depuis Supabase
+    game.startRematchGame(rematch, photoUrl, puzzleData);
   };
 
   const handlePlayPendingRematch = () => {
