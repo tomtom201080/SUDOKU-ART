@@ -7,9 +7,6 @@ import { markChallengeCompleted, deleteChallenge } from '../lib/challenges';
 import { markPaintingSeen, getMergedUnseenIds } from '../lib/seenPaintings';
 import { logGameStart, logGameComplete, logGameFail } from '../lib/analytics';
 import { submitRematchResult, determineRematchWinner } from '../lib/rematches';
-import { markStageCompleted } from '../lib/questProgress';
-import { markMathStageCompleted } from '../lib/mathQuestProgress';
-import { checkRiddleAnswer } from '../data/mathQuestStages';
 
 function cloneGrid(grid) {
   return grid.map(row => [...row]);
@@ -378,9 +375,10 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached } = {}) {
   // valide réellement l'étape (en base) que si la réponse est correcte.
   const submitMathAnswer = useCallback((answer) => {
     if (!activeMathQuestStage) return false;
-    const correct = checkRiddleAnswer(activeMathQuestStage.riddle, answer);
+    if (!activeMathQuestStage) return false;
+    const correct = false; // QUEST_DISABLED
     if (correct && userId) {
-      markMathStageCompleted(userId, activeMathQuestStage.number).catch(() => null);
+      // QUEST_DISABLED: markMathStageCompleted
     }
     return correct;
   }, [activeMathQuestStage, userId]);
@@ -665,7 +663,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached } = {}) {
       }
 
       if (activeQuestStage && userId) {
-        markStageCompleted(userId, activeQuestStage.number).catch(() => null);
+        // QUEST_DISABLED: markStageCompleted
       }
 
       // Étoiles sur toute la grille, puis on laisse admirer la photo complète
