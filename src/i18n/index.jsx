@@ -1,5 +1,6 @@
-import { useContext, useState } from 'react';
-import LangContext from './context.js';
+// src/i18n/index.jsx
+// Global store pattern : pas de Context React, pas de TDZ, pas de circular dep
+import { useState, useEffect } from 'react';
 
 const LANG_KEY = 'sudoku-devoile:lang';
 
@@ -438,7 +439,6 @@ const FR = {
   win_table_score: '🏁 Score',
 
 };
-
 const EN = {
   // ── Difficulties ─────────────────────────────────────────────
   diff_facile: 'Easy',
@@ -875,40 +875,51 @@ const EN = {
 
 };
 
-const TRANSLATIONS = { fr: FR, en: EN };
-
-function detectLang() {
+// État global — initialisé immédiatement, jamais en TDZ
+var _lang = (function() {
   try {
-    const stored = localStorage.getItem(LANG_KEY);
-    if (stored === 'fr' || stored === 'en') return stored;
-  } catch {}
-  const nav = (navigator.language || 'fr').toLowerCase();
-  return nav.startsWith('fr') ? 'fr' : 'en';
+    var s = localStorage.getItem(LANG_KEY);
+    if (s === 'fr' || s === 'en') return s;
+  } catch(e) {}
+  var n = (navigator.language || 'fr').toLowerCase();
+  return n.startsWith('fr') ? 'fr' : 'en';
+})();
+
+var _listeners = new Set();
+
+function _t(key, vars) {
+  vars = vars || {};
+  var dict = _lang === 'en' ? EN : FR;
+  var str = dict[key] || FR[key] || key;
+  return str.replace(/\{(\w+)\}/g, function(_, k) {
+    return vars[k] != null ? vars[k] : '';
+  });
 }
 
-export { LangContext };
-
-export function LangProvider({ children }) {
-  const [lang, setLangState] = useState(detectLang);
-
-  const setLang = (l) => {
-    setLangState(l);
-    try { localStorage.setItem(LANG_KEY, l); } catch {}
-  };
-
-  const t = (key, vars = {}) => {
-    const dict = TRANSLATIONS[lang] || TRANSLATIONS.fr;
-    const str = dict[key] || TRANSLATIONS.fr[key] || key;
-    return str.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? ''));
-  };
-
-  return (
-    <LangContext.Provider value={{ lang, setLang, t }}>
-      {children}
-    </LangContext.Provider>
-  );
+export function setGlobalLang(l) {
+  _lang = l;
+  try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
+  _listeners.forEach(function(fn) { fn(); });
 }
 
+export function getGlobalLang() { return _lang; }
+
+// Hook React — s'abonne aux changements de langue
 export function useT() {
-  return useContext(LangContext);
+  var update = useState(0)[1];
+  useEffect(function() {
+    var fn = function() { update(function(n) { return n + 1; }); };
+    _listeners.add(fn);
+    return function() { _listeners.delete(fn); };
+  }, []);
+  return {
+    lang: _lang,
+    setLang: setGlobalLang,
+    t: _t,
+  };
+}
+
+// Composant Provider (rétrocompatibilité — maintenant un simple wrapper)
+export function LangProvider({ children }) {
+  return children;
 }
