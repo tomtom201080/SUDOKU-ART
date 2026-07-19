@@ -1,5 +1,5 @@
 // src/components/DefiDashboard.jsx
-import { translate as t, useT } from '../i18n/index.jsx';
+import { translate as t, useT, getLang } from '../i18n/index.jsx';
 import { useEffect, useState } from 'react';
 import {
   fetchSentRematches, fetchReceivedRematches,
@@ -50,12 +50,12 @@ function GroupLeaderboard({ rematch, onClose }) {
     <div className="group-leaderboard-overlay" onClick={onClose}>
       <div className="group-leaderboard-panel" onClick={e => e.stopPropagation()}>
         <div className="group-leaderboard-header">
-          <h3>{lang === 'fr' ? '🏆 Classement' : '🏆 Leaderboard'}</h3>
+          <h3>{getLang() === 'fr' ? '🏆 Classement' : '🏆 Leaderboard'}</h3>
           <button onClick={onClose}>✕</button>
         </div>
         <p className="group-leaderboard-meta">
           {diffLabel(rematch.difficulty) ?? rematch.difficulty} · {fmtDate(rematch.created_at)}
-          {rematch.hints_limit != null && lang === 'fr' ? ` · Max ${rematch.hints_limit} indice${rematch.hints_limit > 1 ? 's' : ''}` : ` · Max ${rematch.hints_limit} hint${rematch.hints_limit > 1 ? 's' : ''}`}
+          {rematch.hints_limit != null && getLang() === 'fr' ? ` · Max ${rematch.hints_limit} indice${rematch.hints_limit > 1 ? 's' : ''}` : ` · Max ${rematch.hints_limit} hint${rematch.hints_limit > 1 ? 's' : ''}`}
         </p>
 
         {results === null && <p className="defi-dash-empty">{t('defi_loading')}</p>}
@@ -139,7 +139,6 @@ function RematchRow({ r, isSent, onHide, onExpand }) {
 
 // ─── Dashboard principal ─────────────────────────────────────────
 export default function DefiDashboard({ userId, onClose, onCreateDefi }) {
-  const { lang } = useT();
   const [tab, setTab]         = useState('sent');
   const [sent, setSent]       = useState(null);
   const [received, setReceived] = useState(null);

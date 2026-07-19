@@ -1,9 +1,8 @@
-import { translate as t, useT } from '../i18n/index.jsx';
+import { translate as t, useT, getLang } from '../i18n/index.jsx';
 import './HelpModal.css';
 
 export default function HelpModal({ onClose }) {
-  const { lang } = useT();
-  const fr = lang === 'fr';
+  const fr = getLang() === 'fr';
 
   return (
     <div className="help-overlay" onClick={onClose}>

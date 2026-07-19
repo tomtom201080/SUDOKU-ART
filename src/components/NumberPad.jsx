@@ -1,4 +1,4 @@
-import { translate as t, useT } from '../i18n/index.jsx';
+import { translate as t, useT, getLang } from '../i18n/index.jsx';
 // src/components/NumberPad.jsx
 import { forwardRef } from 'react';
 import './NumberPad.css';
@@ -14,7 +14,6 @@ const NumberPad = forwardRef(function NumberPad({
   hintsDisabled,
   completedDigits
 }, ref) {
-  const { lang } = useT();
   return (
     <div className="number-pad" ref={ref}>
       <div className="number-pad-digits">
@@ -63,7 +62,7 @@ const NumberPad = forwardRef(function NumberPad({
           className={`number-pad-btn number-pad-hint ${hintsDisabled ? 'is-disabled' : ''}`}
           onClick={hintsDisabled ? undefined : onHint}
           disabled={disabled || hintsDisabled}
-          title={hintsDisabled ? lang === 'fr' ? 'Limite d\'indices atteinte' : 'Hint limit reached' : undefined}
+          title={hintsDisabled ? getLang() === 'fr' ? 'Limite d\'indices atteinte' : 'Hint limit reached' : undefined}
         >
           {t('game_hint')}{hintsDisabled ? ' 🚫' : ''}
         </button>

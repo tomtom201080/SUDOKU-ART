@@ -1,4 +1,4 @@
-import { translate as t, useT } from '../i18n/index.jsx';
+import { translate as t, useT, getLang } from '../i18n/index.jsx';
 // src/components/RematchResultDetail.jsx
 import '../components/WinModal.css';
 import './PaintingDetailModal.css';
@@ -10,7 +10,6 @@ function formatTime(totalSeconds) {
 }
 
 export default function RematchResultDetail({ rematch, winner, onClose }) {
-  const { lang } = useT();
   if (!rematch) return null;
 
   return (
@@ -20,9 +19,9 @@ export default function RematchResultDetail({ rematch, winner, onClose }) {
 
         <div className="rematch-outcome">
           <p className="rematch-outcome-title">
-            {winner === 'challenger' && lang === 'fr' ? '🏆 Tu as gagné ce défi !' : '🏆 You won this challenge!'}
+            {winner === 'challenger' && getLang() === 'fr' ? '🏆 Tu as gagné ce défi !' : '🏆 You won this challenge!'}
             {winner === 'recipient' && t('rrd_friend_better')}
-            {winner === 'tie' && lang === 'fr' ? '🤝 Égalité parfaite !' : '🤝 Perfect tie!'}
+            {winner === 'tie' && getLang() === 'fr' ? '🤝 Égalité parfaite !' : '🤝 Perfect tie!'}
           </p>
           <table className="rematch-outcome-table">
             <thead>

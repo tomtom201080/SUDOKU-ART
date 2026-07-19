@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { useT , getLang} from '../i18n/index.jsx';
 // src/components/QuestMap.jsx
 import { useEffect, useState } from 'react';
 import { QUEST_STAGES, rankForCompletedCount } from '../data/questStages';
@@ -8,7 +8,6 @@ import { ART_ICONS, ART_CHAPTERS } from './questIcons/index.js';
 import QuestPathMap from './QuestPathMap';
 
 export default function QuestMap({ userId, onClose, onPlayStage }) {
-  const { lang } = useT();
   const [completedStages, setCompletedStages] = useState(null);
 
   useEffect(() => {
@@ -20,7 +19,7 @@ export default function QuestMap({ userId, onClose, onPlayStage }) {
   if (completedStages === null) {
     return (
       <div className="quest-overlay">
-        <div className="quest-panel"><p>{lang === 'fr' ? 'Chargement de ta quête…' : 'Loading your quest…'}</p></div>
+        <div className="quest-panel"><p>{getLang() === 'fr' ? 'Chargement de ta quête…' : 'Loading your quest…'}</p></div>
       </div>
     );
   }
@@ -39,7 +38,7 @@ export default function QuestMap({ userId, onClose, onPlayStage }) {
 
   return (
     <QuestPathMap
-      title=lang === 'fr' ? '🏆 Quête Sudokart' : '🏆 Sudokart Quest'
+      title=getLang() === 'fr' ? '🏆 Quête Sudokart' : '🏆 Sudokart Quest'
       stages={stages}
       completedStages={completedStages}
       currentRank={currentRank}

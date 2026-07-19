@@ -1,4 +1,4 @@
-import { translate as t, useT } from '../i18n/index.jsx';
+import { translate as t, useT, getLang } from '../i18n/index.jsx';
 // src/components/ChallengeComposer.jsx
 import { useRef, useState, useEffect } from 'react';
 import { uploadSharedPhoto, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
@@ -7,7 +7,7 @@ import { isMobileDevice } from '../utils/device';
 import './ChallengeComposer.css';
 
 const DIFFICULTY_OPTIONS = [
-  { value: 'auto', label: lang === 'fr' ? 'Automatique (au hasard)' : 'Automatic (random)' },
+  { value: 'auto', label: getLang() === 'fr' ? 'Automatique (au hasard)' : 'Automatic (random)' },
   // dynamique
 ];
 
@@ -29,7 +29,6 @@ const TIME_OPTIONS = [
 ];
 
 export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null }) {
-  const { lang } = useT();
 
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(preloadedPhotoUrl);
@@ -85,14 +84,14 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
 
       const message = path
         ? `🔮 Je te lance un défi Sudoku Art... avec une photo mystère cachée derrière la grille ! 🧩📸\n` +
-          lang === 'fr' ? `Résous-la pour la découvrir 👀\n\n` : `Solve it to discover the photo 👀\n\n` +
+          getLang() === 'fr' ? `Résous-la pour la découvrir 👀\n\n` : `Solve it to discover the photo 👀\n\n` +
           `${link}\n\n`
-        : lang === 'fr' ? `🧩 Je te lance un défi Sudoku Art !\n` : `🧩 I'm challenging you on Sudoku Art!\n` +
-          lang === 'fr' ? `Peux-tu résoudre cette grille ?\n\n` : `Can you solve this grid?\n\n` +
+        : getLang() === 'fr' ? `🧩 Je te lance un défi Sudoku Art !\n` : `🧩 I'm challenging you on Sudoku Art!\n` +
+          getLang() === 'fr' ? `Peux-tu résoudre cette grille ?\n\n` : `Can you solve this grid?\n\n` +
           `${link}\n\n`;
 
       const disclaimer = path
-        ? lang === 'fr' ? `⚠️ Ce lien donne accès à la photo (supprimée dans ${SHARE_EXPIRY_DAYS} j). Ne pas transférer.` : `⚠️ This link gives access to the photo (deleted in ${SHARE_EXPIRY_DAYS} days). Don't forward.`
+        ? getLang() === 'fr' ? `⚠️ Ce lien donne accès à la photo (supprimée dans ${SHARE_EXPIRY_DAYS} j). Ne pas transférer.` : `⚠️ This link gives access to the photo (deleted in ${SHARE_EXPIRY_DAYS} days). Don't forward.`
         : '';
 
       const fullMessage = message + disclaimer;
@@ -126,9 +125,9 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
             <p className="challenge-success">Défi envoyé ! Il sera valable {SHARE_EXPIRY_DAYS} jours.</p>
             {shareLink && (
               <div className="challenge-link-fallback">
-                <p>{lang === 'fr' ? 'Le sélecteur WhatsApp ne s\'est pas ouvert ? Copie le lien :' : 'WhatsApp didn\'t open? Copy the link:'}</p>
+                <p>{getLang() === 'fr' ? 'Le sélecteur WhatsApp ne s\'est pas ouvert ? Copie le lien :' : 'WhatsApp didn\'t open? Copy the link:'}</p>
                 <button className="challenge-copy-btn" onClick={handleCopyLink}>
-                  {linkCopied ? lang === 'fr' ? '✅ Lien copié !' : '✅ Link copied!' : '📋 Copier le lien'}
+                  {linkCopied ? getLang() === 'fr' ? '✅ Lien copié !' : '✅ Link copied!' : '📋 Copier le lien'}
                 </button>
               </div>
             )}
@@ -137,7 +136,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
         ) : (
           <>
             <div className="challenge-step">
-              <p className="challenge-step-title">{lang === 'fr' ? '1. Choose the photo to reveal' : '1. Choose the photo to reveal'}</p>
+              <p className="challenge-step-title">{getLang() === 'fr' ? '1. Choose the photo to reveal' : '1. Choose the photo to reveal'}</p>
               {photoPreview ? (
                 <img className="challenge-photo-preview" src={photoPreview} alt="Photo choisie" />
               ) : (
@@ -160,7 +159,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
             </div>
 
             <div className="challenge-step">
-              <p className="challenge-step-title">{lang === 'fr' ? '2. Niveau de difficulté' : '2. Difficulty level'}</p>
+              <p className="challenge-step-title">{getLang() === 'fr' ? '2. Niveau de difficulté' : '2. Difficulty level'}</p>
               <div className="challenge-options">
                 {DIFFICULTY_OPTIONS.map(opt => (
                   <button
@@ -190,7 +189,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
             </div>
 
             <div className="challenge-step">
-              <p className="challenge-step-title">{lang === 'fr' ? '4. Temps à respecter' : '4. Time limit'}</p>
+              <p className="challenge-step-title">{getLang() === 'fr' ? '4. Temps à respecter' : '4. Time limit'}</p>
               <div className="challenge-options">
                 {TIME_OPTIONS.map(opt => (
                   <button
@@ -205,7 +204,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
             </div>
 
             {status === 'error' && (
-              <p className="challenge-error-note">{lang === 'fr' ? 'L\'envoi a échoué, réessaie.' : 'Send failed, try again.'}</p>
+              <p className="challenge-error-note">{getLang() === 'fr' ? 'L\'envoi a échoué, réessaie.' : 'Send failed, try again.'}</p>
             )}
 
             <button

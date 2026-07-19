@@ -33,7 +33,7 @@ import DeleteAccountModal from './components/DeleteAccountModal';
 import OnboardingModal from './components/OnboardingModal';
 import HomeProgress from './components/HomeProgress';
 import { getAdConsent } from './lib/adConsent';
-import { translate as t, useT } from './i18n/index.jsx';
+import { translate as t, useT, getLang } from './i18n/index.jsx';
 import { useGame } from './hooks/useGame';
 import { useNetworkStatus } from './hooks/useNetworkStatus';
 import './components/LegalModal.css';
@@ -77,7 +77,7 @@ function formatTime(totalSeconds) {
 }
 
 export default function App() {
-  const { lang, setLang } = useT();
+  const { setLang } = useT();
 
   const DIFFICULTY_LABELS = {
     facile: t('diff_facile'),
@@ -195,7 +195,7 @@ export default function App() {
 
   // Si on vient de se connecter (ou de créer un compte) spécifiquement pour
   // envoyer un défi, on ouvre automatiquement le composeur juste après. Si la
-  // connexion a été faite depuis le bouton générique lang === "fr" ? "Se connecter" : "Sign in", on
+  // connexion a été faite depuis le bouton générique getLang() === "fr" ? "Se connecter" : "Sign in", on
   // retombe normalement sur l'écran de choix de difficulté.
   useEffect(() => {
     if (session && showAuthScreen) {
@@ -553,9 +553,9 @@ export default function App() {
   );
 
   const accountButton = session ? (
-    <button className="icon-btn" onClick={() => supabase.auth.signOut()} title={lang === "fr" ? "Déconnexion" : "Sign out"}>🚪</button>
+    <button className="icon-btn" onClick={() => supabase.auth.signOut()} title={getLang() === "fr" ? "Déconnexion" : "Sign out"}>🚪</button>
   ) : (
-    <button className="icon-btn" onClick={() => setShowAuthScreen(true)} title={lang === "fr" ? "Se connecter" : "Sign in"}>👤</button>
+    <button className="icon-btn" onClick={() => setShowAuthScreen(true)} title={getLang() === "fr" ? "Se connecter" : "Sign in"}>👤</button>
   );
 
   const profileButton = session ? (
@@ -588,12 +588,12 @@ export default function App() {
           <div className="header-actions">
             {darkModeButton}
             <button className="icon-btn" onClick={() => setShowHelpModal(true)} title="Rules">❓</button>
-            <button className="icon-btn" onClick={() => setLang(lang === 'fr' ? 'en' : 'fr')} title="Language">
-              {lang === 'fr' ? '🇬🇧' : '🇫🇷'}
+            <button className="icon-btn" onClick={() => setLang(getLang() === 'fr' ? 'en' : 'fr')} title="Language">
+              {getLang() === 'fr' ? '🇬🇧' : '🇫🇷'}
             </button>
             <button className="icon-btn" onClick={() => setShowInstallModal(true)} title="Install">📲</button>
             {session?.user?.email === 't.dabadie@gmail.com' && (
-              <button className="icon-btn" onClick={() => setShowKpiDashboard(true)} title={lang === "fr" ? "Statistiques" : "Statistics"}>📊</button>
+              <button className="icon-btn" onClick={() => setShowKpiDashboard(true)} title={getLang() === "fr" ? "Statistiques" : "Statistics"}>📊</button>
             )}
             <button className="icon-btn" onClick={handleOpenGallery} title={t('gallery_title')}>🖼</button>
             {profileButton}
@@ -645,9 +645,9 @@ export default function App() {
               style={{ cursor: 'pointer' }}
             >
               🎯 Ton ami a fini le défi que tu lui as envoyé !{' '}
-              {winner === 'tie' && lang === 'fr' ? lang === 'fr' ? 'Égalité parfaite !' : 'Perfect tie!' : 'Perfect tie!'}
-              {winner === 'challenger' && lang === 'fr' ? 'Tu as gagné 🏆' : 'You won 🏆'}
-              {winner === 'recipient' && lang === "fr" ? "Il/elle a fait mieux que toi 😅" : "They did better this time 😅"}
+              {winner === 'tie' && getLang() === 'fr' ? getLang() === 'fr' ? 'Égalité parfaite !' : 'Perfect tie!' : 'Perfect tie!'}
+              {winner === 'challenger' && getLang() === 'fr' ? 'Tu as gagné 🏆' : 'You won 🏆'}
+              {winner === 'recipient' && getLang() === "fr" ? "Il/elle a fait mieux que toi 😅" : "They did better this time 😅"}
               <button onClick={(e) => { e.stopPropagation(); handleDismissRematchNotification(r.id); }}>✕</button>
             </div>
           );
@@ -777,7 +777,7 @@ export default function App() {
           </span>
           <span className="stat-pill">❌ {game.errorCount} / {game.challengeMeta?.maxErrors ?? 3}</span>
           {darkModeButton}
-          <button className="icon-btn" onClick={game.toggleWatermark} title={lang === "fr" ? "Filigrane" : "Watermark"}>
+          <button className="icon-btn" onClick={game.toggleWatermark} title={getLang() === "fr" ? "Filigrane" : "Watermark"}>
             {game.watermarkVisible ? '🙈' : '🙉'}
           </button>
           <button className="icon-btn" onClick={handleCloseGameEnd} title="Menu">↩</button>

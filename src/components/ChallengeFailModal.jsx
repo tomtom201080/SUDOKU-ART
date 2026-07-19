@@ -1,4 +1,4 @@
-import { translate as t, useT } from '../i18n/index.jsx';
+import { translate as t, useT, getLang } from '../i18n/index.jsx';
 // src/components/ChallengeFailModal.jsx
 import { useState } from 'react';
 import { shareText } from '../utils/device';
@@ -22,13 +22,12 @@ export default function ChallengeFailModal({
   onReplay,
   onClose
 }) {
-  const { lang } = useT();
   const [resultSent, setResultSent] = useState(false);
 
   const handleSendResult = async () => {
     const difficultyLabel = DIFF_L[difficulty] ?? difficulty;
     const message =
-      lang === 'fr'
+      getLang() === 'fr'
       ? `😢 J'ai perdu le défi Sudoku Art que tu m'as envoyé...\nDifficulté : ${difficultyLabel} — Erreurs : ${errorCount} — Temps : ${formatTime(elapsedSeconds)}`
       : `😢 I lost the Sudoku Art challenge you sent me...\nDifficulty: ${difficultyLabel} — Errors: ${errorCount} — Time: ${formatTime(elapsedSeconds)}`;
     await shareText(message, t('fail_share_title'));
