@@ -1,8 +1,5 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import fr from './fr.js';
-import en from './en.js';
+import { createContext, useContext, useState } from 'react';
 
-const TRANSLATIONS = { fr, en };
 const LANG_KEY = 'sudoku-devoile:lang';
 
 function detectLang() {
@@ -10,11 +7,26 @@ function detectLang() {
     const stored = localStorage.getItem(LANG_KEY);
     if (stored === 'fr' || stored === 'en') return stored;
   } catch {}
-  const nav = (navigator.language || navigator.userLanguage || 'fr').toLowerCase();
+  const nav = (navigator.language || 'fr').toLowerCase();
   return nav.startsWith('fr') ? 'fr' : 'en';
 }
 
-export const LangContext = createContext({ lang: 'fr', setLang: () => {}, t: (k) => k });
+// Chargement lazy des traductions pour éviter les circular deps
+let _translations = null;
+function getTranslations() {
+  if (_translations) return _translations;
+  // Import statique mais accédé uniquement au runtime
+  const fr = require('./fr.js').default;
+  const en = require('./en.js').default;
+  _translations = { fr, en };
+  return _translations;
+}
+
+export const LangContext = createContext({
+  lang: 'fr',
+  setLang: () => {},
+  t: (k) => k,
+});
 
 export function LangProvider({ children }) {
   const [lang, setLangState] = useState(detectLang);
@@ -24,10 +36,11 @@ export function LangProvider({ children }) {
     try { localStorage.setItem(LANG_KEY, l); } catch {}
   };
 
-  // Traduction avec interpolation simple : t('hint_wait', {n:3, s:'s'})
   const t = (key, vars = {}) => {
-    const str = (TRANSLATIONS[lang] || TRANSLATIONS.fr)[key] || (TRANSLATIONS.fr[key]) || key;
-    return str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
+    const translations = getTranslations();
+    const dict = translations[lang] || translations.fr;
+    const str = dict[key] || translations.fr[key] || key;
+    return str.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? ''));
   };
 
   return (
