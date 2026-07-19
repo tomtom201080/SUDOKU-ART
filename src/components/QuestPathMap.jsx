@@ -233,7 +233,7 @@ export default function QuestPathMap({
                   style={{ left: x - NODE_RADIUS, top: y - NODE_RADIUS }}
                   disabled={isLocked}
                   onClick={() => onPlayStage(stage)}
-                  title={isLocked ? 'Étape verrouillée' : stage.image.title}
+                  title={isLocked ? lang === 'fr' ? 'Étape verrouillée' : 'Locked step' : stage.image.title}
                 >
                   {isCompleted ? (
                     <img className="quest-node-thumb" src={stage.image.url} alt={stage.image.title} />

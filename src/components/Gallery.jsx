@@ -58,7 +58,7 @@ export default function Gallery({ gallery, onClose }) {
                   key={`${img.id}-${idx}`}
                   onClick={() => setSelectedImage(img)}
                 >
-                  <img src={img.path} alt={img.title ?? 'Image débloquée'} loading="lazy" />
+                  <img src={img.path} alt={img.title ?? lang === 'fr' ? 'Image débloquée' : 'Image unlocked'} loading="lazy" />
                   <span className="gallery-item-tier">{TIER_LABELS[img.tier] ?? img.tier}</span>
                   {img.title && (
                     <div className="gallery-item-info">

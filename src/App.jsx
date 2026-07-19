@@ -593,7 +593,7 @@ export default function App() {
             </button>
             <button className="icon-btn" onClick={() => setShowInstallModal(true)} title="Install">📲</button>
             {session?.user?.email === 't.dabadie@gmail.com' && (
-              <button className="icon-btn" onClick={() => setShowKpiDashboard(true)} title="Statistiques">📊</button>
+              <button className="icon-btn" onClick={() => setShowKpiDashboard(true)} title={lang === "fr" ? "Statistiques" : "Statistics"}>📊</button>
             )}
             <button className="icon-btn" onClick={handleOpenGallery} title={t('gallery_title')}>🖼</button>
             {profileButton}
@@ -645,7 +645,7 @@ export default function App() {
               style={{ cursor: 'pointer' }}
             >
               🎯 Ton ami a fini le défi que tu lui as envoyé !{' '}
-              {winner === 'tie' && 'Égalité parfaite.'}
+              {winner === 'tie' && lang === 'fr' ? lang === 'fr' ? 'Égalité parfaite !' : 'Perfect tie!' : 'Perfect tie!'}
               {winner === 'challenger' && lang === 'fr' ? 'Tu as gagné 🏆' : 'You won 🏆'}
               {winner === 'recipient' && lang === "fr" ? "Il/elle a fait mieux que toi 😅" : "They did better this time 😅"}
               <button onClick={(e) => { e.stopPropagation(); handleDismissRematchNotification(r.id); }}>✕</button>
@@ -777,7 +777,7 @@ export default function App() {
           </span>
           <span className="stat-pill">❌ {game.errorCount} / {game.challengeMeta?.maxErrors ?? 3}</span>
           {darkModeButton}
-          <button className="icon-btn" onClick={game.toggleWatermark} title="Filigrane">
+          <button className="icon-btn" onClick={game.toggleWatermark} title={lang === "fr" ? "Filigrane" : "Watermark"}>
             {game.watermarkVisible ? '🙈' : '🙉'}
           </button>
           <button className="icon-btn" onClick={handleCloseGameEnd} title="Menu">↩</button>

@@ -103,7 +103,7 @@ export default function AuthScreen({ onCancel }) {
           </div>
         )}
 
-        {mode === 'forgot' && <h2 className="auth-forgot-title">Mot de passe oublié</h2>}
+        {mode === 'forgot' && <h2 className="auth-forgot-title">{lang === 'fr' ? 'Mot de passe oublié' : 'Forgot password'}</h2>}
 
         <form onSubmit={handleSubmit} className="auth-form">
           <label>

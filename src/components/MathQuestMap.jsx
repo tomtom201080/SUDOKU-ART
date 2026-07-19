@@ -37,7 +37,7 @@ export default function MathQuestMap({ userId, onClose, onPlayStage }) {
 
   return (
     <QuestPathMap
-      title="🧠 Quête Sudomath"
+      title=lang === 'fr' ? '🧠 Quête Sudomath' : '🧠 Sudomath Quest'
       stages={stages}
       completedStages={completedStages}
       currentRank={currentRank}

@@ -37,7 +37,7 @@ export default function QuestMap({ userId, onClose, onPlayStage }) {
 
   return (
     <QuestPathMap
-      title="🏆 Quête Sudokart"
+      title=lang === 'fr' ? '🏆 Quête Sudokart' : '🏆 Sudokart Quest'
       stages={stages}
       completedStages={completedStages}
       currentRank={currentRank}

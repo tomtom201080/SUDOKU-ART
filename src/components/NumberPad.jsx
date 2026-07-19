@@ -62,7 +62,7 @@ const NumberPad = forwardRef(function NumberPad({
           className={`number-pad-btn number-pad-hint ${hintsDisabled ? 'is-disabled' : ''}`}
           onClick={hintsDisabled ? undefined : onHint}
           disabled={disabled || hintsDisabled}
-          title={hintsDisabled ? 'Limite d\'indices atteinte' : undefined}
+          title={hintsDisabled ? lang === 'fr' ? 'Limite d\'indices atteinte' : 'Hint limit reached' : undefined}
         >
           {t('game_hint')}{hintsDisabled ? ' 🚫' : ''}
         </button>

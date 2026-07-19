@@ -16,7 +16,7 @@ export default function InstallAppModal({ onClose }) {
     <div className="install-overlay">
       <div className="install-panel">
         <div className="install-header">
-          <h2>📲 Installer Sudoku Art</h2>
+          <h2>{lang === 'fr' ? '📲 Installer Sudoku Art' : '📲 Install Sudoku Art'}</h2>
           <button className="install-close" onClick={onClose}>✕</button>
         </div>
 
@@ -48,7 +48,7 @@ export default function InstallAppModal({ onClose }) {
           </p>
         )}
 
-        <button className="install-done-btn" onClick={onClose}>Compris !</button>
+        <button className="install-done-btn" onClick={onClose}>{lang === 'fr' ? 'Compris !' : 'Got it!'}</button>
       </div>
     </div>
   );

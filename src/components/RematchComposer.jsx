@@ -44,10 +44,9 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
 
       const link = buildRematchLink(rematch.id);
       const message =
-        lang === 'fr' ? `🧩 Je te défie sur LA MÊME grille de Sudoku Art que je viens de finir !\n` : `🧩 I challenge you on THE SAME Sudoku Art grid I just finished!\n` +
-        `Mon résultat : ${errorCount} erreur${errorCount === 1 ? '' : 's'}, ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s. À toi de faire mieux !\n` +
-        `${link}` +
-        (photoPath ? `\n⚠️ Ce lien donne accès à une photo : ne le transfère qu'à la bonne personne (supprimée dans ${SHARE_EXPIRY_DAYS} jours).` : '');
+        lang === 'fr'
+        ? `🧩 Je te défie sur LA MÊME grille de Sudoku Art !\nMon résultat : ${errorCount} erreur${errorCount === 1 ? '' : 's'}, ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s.\n${link}` + (photoPath ? `\n⚠️ Ce lien donne accès à une photo (supprimée dans ${SHARE_EXPIRY_DAYS} j).` : '')
+        : `🧩 I challenge you on THE SAME Sudoku Art grid!\nMy result: ${errorCount} error${errorCount === 1 ? '' : 's'}, ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s.\n${link}` + (photoPath ? `\n⚠️ This link gives access to a photo (deleted in ${SHARE_EXPIRY_DAYS} days).` : '');
 
       if (isMobileDevice() && navigator.share) {
         try {
@@ -99,7 +98,7 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
             )}
 
             <div className="challenge-step">
-              <p className="challenge-step-title">Ajouter une photo perso à découvrir (optionnel)</p>
+              <p className="challenge-step-title">{lang === 'fr' ? 'Ajouter une photo perso (optionnel)' : 'Add a personal photo (optional)'}</p>
               {photoPreview ? (
                 <img className="challenge-photo-preview" src={photoPreview} alt="Photo choisie" />
               ) : (

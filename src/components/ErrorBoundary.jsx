@@ -15,7 +15,7 @@ export default class ErrorBoundary extends Component {
           position: 'fixed', inset: 0, background: '#1a1a1a', color: '#ff6b6b',
           padding: 20, zIndex: 9999, overflow: 'auto', fontFamily: 'monospace', fontSize: 12
         }}>
-          <strong style={{fontSize:16, color:'#fff'}}>💥 Crash détecté</strong>
+          <strong style={{fontSize:16, color:'#fff'}}>💥 Crash / Error detected</strong>
           <pre style={{marginTop:12, whiteSpace:'pre-wrap', wordBreak:'break-all'}}>
             {this.state.error?.message}
             {'\n\n'}

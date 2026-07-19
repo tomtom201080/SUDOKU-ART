@@ -14,7 +14,7 @@ export default function AdConsentBanner({ onChoice, onShowPrivacy }) {
       <p>
         {t('consent_text')}
         soient personnalisées selon tes centres d'intérêt (via des cookies) ?
-        Tu peux changer d'avis à tout moment dans les réglages.{' '}
+        Tu peux changer d '}
         <button className="ad-consent-link" onClick={onShowPrivacy}>
           En savoir plus
         </button>

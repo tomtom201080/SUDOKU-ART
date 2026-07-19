@@ -16,7 +16,7 @@ export default function UpdatePasswordScreen({ onDone }) {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('Les deux mots de passe ne correspondent pas.');
+      setError(lang === 'fr' ? 'Les deux mots de passe ne correspondent pas.' : 'Passwords do not match.');
       return;
     }
 
@@ -45,7 +45,7 @@ export default function UpdatePasswordScreen({ onDone }) {
       <div className="auth-card">
         {success ? (
           <>
-            <p className="auth-info">Mot de passe mis à jour avec succès !</p>
+            <p className="auth-info">{lang === 'fr' ? 'Mot de passe mis à jour !' : 'Password updated!'}</p>
             <button className="auth-submit-btn" onClick={onDone}>
               Continuer vers le jeu
             </button>
@@ -79,7 +79,7 @@ export default function UpdatePasswordScreen({ onDone }) {
             {error && <p className="auth-error">{error}</p>}
 
             <button type="submit" className="auth-submit-btn" disabled={loading}>
-              {loading ? 'Un instant…' : 'Mettre à jour le mot de passe'}
+              {loading ? 'Un instant…' : lang === 'fr' ? 'Mettre à jour le mot de passe' : 'Update password'}
             </button>
           </form>
         )}

@@ -50,7 +50,7 @@ function GroupLeaderboard({ rematch, onClose }) {
     <div className="group-leaderboard-overlay" onClick={onClose}>
       <div className="group-leaderboard-panel" onClick={e => e.stopPropagation()}>
         <div className="group-leaderboard-header">
-          <h3>🏆 Classement</h3>
+          <h3>{lang === 'fr' ? '🏆 Classement' : '🏆 Leaderboard'}</h3>
           <button onClick={onClose}>✕</button>
         </div>
         <p className="group-leaderboard-meta">

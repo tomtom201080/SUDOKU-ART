@@ -27,8 +27,9 @@ export default function ChallengeFailModal({
   const handleSendResult = async () => {
     const difficultyLabel = DIFF_L[difficulty] ?? difficulty;
     const message =
-      lang === 'fr' ? `😢 J'ai perdu le défi Sudoku Art que tu m'as envoyé...\n` : `😢 I lost the Sudoku Art challenge you sent me...\n` +
-      `Difficulté : ${difficultyLabel} — Erreurs : ${errorCount} — Temps : ${formatTime(elapsedSeconds)}`;
+      lang === 'fr'
+      ? `😢 J'ai perdu le défi Sudoku Art que tu m'as envoyé...\nDifficulté : ${difficultyLabel} — Erreurs : ${errorCount} — Temps : ${formatTime(elapsedSeconds)}`
+      : `😢 I lost the Sudoku Art challenge you sent me...\nDifficulty: ${difficultyLabel} — Errors: ${errorCount} — Time: ${formatTime(elapsedSeconds)}`;
     await shareText(message, t('fail_share_title'));
     setResultSent(true);
   };

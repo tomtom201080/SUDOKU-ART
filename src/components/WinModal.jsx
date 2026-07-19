@@ -58,7 +58,7 @@ export default function WinModal({
     const title = rewardImage?.title;
     const time = formatTime(elapsedSeconds);
     const errors = errorCount === 0 ? lang === 'fr' ? 'aucune erreur 🏆' : 'no errors 🏆' : lang === 'fr' ? `${errorCount} erreur${errorCount > 1 ? 's' : ''}` : `${errorCount} error${errorCount > 1 ? 's' : ''}`;
-    const painting = title ? `J'ai dévoilé "${title}" en finissant mon Sudoku Art ! 🎨\n` : '';
+    const painting = title ? lang === 'fr' ? `J'ai dévoilé "${title}" sur Sudoku Art ! 🎨\n` : `I revealed "${title}" on Sudoku Art! 🎨\n` : '';
     return t('win_share_text', { painting, diff, time, errors });
   };
 
@@ -100,9 +100,9 @@ export default function WinModal({
   const handleSendRematchResult = async () => {
     const name = rematchOutcome.challengerName ? `${rematchOutcome.challengerName}, ` : '';
     const verdict =
-      rematchOutcome.winner === 'recipient' ? "J'ai gagné ! 🏆" :
+      rematchOutcome.winner === 'recipient' ? lang === 'fr' ? 'J\'ai gagné ! 🏆' : 'I won! 🏆' :
       rematchOutcome.winner === 'challenger' ? lang === 'fr' ? 'Tu as gagné cette fois 😅' : 'You won this time 😅' :
-      'Égalité parfaite !';
+      lang === 'fr' ? 'Égalité parfaite !' : 'Perfect tie!';
     const message =
       lang === 'fr' ? `${name}voici le résultat de notre défi sur la même grille :\n` : `${name}here's the result of our challenge on the same grid:\n` +
       `${t('rrd_me')}: ${rematchOutcome.challengerErrors}e ${formatTime(rematchOutcome.challengerSeconds)}\n${t('rrd_friend')}: ${rematchOutcome.recipientErrors}e ${formatTime(rematchOutcome.recipientSeconds)}\n` +
@@ -163,7 +163,7 @@ export default function WinModal({
         {isCustomGame ? (
           <>
             <p className="win-reward-label">{t('win_photo_revealed')}</p>
-            <img className="win-reward-image" src={photoUrl} alt="Photo personnelle dévoilée" />
+            <img className="win-reward-image" src={photoUrl} alt={lang === 'fr' ? 'Photo personnelle dévoilée' : 'Personal photo revealed'} />
 
             {isChallengeGame ? (
               <p className="win-challenge-note">
@@ -182,7 +182,7 @@ export default function WinModal({
           </>
         ) : rewardImage ? (
           <>
-            <img className="win-reward-image" src={rewardImage.path} alt={rewardImage.title ?? 'Tableau débloqué'} />
+            <img className="win-reward-image" src={rewardImage.path} alt={rewardImage.title ?? lang === 'fr' ? 'Tableau débloqué' : 'Artwork unlocked'} />
 
             {rewardImage.title && (
               <div className="painting-info">

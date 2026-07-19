@@ -19,7 +19,7 @@ export default function PrivacyPolicy({ onClose, onConsentChange }) {
         </div>
 
         <section>
-          <h3>Données collectées</h3>
+          <h3>{lang === 'fr' ? 'Données collectées' : 'Data collected'}</h3>
           <p>
             Sudoku Art collecte les données suivantes : votre adresse email
             (si vous créez un compte), votre progression de jeu, et les
@@ -29,7 +29,7 @@ export default function PrivacyPolicy({ onClose, onConsentChange }) {
         </section>
 
         <section>
-          <h3>Utilisation des données</h3>
+          <h3>{lang === 'fr' ? 'Utilisation des données' : 'Data usage'}</h3>
           <p>
             Ces données servent uniquement à faire fonctionner l'application
             (sauvegarde de progression, défis entre amis, statistiques
@@ -51,7 +51,7 @@ export default function PrivacyPolicy({ onClose, onConsentChange }) {
         </section>
 
         <section>
-          <h3>Vos droits</h3>
+          <h3>{lang === 'fr' ? 'Vos droits' : 'Your rights'}</h3>
           <p>
             Conformément au RGPD, vous pouvez demander l'accès, la
             rectification ou la suppression de vos données à tout moment en

@@ -70,7 +70,7 @@ export default function IncomingDefiModal({ rematch, onLogin, onPlayFree }) {
         <div className="incoming-defi-info">
           <span>🎮 {diff}</span>
           {isGroup && <span>{t('incoming_group')}</span>}
-          {hasPhoto && <span>📷 Photo cachée</span>}
+          {hasPhoto && <span>{lang === 'fr' ? '📷 Photo cachée' : '📷 Hidden photo'}</span>}
           {hintsLimit != null && <span>💡 Max {hintsLimit}</span>}
           <span>{t('incoming_rule_short')}</span>
         </div>

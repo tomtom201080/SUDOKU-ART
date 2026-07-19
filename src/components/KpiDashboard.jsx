@@ -26,7 +26,7 @@ export default function KpiDashboard({ onClose }) {
     <div className="kpi-overlay" onClick={onClose}>
       <div className="kpi-panel" onClick={(e) => e.stopPropagation()}>
         <div className="kpi-header">
-          <h2>📊 Statistiques</h2>
+          <h2>{lang === 'fr' ? '📊 Statistiques' : '📊 Statistics'}</h2>
           <button className="kpi-close" onClick={onClose}>✕</button>
         </div>
 
@@ -101,7 +101,7 @@ export default function KpiDashboard({ onClose }) {
               </tbody>
             </table>
 
-            <h3 className="kpi-section-title">7 derniers jours</h3>
+            <h3 className="kpi-section-title">{lang === 'fr' ? '7 derniers jours' : 'Last 7 days'}</h3>
             <table className="kpi-table">
               <thead>
                 <tr>

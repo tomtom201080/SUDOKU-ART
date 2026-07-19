@@ -90,7 +90,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
 
     } catch (err) {
       console.error(err);
-      setError("L'envoi a échoué. Réessaie dans un instant.");
+      setError(lang === 'fr' ? "L'envoi a échoué. Réessaie." : "Send failed. Try again.");
       setStep('config');
     }
   };
@@ -167,7 +167,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
             </div>
 
             {/* Photo optionnelle */}
-            <p className="challenge-step-title">4. Photo (optionnel)</p>
+            <p className="challenge-step-title">{lang === 'fr' ? '4. Photo (optionnel)' : '4. Photo (optional)'}</p>
             {photoPreview ? (
               <div className="defi-photo-row">
                 <img className="defi-photo-thumb" src={photoPreview} alt="Photo choisie" />

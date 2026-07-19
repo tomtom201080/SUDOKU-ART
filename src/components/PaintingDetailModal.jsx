@@ -5,6 +5,7 @@ import './PaintingDetailModal.css';
 export default function PaintingDetailModal({ image, onClose }) {
   if (!image) return null;
 
+  const { lang } = useT();
   return (
     <div className="painting-detail-overlay" onClick={onClose}>
       <div className="painting-detail-panel" onClick={(e) => e.stopPropagation()}>
@@ -13,7 +14,7 @@ export default function PaintingDetailModal({ image, onClose }) {
         <img
           className="win-reward-image painting-detail-image"
           src={image.path}
-          alt={image.title ?? 'Tableau débloqué'}
+          alt={image.title ?? lang === 'fr' ? 'Tableau débloqué' : 'Artwork unlocked'}
         />
 
         {image.title && (
