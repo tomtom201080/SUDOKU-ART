@@ -262,3 +262,12 @@ body {
 .privacy-footer-danger {
   color: #D32F2F !important;
 }
+
+.header-username-btn {
+  font-size: 0.65rem !important;
+  font-weight: 700 !important;
+  background: var(--accent) !important;
+  color: var(--accent-text) !important;
+  border-color: var(--accent) !important;
+  letter-spacing: 0.02em;
+}

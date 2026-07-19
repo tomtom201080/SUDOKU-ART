@@ -1,0 +1,76 @@
+.username-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 350;
+  padding: 24px;
+}
+
+.username-panel {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 28px 24px 22px;
+  width: min(92vw, 380px);
+  text-align: center;
+}
+
+.username-icon { font-size: 2.6rem; margin: 0 0 8px; }
+.username-title { font-size: 1.2rem; font-weight: 700; margin: 0 0 10px; }
+.username-desc {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0 0 10px;
+}
+.username-rules {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin: 0 0 14px;
+  font-style: italic;
+}
+
+.username-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--card-border);
+  border-radius: 12px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.username-input:focus {
+  border-color: var(--accent);
+}
+
+.username-error {
+  font-size: 0.8rem;
+  color: #D32F2F;
+  margin: 8px 0 0;
+}
+
+.username-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 13px;
+  background: var(--accent);
+  color: var(--accent-text);
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.username-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

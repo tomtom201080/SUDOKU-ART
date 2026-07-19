@@ -14,6 +14,9 @@ import DefiComposer from './components/DefiComposer';
 import DefiDashboard from './components/DefiDashboard';
 import QuitConfirmModal from './components/QuitConfirmModal';
 import MaxErrorsModal from './components/MaxErrorsModal';
+import IncomingDefiModal from './components/IncomingDefiModal';
+import UsernameModal from './components/UsernameModal';
+import { fetchMyProfile } from './lib/profiles';
 import RematchResultDetail from './components/RematchResultDetail';
 // QUEST_DISABLED: import QuestMap from './components/QuestMap';
 // QUEST_DISABLED: import MathQuestMap from './components/MathQuestMap';
@@ -145,6 +148,7 @@ export default function App() {
 
   // Défi "même grille" reçu par lien.
   const [incomingRematchId] = useState(() => readRematchIdFromUrl());
+  const [pendingRematch, setPendingRematch] = useState(null); // rematch en attente de choix connexion
   const [incomingRematchHandled, setIncomingRematchHandled] = useState(false);
   const [rematchNotifications, setRematchNotifications] = useState([]);
   const [selectedRematchNotification, setSelectedRematchNotification] = useState(null);
@@ -195,9 +199,16 @@ export default function App() {
   useEffect(() => {
     if (session && showAuthScreen) {
       setShowAuthScreen(false);
-      setAuthIntent(null);
+      if (authIntent === 'pending_rematch' && pendingRematch) {
+        const { rematch, photoUrl } = pendingRematch;
+        setPendingRematch(null);
+        setAuthIntent(null);
+        game.startRematchGame(rematch, photoUrl);
+      } else {
+        setAuthIntent(null);
+      }
     }
-  }, [session, showAuthScreen, authIntent]);
+  }, [session, showAuthScreen, authIntent, pendingRematch]);
 
   const [showMaxErrors, setShowMaxErrors] = useState(false);
 
@@ -312,6 +323,19 @@ export default function App() {
       .then(async rematch => {
         if (!rematch || rematch.completed) return;
 
+        const photoUrl = rematch.photo_path ? getSharedPhotoPublicUrl(rematch.photo_path) : null;
+
+        // Mode groupe : pas de claim token, tout le monde peut jouer
+        if (rematch.group_mode) {
+          if (session) {
+            game.startRematchGame(rematch, photoUrl);
+          } else {
+            setPendingRematch({ rematch, photoUrl });
+          }
+          return;
+        }
+
+        // Mode perso : premier arrivé premier servi
         if (hasRematchAlreadyStarted(incomingRematchId)) {
           setRematchAlreadyStartedNotice(true);
           return;
@@ -323,9 +347,15 @@ export default function App() {
           return;
         }
 
-        const photoUrl = rematch.photo_path ? getSharedPhotoPublicUrl(rematch.photo_path) : null;
         markRematchAsStarted(incomingRematchId);
-        game.startRematchGame(rematch, photoUrl);
+
+        // Si l'utilisateur est déjà connecté → lancer directement (son compte sera lié)
+        // Sinon → proposer de se connecter ou jouer en libre
+        if (session) {
+          game.startRematchGame(rematch, photoUrl);
+        } else {
+          setPendingRematch({ rematch, photoUrl });
+        }
       })
       .catch(() => null);
   }, [incomingRematchId, incomingRematchHandled, manifestLoading, game]);
@@ -387,9 +417,19 @@ export default function App() {
     setLastCustomImage(photoUrl ?? null);
     setIsClassicMode(false);
     setLastChallengeMeta(null);
-    // L'expéditeur peut toujours jouer sa propre grille — pas de blocage
-    // anti-relance ici (c'est réservé au destinataire)
     game.startRematchGame(rematch, photoUrl);
+  };
+
+  const handlePlayPendingRematch = () => {
+    if (!pendingRematch) return;
+    const { rematch, photoUrl } = pendingRematch;
+    setPendingRematch(null);
+    game.startRematchGame(rematch, photoUrl);
+  };
+
+  const handleLoginThenPlayPendingRematch = () => {
+    setAuthIntent('pending_rematch');
+    setShowAuthScreen(true);
   };
 
   // QUEST_DISABLED: handleRequestQuest, handlePlayQuestStage, handleRequestMathQuest
@@ -411,7 +451,21 @@ export default function App() {
     setHighlightValue(0);
   };
 
-  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+  const [username, setUsername] = useState(null);      // pseudo de l'utilisateur connecté
+  const [showUsernameModal, setShowUsernameModal] = useState(false);
+
+  // Charger le profil dès qu'on est connecté
+  useEffect(() => {
+    if (!session) { setUsername(null); return; }
+    fetchMyProfile(session.user.id).then(profile => {
+      if (profile?.username) {
+        setUsername(profile.username);
+      } else {
+        // Pas encore de pseudo → afficher la modale
+        setShowUsernameModal(true);
+      }
+    });
+  }, [session?.user?.id]);
 
   const handleCloseGameEnd = () => {
     if (game.isComplete || game.isFailed) {
@@ -496,6 +550,16 @@ export default function App() {
     <button className="icon-btn" onClick={() => setShowAuthScreen(true)} title="Se connecter">👤</button>
   );
 
+  const profileButton = session ? (
+    <button
+      className="icon-btn header-username-btn"
+      title={username ? `@${username}` : 'Mon profil'}
+      onClick={() => setShowUsernameModal(true)}
+    >
+      {username ? username.slice(0, 2).toUpperCase() : '👤'}
+    </button>
+  ) : null;
+
   if (sessionLoading || manifestLoading) {
     return <div className="game-screen">Chargement…</div>;
   }
@@ -524,6 +588,7 @@ export default function App() {
               <button className="icon-btn" onClick={() => setShowKpiDashboard(true)} title="Statistiques">📊</button>
             )}
             <button className="icon-btn" onClick={handleOpenGallery} title={t('gallery_title')}>🖼</button>
+            {profileButton}
             {accountButton}
           </div>
         </header>
@@ -643,7 +708,7 @@ export default function App() {
             onClose={() => setShowDefiComposer(false)}
             onStartGame={handleDefiStartGame}
             userId={session?.user?.id ?? null}
-            userEmail={session?.user?.email ?? null}
+            userEmail={username ?? session?.user?.email ?? null}
           />
         )}
         {showDefiDashboard && (
@@ -664,6 +729,22 @@ export default function App() {
         )}
         {showOnboarding && (
           <OnboardingModal onClose={handleCloseOnboarding} />
+        )}
+        {pendingRematch && (
+          <IncomingDefiModal
+            rematch={pendingRematch.rematch}
+            onLogin={handleLoginThenPlayPendingRematch}
+            onPlayFree={handlePlayPendingRematch}
+          />
+        )}
+        {showUsernameModal && session && (
+          <UsernameModal
+            userId={session.user.id}
+            onDone={(pseudo) => {
+              setUsername(pseudo);
+              setShowUsernameModal(false);
+            }}
+          />
         )}
         {/* QUEST_DISABLED: QuestMap + MathQuestMap */}
       </>
@@ -784,7 +865,7 @@ export default function App() {
           errorCount={game.errorCount}
           elapsedSeconds={game.elapsedSeconds}
           userId={session?.user?.id ?? null}
-          userEmail={session?.user?.email ?? null}
+          userEmail={username ?? session?.user?.email ?? null}
           onClose={() => setShowRematchComposer(false)}
         />
       )}

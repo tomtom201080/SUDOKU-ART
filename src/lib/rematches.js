@@ -49,7 +49,7 @@ export async function createRematch({
   puzzle, solution, difficulty, photoPath,
   challengerName, challengerUserId,
   challengerErrors, challengerSeconds, challengerHints = 0,
-  hintsLimit = null
+  hintsLimit = null, groupMode = false
 }) {
   const { data, error } = await supabase
     .from('rematches')
@@ -63,7 +63,8 @@ export async function createRematch({
       challenger_result_errors: challengerErrors,
       challenger_result_seconds: challengerSeconds,
       challenger_result_hints: challengerHints,
-      hints_limit: hintsLimit ?? null
+      hints_limit: hintsLimit ?? null,
+      group_mode: groupMode
     })
     .select()
     .single();
@@ -205,5 +206,30 @@ export async function fetchReceivedRematches(userId) {
     .eq('recipient_user_id', userId)
     .order('created_at', { ascending: false })
     .limit(20);
+  return data ?? [];
+}
+
+// En mode groupe : soumet le résultat du joueur dans rematch_results
+export async function submitGroupResult(rematchId, { errors, seconds, hints = 0, userId, playerName }) {
+  const { error } = await supabase
+    .from('rematch_results')
+    .insert({
+      rematch_id:    rematchId,
+      player_name:   playerName ?? 'Anonyme',
+      player_user_id: userId ?? null,
+      errors,
+      seconds,
+      hints
+    });
+  if (error) throw error;
+}
+
+// Récupère tous les résultats d'un défi de groupe
+export async function fetchGroupResults(rematchId) {
+  const { data } = await supabase
+    .from('rematch_results')
+    .select('*')
+    .eq('rematch_id', rematchId)
+    .order('seconds', { ascending: true });
   return data ?? [];
 }

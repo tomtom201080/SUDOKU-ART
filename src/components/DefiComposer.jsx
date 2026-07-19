@@ -1,7 +1,6 @@
-import { useT } from '../i18n/index.jsx';
 // src/components/DefiComposer.jsx
-// Flux Défi : configure (difficulté + photo optionnelle) → envoie → lance la grille
 import { useRef, useState } from 'react';
+import { useT } from '../i18n/index.jsx';
 import { generateSudoku } from '../sudoku/generator';
 import { uploadSharedPhoto } from '../lib/sharedPhoto';
 import { createRematch, buildRematchLink } from '../lib/rematches';
@@ -18,13 +17,14 @@ const DIFFICULTY_OPTIONS = [
 
 export default function DefiComposer({ onClose, onStartGame, userId, userEmail }) {
   const { t } = useT();
-  const [step, setStep]               = useState('config');
-  const [difficulty, setDifficulty]   = useState(null);
-  const [hintsLimit, setHintsLimit]   = useState(null); // null = illimité
-  const [photoFile, setPhotoFile]     = useState(null);
+  const [step, setStep]             = useState('config');
+  const [difficulty, setDifficulty] = useState(null);
+  const [hintsLimit, setHintsLimit] = useState(null);
+  const [groupMode, setGroupMode]   = useState(false); // false = perso, true = groupe
+  const [photoFile, setPhotoFile]   = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [challengerName, setChallengerName] = useState('');
-  const [error, setError]             = useState(null);
+  const [error, setError]           = useState(null);
   const fileInputRef = useRef(null);
 
   const handlePickPhoto = () => fileInputRef.current?.click();
@@ -41,39 +41,45 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
     setStep('sending');
     setError(null);
     try {
-      // 1. Générer la grille maintenant (même grille pour les deux joueurs)
       const puzzleData = generateSudoku(difficulty);
+      const photoPath  = photoFile ? await uploadSharedPhoto(photoFile) : null;
+      const photoUrl   = photoPreview ?? null;
 
-      // 2. Uploader la photo si choisie
-      const photoPath = photoFile ? await uploadSharedPhoto(photoFile) : null;
-      const photoUrl  = photoPreview ?? null;
-
-      // 3. Créer le défi en base (le destinataire jouera cette même grille)
       const rematch = await createRematch({
-        puzzle:            puzzleData.puzzle,
-        solution:          puzzleData.solution,
+        puzzle:           puzzleData.puzzle,
+        solution:         puzzleData.solution,
         difficulty,
         photoPath,
-        challengerName:    userEmail ?? (challengerName.trim() || 'Un ami'),
-        challengerUserId:  userId ?? null,
-        challengerErrors:  0,
-        challengerSeconds: 0,
-        challengerHints:   0,
-        hintsLimit:        hintsLimit,
+        challengerName:   userEmail ?? (challengerName.trim() || 'Un ami'),
+        challengerUserId: userId ?? null,
+        challengerErrors: 0,
+        challengerSeconds:0,
+        challengerHints:  0,
+        hintsLimit,
+        groupMode,
       });
 
-      const link = buildRematchLink(rematch.id);
+      const link      = buildRematchLink(rematch.id);
       const limiteTxt = hintsLimit != null ? `\n💡 Max ${hintsLimit} indice${hintsLimit > 1 ? 's' : ''}` : '';
-      const regleTxt = `\n⏱ Règle : +2 min par erreur ou indice utilisé${limiteTxt}`;
-      const photoDisclaimer = photoPath
-        ? `\n⚠️ Ce lien donne accès à ta photo, envoie-le uniquement à la bonne personne.`
-        : '';
-      const message =
-        `🎯 Je te défie sur Sudoku Art !\n` +
-        `Résous cette grille${photoPath ? ' et découvre ma photo cachée' : ''} — qui finira avec le meilleur score ?\n` +
-        `${link}${regleTxt}${photoDisclaimer}`;
+      const regleTxt  = `\n⏱ Règle : +2 min par erreur ou indice utilisé${limiteTxt}`;
 
-      // 4. Envoyer le lien
+      // Avertissement photo UNIQUEMENT en mode groupe avec photo perso
+      const photoGroupWarning = groupMode && photoPath
+        ? `\n\n⚠️ Ce lien peut être joué par plusieurs personnes. Si tu le transfères, ta photo sera visible par tous ceux qui cliqueront dessus.`
+        : !groupMode && photoPath
+        ? `\n⚠️ Ce lien est réservé à une seule personne — ne le transfère pas, sinon quelqu'un d'autre pourrait le prendre à ta place.`
+        : '';
+
+      const groupTxt = groupMode
+        ? `\nPlusieurs personnes peuvent jouer — partagez le lien !`
+        : '';
+
+      const senderName = userEmail ?? (challengerName.trim() || 'Un ami');
+      const message =
+        `🎯 ${senderName} te défie sur Sudoku Art !\n` +
+        `Résous cette grille${photoPath ? ' et découvre ma photo cachée' : ''} — qui finira avec le meilleur score ?${groupTxt}\n` +
+        `${link}${regleTxt}${photoGroupWarning}`;
+
       if (isMobileDevice() && navigator.share) {
         try { await navigator.share({ title: 'Défi Sudoku Art', text: message }); }
         catch {}
@@ -82,11 +88,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
       }
 
       setStep('done');
-
-      // 5. Lancer la partie pour l'expéditeur avec la même grille
-      setTimeout(() => {
-        onStartGame({ rematch, puzzleData, photoUrl });
-      }, 1200);
+      setTimeout(() => onStartGame({ rematch, puzzleData, photoUrl }), 1200);
 
     } catch (err) {
       console.error(err);
@@ -111,8 +113,29 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
 
         {(step === 'config' || step === 'sending') && (
           <>
+            {/* Mode : Perso ou Groupe */}
+            <p className="challenge-step-title">1. Mode du défi</p>
+            <div className="defi-mode-toggle">
+              <button
+                className={`defi-mode-btn ${!groupMode ? 'is-selected' : ''}`}
+                onClick={() => setGroupMode(false)}
+              >
+                <span className="defi-mode-icon">🎯</span>
+                <span className="defi-mode-label">Perso</span>
+                <span className="defi-mode-desc">1 seul joueur peut ouvrir le lien</span>
+              </button>
+              <button
+                className={`defi-mode-btn ${groupMode ? 'is-selected' : ''}`}
+                onClick={() => setGroupMode(true)}
+              >
+                <span className="defi-mode-icon">👨‍👩‍👧</span>
+                <span className="defi-mode-label">Groupe</span>
+                <span className="defi-mode-desc">Plusieurs joueurs peuvent jouer</span>
+              </button>
+            </div>
+
             {/* Difficulté */}
-            <p className="challenge-step-title">1. Choisis la difficulté</p>
+            <p className="challenge-step-title">2. Difficulté</p>
             <div className="defi-difficulty-grid">
               {DIFFICULTY_OPTIONS.map(opt => (
                 <button
@@ -142,11 +165,11 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
 
             {/* Règle de scoring */}
             <div className="defi-scoring-rule">
-              ⏱ Règle : le score = temps réel <strong>+2 min</strong> par erreur <strong>+2 min</strong> par indice utilisé. Le plus bas gagne.
+              ⏱ Score = temps réel <strong>+2 min</strong> par erreur ou indice. Le plus bas gagne.
             </div>
 
             {/* Photo optionnelle */}
-            <p className="challenge-step-title">4. Ajouter une photo (optionnel)</p>
+            <p className="challenge-step-title">4. Photo (optionnel)</p>
             {photoPreview ? (
               <div className="defi-photo-row">
                 <img className="defi-photo-thumb" src={photoPreview} alt="Photo choisie" />
@@ -160,10 +183,17 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
             )}
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
 
+            {/* Avertissement photo en mode groupe */}
+            {groupMode && photoPreview && (
+              <div className="defi-group-photo-warning">
+                ⚠️ En mode Groupe, ta photo sera visible par toutes les personnes qui cliqueront sur le lien, même si le message est retransféré.
+              </div>
+            )}
+
             {/* Prénom si pas connecté */}
             {!userEmail && (
               <>
-                <p className="challenge-step-title">5. Ton prénom (pour le résultat)</p>
+                <p className="challenge-step-title">5. Ton prénom</p>
                 <input
                   className="challenge-name-input"
                   type="text"
@@ -178,8 +208,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
 
             {!userId && (
               <div className="defi-no-account-warning">
-                💡 Sans compte, tu ne sauras pas si ton ami a joué ni qui a gagné.
-                Le défi fonctionnera quand même pour lui.
+                💡 Sans compte, tu ne sauras pas qui a joué ni les résultats.
               </div>
             )}
 
