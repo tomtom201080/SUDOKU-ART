@@ -1,9 +1,11 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/DeleteAccountModal.jsx
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import './LegalModal.css';
 
 export default function DeleteAccountModal({ onClose, onDeleted }) {
+  const { t } = useT();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -28,26 +30,26 @@ export default function DeleteAccountModal({ onClose, onDeleted }) {
     <div className="legal-overlay" onClick={onClose}>
       <div className="legal-panel" onClick={e => e.stopPropagation()} style={{ maxWidth: 400 }}>
         <div className="legal-header">
-          <h2>Supprimer mon compte</h2>
+          <h2>{t('del_title')}</h2>
           <button className="legal-close" onClick={onClose}>✕</button>
         </div>
 
         {step === 1 && (
           <>
             <p style={{ fontSize: '0.88rem', lineHeight: 1.5 }}>
-              Cette action est <strong>irréversible</strong>. Seront supprimés définitivement :
+              {t('del_warning')}
             </p>
             <ul>
-              <li>Ton adresse email et tes identifiants</li>
-              <li>Ta galerie de tableaux débloqués</li>
-              <li>Ta progression (vues, statistiques)</li>
-              <li>Tous les défis que tu as envoyés ou reçus</li>
+              <li>{t('del_item1')}</li>
+              <li>{t('del_item2')}</li>
+              <li>{t('del_item3')}</li>
+              <li>{t('del_item4')}</li>
             </ul>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-              Les photos uploadées dans les défis sont déjà supprimées automatiquement après 7 jours.
+              {t('del_note')}
             </p>
             <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-              <button className="legal-consent-reject" onClick={onClose}>Annuler</button>
+              <button className="legal-consent-reject" onClick={onClose}>{t('del_cancel')}</button>
               <button
                 style={{ flex:1, padding:'10px', borderRadius:'10px', border:'none', background:'#D32F2F', color:'#fff', fontWeight:700, cursor:'pointer' }}
                 onClick={() => setStep(2)}
@@ -61,17 +63,17 @@ export default function DeleteAccountModal({ onClose, onDeleted }) {
         {step === 2 && (
           <>
             <p style={{ fontSize: '0.88rem', lineHeight: 1.5, marginBottom: 16 }}>
-              Dernière confirmation : tu vas supprimer définitivement ton compte Sudoku Art. Cette action ne peut pas être annulée.
+              {t('del_final')} Cette action ne peut pas être annulée.
             </p>
             {error && <p style={{ color: '#D32F2F', fontSize: '0.82rem' }}>{error}</p>}
             <div style={{ display: 'flex', gap: 8 }}>
-              <button className="legal-consent-reject" onClick={onClose} disabled={loading}>Annuler</button>
+              <button className="legal-consent-reject" onClick={onClose} disabled={loading}>{t('del_cancel')}</button>
               <button
                 style={{ flex:1, padding:'10px', borderRadius:'10px', border:'none', background: loading ? '#aaa' : '#D32F2F', color:'#fff', fontWeight:700, cursor: loading ? 'default' : 'pointer' }}
                 onClick={handleDelete}
                 disabled={loading}
               >
-                {loading ? 'Suppression…' : 'Oui, supprimer mon compte'}
+                {loading ? t('del_deleting') : 'Oui, supprimer mon compte'}
               </button>
             </div>
           </>

@@ -6,7 +6,7 @@ import { addToGallery, recordWin } from '../utils/storage';
 import { markChallengeCompleted, deleteChallenge } from '../lib/challenges';
 import { markPaintingSeen, getMergedUnseenIds } from '../lib/seenPaintings';
 import { logGameStart, logGameComplete, logGameFail } from '../lib/analytics';
-import { submitRematchResult, determineRematchWinner } from '../lib/rematches';
+import { submitRematchResult, submitGroupResult, determineRematchWinner } from '../lib/rematches';
 
 function cloneGrid(grid) {
   return grid.map(row => [...row]);
@@ -73,7 +73,7 @@ function isColComplete(col, grid, solution) {
 const CENTER_ROW = 4;
 const CENTER_COL = 4;
 
-export function useGame(manifest, userId = null, { onMaxErrorsReached } = {}) {
+export function useGame(manifest, userId = null, { onMaxErrorsReached, username } = {}) {
   const [difficulty, setDifficulty] = useState(null);
   const [puzzleData, setPuzzleData] = useState(null); // { puzzle, solution, givenMask }
   const [userGrid, setUserGrid] = useState(null);
@@ -191,7 +191,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached } = {}) {
   // Démarre une partie à partir d'une grille déjà déterminée (reçue via un
   // défi "même grille") : on ne génère rien, on rejoue exactement le même
   // puzzle que le challenger, pour pouvoir comparer les résultats à la fin.
-  const startRematchGame = useCallback((rematch, photoUrl, localPuzzleData = null) => {
+  const startRematchGame = useCallback((rematch, photoUrl, localPuzzleData = null, playerPseudo = null) => {
     try {
       // On privilégie le puzzleData local (passé depuis DefiComposer) pour éviter
       // tout problème de parsing depuis Supabase (JSONB vs string).
@@ -242,6 +242,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached } = {}) {
         challengerHasAccount: !!rematch.challenger_user_id,
         hintsLimit: rematch.hints_limit ?? null,
         groupMode: rematch.group_mode ?? false,
+        playerPseudo: playerPseudo ?? null,
       });
       setRematchOutcome(null);
 
@@ -639,27 +640,48 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached } = {}) {
       }
 
       if (activeRematch?.id) {
-        const finalElapsed = elapsedSeconds; // capturé avant la dernière seconde de tic éventuelle
-        submitRematchResult(activeRematch.id, { errors: errorCount, seconds: finalElapsed, userId }).catch(() => null);
+        const finalElapsed = elapsedSeconds;
+        const isGroupMode = activeRematch.groupMode;
 
-        const challengerErrors = activeRematch.challengerErrors;
-        const challengerSeconds = activeRematch.challengerSeconds;
-        const winner = determineRematchWinner({
-          challengerErrors,
-          challengerSeconds,
-          recipientErrors: errorCount,
-          recipientSeconds: finalElapsed
-        });
+        if (isGroupMode) {
+          // Mode groupe : on stocke dans rematch_results avec le pseudo du joueur
+          submitGroupResult(activeRematch.id, {
+            errors: errorCount,
+            seconds: finalElapsed,
+            hints: hintsUsed,
+            userId: userId ?? null,
+            playerName: activeRematch.playerPseudo ?? username ?? 'Anonyme',
+          }).catch(() => null);
+        } else {
+          // Mode perso 1v1
+          submitRematchResult(activeRematch.id, {
+            errors: errorCount,
+            seconds: finalElapsed,
+            hints: hintsUsed,
+            userId
+          }).catch(() => null);
 
-        setRematchOutcome({
-          challengerName: activeRematch.challengerName,
-          challengerErrors,
-          challengerSeconds,
-          challengerHasAccount: activeRematch.challengerHasAccount,
-          recipientErrors: errorCount,
-          recipientSeconds: finalElapsed,
-          winner
-        });
+          const winner = determineRematchWinner({
+            challengerErrors: activeRematch.challengerErrors,
+            challengerSeconds: activeRematch.challengerSeconds,
+            challengerHints: activeRematch.challengerHints ?? 0,
+            recipientErrors: errorCount,
+            recipientSeconds: finalElapsed,
+            recipientHints: hintsUsed,
+          });
+
+          setRematchOutcome({
+            challengerName: activeRematch.challengerName,
+            challengerErrors: activeRematch.challengerErrors,
+            challengerSeconds: activeRematch.challengerSeconds,
+            challengerHints: activeRematch.challengerHints ?? 0,
+            challengerHasAccount: activeRematch.challengerHasAccount,
+            recipientErrors: errorCount,
+            recipientSeconds: finalElapsed,
+            recipientHints: hintsUsed,
+            winner
+          });
+        }
       }
 
       if (activeQuestStage && userId) {

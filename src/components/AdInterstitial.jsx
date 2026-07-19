@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/AdInterstitial.jsx
 // S'affiche avant une action "premium" (envoi de défi, grille avec photo).
 // Respecte le consentement : si l'utilisateur a refusé les pubs, on passe.
@@ -11,6 +12,7 @@ const WAIT_SECONDS = 5;
 export default function AdInterstitial({ onContinue, onClose }) {
   const [countdown, setCountdown] = useState(WAIT_SECONDS);
   const intervalRef = useRef(null);
+  const { t } = useT();
   const consent = getAdConsent();
   const hasAdsense = !!getAdsenseClientId();
 
@@ -46,7 +48,7 @@ export default function AdInterstitial({ onContinue, onClose }) {
     <div className="ad-interstitial-overlay">
       <div className="ad-interstitial-panel">
         <div className="ad-interstitial-header">
-          <span className="ad-interstitial-label">Publicité</span>
+          <span className="ad-interstitial-label">{t('ad_label')}</span>
           {countdown === 0 && (
             <button className="ad-interstitial-close" onClick={onClose}>✕</button>
           )}
@@ -63,11 +65,9 @@ export default function AdInterstitial({ onContinue, onClose }) {
 
         <div className="ad-interstitial-footer">
           {countdown > 0 ? (
-            <p>Vous pourrez continuer dans <strong>{countdown}</strong> seconde{countdown > 1 ? 's' : ''}…</p>
+            <p>{t('ad_wait', { n: countdown, s: countdown > 1 ? 's' : '' })}</p>
           ) : (
-            <button className="ad-interstitial-btn" onClick={onContinue}>
-              Continuer →
-            </button>
+            <button className="ad-interstitial-btn" onClick={onContinue}>{t('ad_continue')}</button>
           )}
         </div>
       </div>

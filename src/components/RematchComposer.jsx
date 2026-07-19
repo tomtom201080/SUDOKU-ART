@@ -52,7 +52,7 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
 
       if (isMobileDevice() && navigator.share) {
         try {
-          await navigator.share({ title: 'Défi Sudoku Art', text: message });
+          await navigator.share({ title: t('rc_share_title'), text: message });
           setStatus('done');
           return;
         } catch {

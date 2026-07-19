@@ -1,9 +1,11 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/UpdatePasswordScreen.jsx
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import './AuthScreen.css';
 
 export default function UpdatePasswordScreen({ onDone }) {
+  const { t } = useT();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,7 +37,7 @@ export default function UpdatePasswordScreen({ onDone }) {
     <div className="auth-screen">
       <div className="auth-hero">
         <img src="/favicon.svg" alt="Logo Sudoku Art" className="auth-logo" />
-        <h1>Nouveau mot de passe</h1>
+        <h1>{t('upd_title')}</h1>
         <p className="auth-tagline">
           Choisis un nouveau mot de passe pour ton compte.
         </p>

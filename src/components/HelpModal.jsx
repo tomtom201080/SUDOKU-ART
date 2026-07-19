@@ -1,7 +1,9 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/HelpModal.jsx
 import './HelpModal.css';
 
 export default function HelpModal({ onClose }) {
+  const { t } = useT();
   return (
     <div className="help-overlay" onClick={onClose}>
       <div className="help-panel" onClick={(e) => e.stopPropagation()}>
@@ -17,9 +19,9 @@ export default function HelpModal({ onClose }) {
             remplir avec les chiffres de 1 à 9, en respectant 3 règles :
           </p>
           <ul>
-            <li>Chaque <strong>ligne</strong> doit contenir les chiffres 1 à 9, sans répétition</li>
-            <li>Chaque <strong>colonne</strong> doit contenir les chiffres 1 à 9, sans répétition</li>
-            <li>Chaque <strong>carré</strong> de 3x3 doit contenir les chiffres 1 à 9, sans répétition</li>
+            <li>{t('help_rule1')}</li>
+            <li>{t('help_rule2')}</li>
+            <li>{t('help_rule3')}</li>
           </ul>
           <p>
             Certaines cases sont déjà remplies au départ ; il faut compléter

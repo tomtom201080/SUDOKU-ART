@@ -36,7 +36,7 @@ export default function MaxErrorsModal({ errorCount, maxErrors = 3, onContinue, 
     <div className="maxerr-overlay">
       <div className="maxerr-panel">
         <p className="maxerr-icon">📢</p>
-        <h2 className="maxerr-title">Publicité en cours…</h2>
+        <h2 className="maxerr-title">{t('maxerr_ad_title')}</h2>
         <ins className="adsbygoogle maxerr-ad-slot"
           style={{ display: 'block', minHeight: 200 }}
           data-ad-client={getAdsenseClientId()}
@@ -53,8 +53,8 @@ export default function MaxErrorsModal({ errorCount, maxErrors = 3, onContinue, 
     <div className="maxerr-overlay">
       <div className="maxerr-panel">
         <p className="maxerr-icon">✅</p>
-        <h2 className="maxerr-title">+1 chance accordée !</h2>
-        <p className="maxerr-desc">Le compteur revient à {maxErrors - 1} / {maxErrors + 1}.</p>
+        <h2 className="maxerr-title">{t('maxerr_granted')}</h2>
+        <p className="maxerr-desc">{t('maxerr_granted_desc', { n: maxErrors - 1, max: maxErrors + 1 })}</p>
         <button className="maxerr-btn-continue" onClick={onContinue}>
           ▶ Continuer la partie
         </button>
@@ -66,9 +66,9 @@ export default function MaxErrorsModal({ errorCount, maxErrors = 3, onContinue, 
     <div className="maxerr-overlay">
       <div className="maxerr-panel">
         <p className="maxerr-icon">😬</p>
-        <h2 className="maxerr-title">{errorCount} erreurs !</h2>
+        <h2 className="maxerr-title">{t('maxerr_title', { n: errorCount })}</h2>
         <p className="maxerr-desc">
-          Tu as atteint la limite. Regarde une pub pour gagner une chance supplémentaire, ou termine la partie.
+          {t('maxerr_desc')}
         </p>
         <div className="maxerr-actions">
           {canShowAd ? (

@@ -8,15 +8,16 @@ import { isMobileDevice } from '../utils/device';
 import './ChallengeComposer.css';
 import './DefiComposer.css';
 
-const DIFFICULTY_OPTIONS = [
-  { id: 'facile',    label: 'Facile',    icon: '😌' },
-  { id: 'moyen',     label: 'Moyen',     icon: '🙂' },
-  { id: 'complique', label: 'Compliqué', icon: '😬' },
-  { id: 'enfer',     label: 'Enfer',     icon: '🔥' },
-];
+
 
 export default function DefiComposer({ onClose, onStartGame, userId, userEmail }) {
   const { t } = useT();
+  const DIFFICULTY_OPTIONS = [
+    { id: 'facile',    label: t('diff_facile'), icon: '😌' },
+    { id: 'moyen',     label: t('diff_moyen'),  icon: '🙂' },
+    { id: 'complique', label: t('diff_complique'), icon: '😬' },
+    { id: 'enfer',     label: t('diff_enfer'),  icon: '🔥' },
+  ];
   const [step, setStep]             = useState('config');
   const [difficulty, setDifficulty] = useState(null);
   const [hintsLimit, setHintsLimit] = useState(null);
@@ -74,14 +75,14 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
         ? `\nPlusieurs personnes peuvent jouer — partagez le lien !`
         : '';
 
-      const senderName = userEmail ?? (challengerName.trim() || 'Un ami');
+      const senderName = userEmail ?? (challengerName.trim() || t('defi_a_friend'));
       const message =
         `🎯 ${senderName} te défie sur Sudoku Art !\n` +
         `Résous cette grille${photoPath ? ' et découvre ma photo cachée' : ''} — qui finira avec le meilleur score ?${groupTxt}\n` +
         `${link}${regleTxt}${photoGroupWarning}`;
 
       if (isMobileDevice() && navigator.share) {
-        try { await navigator.share({ title: 'Défi Sudoku Art', text: message }); }
+        try { await navigator.share({ title: t('defi_title'), text: message }); }
         catch {}
       } else {
         window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
@@ -121,16 +122,16 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
                 onClick={() => setGroupMode(false)}
               >
                 <span className="defi-mode-icon">🎯</span>
-                <span className="defi-mode-label">Perso</span>
-                <span className="defi-mode-desc">1 seul joueur peut ouvrir le lien</span>
+                <span className="defi-mode-label">{t('defi_mode_perso_label')}</span>
+                <span className="defi-mode-desc">{t('defi_mode_perso_desc')}</span>
               </button>
               <button
                 className={`defi-mode-btn ${groupMode ? 'is-selected' : ''}`}
                 onClick={() => setGroupMode(true)}
               >
                 <span className="defi-mode-icon">👨‍👩‍👧</span>
-                <span className="defi-mode-label">Groupe</span>
-                <span className="defi-mode-desc">Plusieurs joueurs peuvent jouer</span>
+                <span className="defi-mode-label">{t('defi_mode_group_label')}</span>
+                <span className="defi-mode-desc">{t('defi_mode_group_desc')}</span>
               </button>
             </div>
 
@@ -173,8 +174,8 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
             {photoPreview ? (
               <div className="defi-photo-row">
                 <img className="defi-photo-thumb" src={photoPreview} alt="Photo choisie" />
-                <button className="challenge-link-btn" onClick={handlePickPhoto}>Changer</button>
-                <button className="challenge-link-btn" onClick={() => { URL.revokeObjectURL(photoPreview); setPhotoFile(null); setPhotoPreview(null); }}>Retirer</button>
+                <button className="challenge-link-btn" onClick={handlePickPhoto}>{t('defi_photo_change')}</button>
+                <button className="challenge-link-btn" onClick={() => { URL.revokeObjectURL(photoPreview); setPhotoFile(null); setPhotoPreview(null); }}>{t('defi_photo_remove')}</button>
               </div>
             ) : (
               <button className="challenge-pick-btn" onClick={handlePickPhoto}>

@@ -5,7 +5,8 @@ import { useState } from 'react';
 import { isMobileDevice, shareText } from '../utils/device';
 import './WinModal.css';
 
-const DIFFICULTY_LABELS = {
+// DIFFICULTY_LABELS dynamique via App.jsx
+const LEGACY_DIFFICULTY_LABELS = {
   moyen: 'Moyen',
   complique: 'Compliqué',
   enfer: 'Enfer'
@@ -30,6 +31,7 @@ export default function WinModal({
   onRequestRematch,
 }) {
   const { t } = useT();
+  const LEGACY_DIFFICULTY_LABELS = { facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') };
   const [showSaveNotice, setShowSaveNotice] = useState(false);
   const [resultSent, setResultSent] = useState(false);
   const [rematchResultSent, setRematchResultSent] = useState(false);
@@ -53,7 +55,7 @@ export default function WinModal({
   };
 
   const shareAchievementText = () => {
-    const diff = DIFFICULTY_LABELS[difficulty] ?? difficulty ?? '';
+    const diff = LEGACY_DIFFICULTY_LABELS[difficulty] ?? difficulty ?? '';
     const title = rewardImage?.title;
     const time = formatTime(elapsedSeconds);
     const errors = errorCount === 0 ? 'aucune erreur 🏆' : `${errorCount} erreur${errorCount > 1 ? 's' : ''}`;
@@ -88,7 +90,7 @@ export default function WinModal({
   };
 
   const handleSendResult = async () => {
-    const difficultyLabel = DIFFICULTY_LABELS[difficulty] ?? difficulty;
+    const difficultyLabel = LEGACY_DIFFICULTY_LABELS[difficulty] ?? difficulty;
     const message =
       `🎉 J'ai réussi le défi Sudoku Art que tu m'as envoyé !\n` +
       `Difficulté : ${difficultyLabel} — Erreurs : ${errorCount} — Temps : ${formatTime(elapsedSeconds)}`;
@@ -115,7 +117,7 @@ export default function WinModal({
     <div className="win-overlay">
       <div className="win-panel">
         <h2>{t('win_title')}</h2>
-        <p className="win-difficulty">Difficulté : {DIFFICULTY_LABELS[difficulty] ?? difficulty}</p>
+        <p className="win-difficulty">Difficulté : {LEGACY_DIFFICULTY_LABELS[difficulty] ?? difficulty}</p>
 
         {isChallengeGame && (
           <p className="win-challenge-stats">
@@ -136,7 +138,7 @@ export default function WinModal({
               </thead>
               <tbody>
                 <tr>
-                  <td>{rematchOutcome.challengerName || 'Ton ami'}</td>
+                  <td>{rematchOutcome.challengerName || t('win_a_friend')}</td>
                   <td>{rematchOutcome.challengerErrors}</td>
                   <td>{rematchOutcome.challengerHints ?? 0}</td>
                   <td>{formatTime(rematchOutcome.challengerSeconds)}</td>
@@ -151,7 +153,7 @@ export default function WinModal({
                 </tr>
               </tbody>
             </table>
-            <p className="rematch-scoring-note">⏱ +2 min par erreur · 💡 +2 min par indice</p>
+            <p className="rematch-scoring-note">{t('scoring_note')}</p>
             {!rematchOutcome.challengerHasAccount && (
               <button className="win-btn-secondary win-send-result-btn" onClick={handleSendRematchResult}>
                 {rematchResultSent ? t('win_rematch_sent') : t('win_rematch_send')}
@@ -226,7 +228,7 @@ export default function WinModal({
         )}
 
         <div className="win-actions">
-          <button className="win-btn-primary" onClick={onReplay}>Nouvelle partie</button>
+          <button className="win-btn-primary" onClick={onReplay}>{t('win_new_game')}</button>
           <button className="win-btn-secondary" onClick={onClose}>{t('win_close')}</button>
         </div>
       </div>
@@ -234,14 +236,14 @@ export default function WinModal({
       {showSaveNotice && (
         <div className="save-notice-overlay">
           <div className="save-notice-panel">
-            <h3>Enregistrer la photo</h3>
+            <h3>{t('win_save_title')}</h3>
             <p>
               Cette photo sera supprimée d'ici un mois. Si tu veux la garder,
               enregistre-la maintenant sur ton téléphone ou ton ordinateur.
             </p>
             <div className="save-notice-actions">
-              <button className="win-btn-primary" onClick={confirmSave}>Enregistrer maintenant</button>
-              <button className="win-btn-secondary" onClick={() => setShowSaveNotice(false)}>Annuler</button>
+              <button className="win-btn-primary" onClick={confirmSave}>{t('win_save_now')}</button>
+              <button className="win-btn-secondary" onClick={() => setShowSaveNotice(false)}>{t('win_cancel')}</button>
             </div>
           </div>
         </div>

@@ -189,4 +189,149 @@ export default {
   rematch_close: 'Fermer',
   rematch_error: 'L\'envoi a échoué, réessaie dans un instant.',
   rematch_no_account: '💡 Sans compte, tu ne sauras pas si ton ami a joué ni qui a gagné.',
+
+  // ── App général ────────────────────────────────────────────────
+  app_loading: 'Chargement…',
+  app_dark: 'Mode sombre',
+  app_light: 'Mode clair',
+  app_my_profile: 'Mon profil',
+
+  // ── Consent / Pub ─────────────────────────────────────────────
+  ad_label: 'Publicité',
+  ad_wait: 'Vous pourrez continuer dans {n} seconde{s}…',
+  ad_continue: 'Continuer →',
+
+  // ── Auth ──────────────────────────────────────────────────────
+  auth_forgot_title: 'Mot de passe oublié',
+  auth_create_btn: 'Créer mon compte',
+  auth_send_link: 'Envoyer le lien',
+  auth_signin_btn: 'Se connecter',
+
+  // ── ChallengeComposer ─────────────────────────────────────────
+  cc_unlimited: 'Illimité',
+  cc_send_btn: 'Créer et envoyer le défi',
+  cc_close: 'Fermer',
+  cc_photo_warning: '⚠️ Ce lien donne accès à la photo : ne le transfère qu\'à la personne à qui c\'est destiné !\n(Elle sera supprimée dans {days} jours.)',
+  cc_share_title: 'Défi Sudoku Art',
+
+  // ── ChallengeFailModal ────────────────────────────────────────
+  fail_share_title: 'Résultat du défi Sudoku Art',
+  fail_new_game: 'Nouvelle partie',
+  fail_close: 'Fermer',
+
+  // ── DefiComposer ──────────────────────────────────────────────
+  defi_mode_perso_label: 'Perso',
+  defi_mode_perso_desc: '1 seul joueur peut ouvrir le lien',
+  defi_mode_group_label: 'Groupe',
+  defi_mode_group_desc: 'Plusieurs joueurs peuvent jouer',
+  defi_photo_change: 'Changer',
+  defi_photo_remove: 'Retirer',
+  defi_a_friend: 'Un ami',
+
+  // ── DefiDashboard ─────────────────────────────────────────────
+  dd_no_results: 'Personne n\'a encore joué.',
+  dd_sent_label: 'Défi envoyé',
+  dd_sent_by: 'Envoyé par {name}',
+  dd_results_arrow: 'Voir résultats →',
+  dd_group_badge: 'Groupe',
+  dd_won: 'Gagné 🏆',
+  dd_tie: 'Égalité 🤝',
+  dd_lost: 'Perdu',
+
+  // ── DeleteAccountModal ────────────────────────────────────────
+  del_title: 'Supprimer mon compte',
+  del_warning: 'Cette action est irréversible. Seront supprimés définitivement :',
+  del_item1: 'Ton adresse email et tes identifiants',
+  del_item2: 'Ta galerie de tableaux débloqués',
+  del_item3: 'Ta progression (vues, statistiques)',
+  del_item4: 'Tous les défis que tu as envoyés ou reçus',
+  del_note: 'Les photos uploadées dans les défis sont déjà supprimées automatiquement après 7 jours.',
+  del_cancel: 'Annuler',
+  del_confirm1: 'Supprimer quand même',
+  del_confirm2: 'Oui, supprimer mon compte',
+  del_final: 'Dernière confirmation : tu vas supprimer définitivement ton compte Sudoku Art.',
+  del_deleting: 'Suppression…',
+  del_error: 'Une erreur s\'est produite. Réessaie dans un instant.',
+
+  // ── HelpModal ─────────────────────────────────────────────────
+  help_rule1: 'Chaque ligne doit contenir les chiffres 1 à 9, sans répétition',
+  help_rule2: 'Chaque colonne doit contenir les chiffres 1 à 9, sans répétition',
+  help_rule3: 'Chaque carré de 3×3 doit contenir les chiffres 1 à 9, sans répétition',
+
+  // ── InstallAppModal ───────────────────────────────────────────
+  install_ios1: 'Appuie sur le bouton Partager ⬆️ en bas de l\'écran (Safari)',
+  install_ios2: 'Fais défiler et choisis "Sur l\'écran d\'accueil"',
+  install_ios3: 'Appuie sur "Ajouter" en haut à droite',
+  install_android1: 'Appuie sur le menu ⋮ (3 points) en haut à droite de Chrome',
+  install_android2: 'Choisis "Installer l\'application" ou "Ajouter à l\'écran d\'accueil"',
+  install_android3: 'Confirme l\'ajout',
+
+  // ── IncomingDefiModal ─────────────────────────────────────────
+  incoming_challenges_you: '{name} te défie !',
+  incoming_a_friend: 'Un ami',
+  incoming_group: 'Groupe',
+  incoming_connected: 'Connexion pour rattacher à ton compte',
+  incoming_pseudo_title: 'Choisis un pseudo pour ce défi',
+  incoming_pseudo_desc: 'Il sera visible dans le classement.',
+  incoming_pseudo_placeholder: 'Ton pseudo (ex : Joueur42)',
+  incoming_pseudo_btn: '▶ Jouer avec ce pseudo',
+  incoming_pseudo_checking: 'Vérification…',
+  incoming_pseudo_back: '← Retour',
+  incoming_pseudo_short: 'Au moins 2 caractères.',
+  incoming_pseudo_long: '20 caractères maximum.',
+  incoming_pseudo_taken: 'Ce pseudo est déjà pris dans ce défi. Choisis-en un autre.',
+  incoming_pseudo_error: 'Erreur de vérification. Réessaie.',
+
+  // ── MaxErrorsModal ────────────────────────────────────────────
+  maxerr_title: '{n} erreurs !',
+  maxerr_ad_title: 'Publicité en cours…',
+  maxerr_desc: 'Tu as atteint la limite. Regarde une pub pour gagner une chance supplémentaire, ou termine la partie.',
+  maxerr_watch_ad: '📺 Regarder une pub pour +1 chance',
+  maxerr_continue: '▶ Continuer quand même',
+  maxerr_quit: 'Terminer la partie',
+  maxerr_granted: '+1 chance accordée !',
+  maxerr_granted_desc: 'Le compteur revient à {n} / {max}.',
+  maxerr_continue_btn: '▶ Continuer la partie',
+
+  // ── RematchComposer ───────────────────────────────────────────
+  rc_share_title: 'Défi Sudoku Art',
+  rc_close: 'Fermer',
+
+  // ── RematchResultDetail ───────────────────────────────────────
+  rrd_errors: 'Erreurs',
+  rrd_time: 'Temps',
+  rrd_me: 'Toi',
+  rrd_friend: 'Ton ami',
+
+  // ── UpdatePasswordScreen ──────────────────────────────────────
+  upd_title: 'Nouveau mot de passe',
+  upd_btn: 'Mettre à jour le mot de passe',
+  upd_loading: 'Un instant…',
+
+  // ── UsernameModal ─────────────────────────────────────────────
+  uname_title: 'Choisis ton pseudo',
+  uname_desc: 'Il sera visible par les autres joueurs quand tu envoies un défi. Tu peux le changer plus tard.',
+  uname_rules: '3 à 20 caractères · lettres, chiffres, _ et -',
+  uname_placeholder: 'ex : SuperJoueur42',
+  uname_btn: 'Valider mon pseudo',
+  uname_saving: 'Enregistrement…',
+  uname_done: '✅ Pseudo enregistré !',
+  uname_checking: 'Vérification…',
+  uname_short: 'Au moins 3 caractères.',
+  uname_long: '20 caractères maximum.',
+  uname_invalid: 'Lettres, chiffres, _ et - uniquement.',
+  uname_taken: 'Ce pseudo est déjà pris. Essaie avec un autre.',
+  uname_error: 'Une erreur s\'est produite. Réessaie.',
+
+  // ── WinModal ──────────────────────────────────────────────────
+  win_new_game: 'Nouvelle partie',
+  win_save_title: 'Enregistrer la photo',
+  win_save_now: 'Enregistrer maintenant',
+  win_cancel: 'Annuler',
+  win_a_friend: 'Ton ami',
+  win_score: '⏱ {time} — ❌ {errors} erreur{s}',
+
+  // ── Scoring ───────────────────────────────────────────────────
+  scoring_rule: 'Score = temps réel +2 min par erreur ou indice. Le plus bas gagne.',
+  scoring_note: '+2 min par erreur · +2 min par indice',
 };

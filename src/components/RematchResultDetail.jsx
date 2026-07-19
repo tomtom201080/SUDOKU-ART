@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/RematchResultDetail.jsx
 import '../components/WinModal.css';
 import './PaintingDetailModal.css';
@@ -11,6 +12,7 @@ function formatTime(totalSeconds) {
 export default function RematchResultDetail({ rematch, winner, onClose }) {
   if (!rematch) return null;
 
+  const { t } = useT();
   return (
     <div className="painting-detail-overlay" onClick={onClose}>
       <div className="painting-detail-panel" onClick={(e) => e.stopPropagation()}>
@@ -24,16 +26,16 @@ export default function RematchResultDetail({ rematch, winner, onClose }) {
           </p>
           <table className="rematch-outcome-table">
             <thead>
-              <tr><th></th><th>Erreurs</th><th>Temps</th></tr>
+              <tr><th></th><th>{t('rrd_errors')}</th><th>{t('rrd_time')}</th></tr>
             </thead>
             <tbody>
               <tr>
-                <td>Toi</td>
+                <td>{t('rrd_me')}</td>
                 <td>{rematch.challenger_result_errors}</td>
                 <td>{formatTime(rematch.challenger_result_seconds)}</td>
               </tr>
               <tr>
-                <td>Ton ami</td>
+                <td>{t('rrd_friend')}</td>
                 <td>{rematch.recipient_result_errors}</td>
                 <td>{formatTime(rematch.recipient_result_seconds)}</td>
               </tr>

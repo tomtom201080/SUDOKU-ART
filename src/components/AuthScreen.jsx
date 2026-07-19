@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/AuthScreen.jsx
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
@@ -8,6 +9,7 @@ const APP_URL = typeof window !== 'undefined' ? window.location.origin : '';
 const SHARE_TEXT = "Sudoku Art : un Sudoku où une photo se dévoile au fil de la partie ! Essaie : ";
 
 export default function AuthScreen({ onCancel }) {
+  const { t } = useT();
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup' | 'forgot'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

@@ -22,3 +22,25 @@
   line-height: 1.45;
   margin: 0 0 18px;
 }
+
+.incoming-pseudo-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--card-border);
+  border-radius: 12px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  box-sizing: border-box;
+  margin: 4px 0;
+}
+.incoming-pseudo-input:focus { border-color: var(--accent); }
+.incoming-pseudo-error {
+  font-size: 0.78rem;
+  color: #D32F2F;
+  margin: 2px 0;
+  text-align: center;
+}

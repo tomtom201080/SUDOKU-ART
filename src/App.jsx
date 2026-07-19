@@ -213,7 +213,8 @@ export default function App() {
   const [showMaxErrors, setShowMaxErrors] = useState(false);
 
   const game = useGame(manifest, session?.user?.id ?? null, {
-    onMaxErrorsReached: () => setShowMaxErrors(true)
+    onMaxErrorsReached: () => setShowMaxErrors(true),
+    username,
   });
 
   const [preloadedByTier, setPreloadedByTier] = useState({});
@@ -421,11 +422,11 @@ export default function App() {
     game.startRematchGame(rematch, photoUrl, puzzleData);
   };
 
-  const handlePlayPendingRematch = () => {
+  const handlePlayPendingRematch = (pseudo = null) => {
     if (!pendingRematch) return;
     const { rematch, photoUrl } = pendingRematch;
     setPendingRematch(null);
-    game.startRematchGame(rematch, photoUrl);
+    game.startRematchGame(rematch, photoUrl, null, pseudo);
   };
 
   const handleLoginThenPlayPendingRematch = () => {
@@ -540,7 +541,7 @@ export default function App() {
     <button
       className="icon-btn"
       onClick={() => setDarkMode(d => !d)}
-      title={darkMode ? 'Mode clair' : 'Mode sombre'}
+      title={darkMode ? t('app_light') : t('app_dark')}
     >
       {darkMode ? '☀️' : '🌙'}
     </button>
@@ -555,7 +556,7 @@ export default function App() {
   const profileButton = session ? (
     <button
       className="icon-btn header-username-btn"
-      title={username ? `@${username}` : 'Mon profil'}
+      title={username ? `@${username}` : t('app_my_profile')}
       onClick={() => setShowUsernameModal(true)}
     >
       {username ? username.slice(0, 2).toUpperCase() : '👤'}
@@ -563,7 +564,7 @@ export default function App() {
   ) : null;
 
   if (sessionLoading || manifestLoading) {
-    return <div className="game-screen">Chargement…</div>;
+    return <div className="game-screen">{t('app_loading')}</div>;
   }
 
   if (isPasswordRecovery) {

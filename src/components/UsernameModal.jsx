@@ -1,9 +1,11 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/UsernameModal.jsx
 import { useState } from 'react';
 import { validateUsername, checkUsernameAvailable, saveUsername } from '../lib/profiles';
 import './UsernameModal.css';
 
 export default function UsernameModal({ userId, onDone }) {
+  const { t } = useT();
   const [value, setValue] = useState('');
   const [error, setError] = useState(null);
   const [checking, setChecking] = useState(false);
@@ -24,7 +26,7 @@ export default function UsernameModal({ userId, onDone }) {
     try {
       const available = await checkUsernameAvailable(value);
       if (!available) {
-        setError('Ce pseudo est déjà pris. Essaie avec un autre.');
+        setError(t('uname_taken'));
         setChecking(false);
         return;
       }
@@ -34,7 +36,7 @@ export default function UsernameModal({ userId, onDone }) {
       setStatus('done');
       setTimeout(() => onDone(value.trim()), 600);
     } catch (err) {
-      setError('Une erreur s\'est produite. Réessaie.');
+      setError(t('uname_error'));
       setChecking(false);
       setStatus('idle');
     }
@@ -44,19 +46,18 @@ export default function UsernameModal({ userId, onDone }) {
     <div className="username-overlay">
       <div className="username-panel">
         <p className="username-icon">🎭</p>
-        <h2 className="username-title">Choisis ton pseudo</h2>
+        <h2 className="username-title">{t('uname_title')}</h2>
         <p className="username-desc">
-          Il sera visible par les autres joueurs quand tu envoies un défi.
-          Tu peux le changer plus tard depuis les paramètres.
+          {t('uname_desc')}
         </p>
-        <p className="username-rules">3 à 20 caractères · lettres, chiffres, _ et -</p>
+        <p className="username-rules">{t('uname_rules')}</p>
         <input
           className="username-input"
           type="text"
           maxLength={20}
           value={value}
           onChange={handleChange}
-          placeholder="ex : SuperJoueur42"
+          placeholder={t('uname_placeholder')}
           autoFocus
           autoCapitalize="none"
           autoCorrect="off"
@@ -69,10 +70,10 @@ export default function UsernameModal({ userId, onDone }) {
           onClick={handleSubmit}
           disabled={status === 'saving' || checking}
         >
-          {status === 'saving' ? 'Enregistrement…' :
-           status === 'done'   ? '✅ Pseudo enregistré !' :
-           checking            ? 'Vérification…' :
-           'Valider mon pseudo'}
+          {status === 'saving' ? t('uname_saving') :
+           status === 'done'   ? t('uname_done') :
+           checking            ? t('uname_checking') :
+           t('uname_btn')}
         </button>
       </div>
     </div>

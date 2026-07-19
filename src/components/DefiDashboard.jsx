@@ -8,7 +8,7 @@ import {
 } from '../lib/rematches';
 import './DefiDashboard.css';
 
-const DIFF_LABELS = { facile: 'Facile', moyen: 'Moyen', complique: 'Compliqué', enfer: 'Enfer' };
+// DIFF_LABELS dynamiques via useT()
 
 function fmt(s) {
   if (s == null) return '—';
@@ -20,6 +20,8 @@ function fmtDate(iso) {
 
 // ─── Classement mode groupe ───────────────────────────────────────
 function GroupLeaderboard({ rematch, onClose }) {
+  const { t } = useT();
+  const DIFF_LABELS = { facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') };
   const [results, setResults] = useState(null);
 
   useEffect(() => {
@@ -57,8 +59,8 @@ function GroupLeaderboard({ rematch, onClose }) {
           {rematch.hints_limit != null && ` · Max ${rematch.hints_limit} indice${rematch.hints_limit > 1 ? 's' : ''}`}
         </p>
 
-        {results === null && <p className="defi-dash-empty">Chargement…</p>}
-        {results?.length === 0 && <p className="defi-dash-empty">Personne n'a encore joué.</p>}
+        {results === null && <p className="defi-dash-empty">{t('defi_loading')}</p>}
+        {results?.length === 0 && <p className="defi-dash-empty">{t('dd_no_results')}</p>}
         {results?.map((r, i) => {
           const score = calcAdjustedScore({ seconds: r.seconds, errors: r.errors, hints: r.hints ?? 0 });
           const medals = ['🥇', '🥈', '🥉'];
@@ -97,7 +99,7 @@ function PersonalResult({ r, isSent }) {
 
   return (
     <div className={`defi-result-badge ${iWon ? 'won' : tie ? 'tie' : 'lost'}`}>
-      {iWon ? 'Gagné 🏆' : tie ? 'Égalité 🤝' : 'Perdu'}
+      {iWon ? t('dd_won') : tie ? t('dd_tie') : t('dd_lost')}
     </div>
   );
 }
@@ -105,8 +107,8 @@ function PersonalResult({ r, isSent }) {
 // ─── Ligne de défi ───────────────────────────────────────────────
 function RematchRow({ r, isSent, onHide, onExpand }) {
   const opponent = isSent
-    ? (r.challenger_name ? `Tu as défié` : 'Défi envoyé')
-    : (r.challenger_name || 'Un ami');
+    ? (r.challenger_name ? t('dd_sent_by', { name: r.challenger_name }) : t('dd_sent_label'))
+    : (r.challenger_name || t('defi_a_friend'));
 
   const isGroup    = !!r.group_mode;
   const hasPlayed  = r.completed || (isGroup && r.challenger_result_seconds > 0);
@@ -115,17 +117,17 @@ function RematchRow({ r, isSent, onHide, onExpand }) {
     <div className="defi-row" onClick={() => hasPlayed && onExpand(r)} style={{ cursor: hasPlayed ? 'pointer' : 'default' }}>
       <div className="defi-row-left">
         <span className="defi-row-opponent">
-          {isGroup ? '👨‍👩‍👧 ' : ''}{isSent ? (r.challenger_name ? `Envoyé par ${r.challenger_name}` : 'Défi envoyé') : (r.challenger_name || 'Un ami')}
+          {isGroup ? '👨‍👩‍👧 ' : ''}{isSent ? (r.challenger_name ? t('dd_sent_by', { name: r.challenger_name }) : t('dd_sent_label')) : (r.challenger_name || t('defi_a_friend'))}
         </span>
         <span className="defi-row-meta">
           {DIFF_LABELS[r.difficulty] ?? r.difficulty} · {fmtDate(r.created_at)}
-          {hasPlayed && ' · Voir résultats →'}
+          {hasPlayed && ` · ${t('dd_results_arrow')}`}
         </span>
       </div>
       <div className="defi-row-right">
-        {!hasPlayed && <span className="defi-row-waiting">En attente</span>}
+        {!hasPlayed && <span className="defi-row-waiting">{t('defi_waiting')}</span>}
         {hasPlayed && !isGroup && <PersonalResult r={r} isSent={isSent} />}
-        {hasPlayed && isGroup && <span className="defi-badge defi-badge-pending">Groupe</span>}
+        {hasPlayed && isGroup && <span className="defi-badge defi-badge-pending">{t('dd_group_badge')}</span>}
         <button
           className="defi-row-delete"
           onClick={e => { e.stopPropagation(); onHide(r.id); }}

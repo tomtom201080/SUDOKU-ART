@@ -189,4 +189,149 @@ export default {
   rematch_close: 'Close',
   rematch_error: 'Send failed, try again.',
   rematch_no_account: '💡 Without an account, you won\'t know if your friend played or who won.',
+
+  // ── App general ────────────────────────────────────────────────
+  app_loading: 'Loading…',
+  app_dark: 'Dark mode',
+  app_light: 'Light mode',
+  app_my_profile: 'My profile',
+
+  // ── Consent / Ad ──────────────────────────────────────────────
+  ad_label: 'Advertisement',
+  ad_wait: 'You can continue in {n} second{s}…',
+  ad_continue: 'Continue →',
+
+  // ── Auth ──────────────────────────────────────────────────────
+  auth_forgot_title: 'Forgot password',
+  auth_create_btn: 'Create account',
+  auth_send_link: 'Send link',
+  auth_signin_btn: 'Sign in',
+
+  // ── ChallengeComposer ─────────────────────────────────────────
+  cc_unlimited: 'Unlimited',
+  cc_send_btn: 'Create and send challenge',
+  cc_close: 'Close',
+  cc_photo_warning: '⚠️ This link gives access to your photo: only send it to the intended person!\n(It will be deleted in {days} days.)',
+  cc_share_title: 'Sudoku Art Challenge',
+
+  // ── ChallengeFailModal ────────────────────────────────────────
+  fail_share_title: 'Sudoku Art Challenge Result',
+  fail_new_game: 'New game',
+  fail_close: 'Close',
+
+  // ── DefiComposer ──────────────────────────────────────────────
+  defi_mode_perso_label: 'Personal',
+  defi_mode_perso_desc: 'Only 1 player can open the link',
+  defi_mode_group_label: 'Group',
+  defi_mode_group_desc: 'Multiple players can play',
+  defi_photo_change: 'Change',
+  defi_photo_remove: 'Remove',
+  defi_a_friend: 'A friend',
+
+  // ── DefiDashboard ─────────────────────────────────────────────
+  dd_no_results: 'Nobody has played yet.',
+  dd_sent_label: 'Challenge sent',
+  dd_sent_by: 'Sent by {name}',
+  dd_results_arrow: 'See results →',
+  dd_group_badge: 'Group',
+  dd_won: 'Won 🏆',
+  dd_tie: 'Tie 🤝',
+  dd_lost: 'Lost',
+
+  // ── DeleteAccountModal ────────────────────────────────────────
+  del_title: 'Delete my account',
+  del_warning: 'This action is irreversible. The following will be permanently deleted:',
+  del_item1: 'Your email address and credentials',
+  del_item2: 'Your unlocked artwork gallery',
+  del_item3: 'Your progress (views, stats)',
+  del_item4: 'All challenges you sent or received',
+  del_note: 'Photos uploaded in challenges are already automatically deleted after 7 days.',
+  del_cancel: 'Cancel',
+  del_confirm1: 'Delete anyway',
+  del_confirm2: 'Yes, delete my account',
+  del_final: 'Final confirmation: you are about to permanently delete your Sudoku Art account.',
+  del_deleting: 'Deleting…',
+  del_error: 'An error occurred. Please try again.',
+
+  // ── HelpModal ─────────────────────────────────────────────────
+  help_rule1: 'Each row must contain the digits 1–9, without repetition',
+  help_rule2: 'Each column must contain the digits 1–9, without repetition',
+  help_rule3: 'Each 3×3 square must contain the digits 1–9, without repetition',
+
+  // ── InstallAppModal ───────────────────────────────────────────
+  install_ios1: 'Tap the Share button ⬆️ at the bottom of the screen (Safari)',
+  install_ios2: 'Scroll down and choose "Add to Home Screen"',
+  install_ios3: 'Tap "Add" in the top right',
+  install_android1: 'Tap the ⋮ menu (3 dots) in the top right of Chrome',
+  install_android2: 'Choose "Install app" or "Add to home screen"',
+  install_android3: 'Confirm the addition',
+
+  // ── IncomingDefiModal ─────────────────────────────────────────
+  incoming_challenges_you: '{name} challenges you!',
+  incoming_a_friend: 'A friend',
+  incoming_group: 'Group',
+  incoming_connected: 'Sign in to link your score to your account',
+  incoming_pseudo_title: 'Choose a name for this challenge',
+  incoming_pseudo_desc: 'It will appear in the leaderboard.',
+  incoming_pseudo_placeholder: 'Your name (e.g. Player42)',
+  incoming_pseudo_btn: '▶ Play with this name',
+  incoming_pseudo_checking: 'Checking…',
+  incoming_pseudo_back: '← Back',
+  incoming_pseudo_short: 'At least 2 characters.',
+  incoming_pseudo_long: '20 characters maximum.',
+  incoming_pseudo_taken: 'This name is already taken in this challenge. Try another.',
+  incoming_pseudo_error: 'Verification failed. Try again.',
+
+  // ── MaxErrorsModal ────────────────────────────────────────────
+  maxerr_title: '{n} errors!',
+  maxerr_ad_title: 'Ad playing…',
+  maxerr_desc: 'You\'ve reached the limit. Watch an ad to get one more chance, or end the game.',
+  maxerr_watch_ad: '📺 Watch an ad for +1 chance',
+  maxerr_continue: '▶ Continue anyway',
+  maxerr_quit: 'End the game',
+  maxerr_granted: '+1 chance granted!',
+  maxerr_granted_desc: 'Counter reset to {n} / {max}.',
+  maxerr_continue_btn: '▶ Keep playing',
+
+  // ── RematchComposer ───────────────────────────────────────────
+  rc_share_title: 'Sudoku Art Challenge',
+  rc_close: 'Close',
+
+  // ── RematchResultDetail ───────────────────────────────────────
+  rrd_errors: 'Errors',
+  rrd_time: 'Time',
+  rrd_me: 'You',
+  rrd_friend: 'Your friend',
+
+  // ── UpdatePasswordScreen ──────────────────────────────────────
+  upd_title: 'New password',
+  upd_btn: 'Update password',
+  upd_loading: 'Just a moment…',
+
+  // ── UsernameModal ─────────────────────────────────────────────
+  uname_title: 'Choose your username',
+  uname_desc: 'Other players will see it when you send a challenge. You can change it later.',
+  uname_rules: '3 to 20 characters · letters, digits, _ and -',
+  uname_placeholder: 'e.g. SuperPlayer42',
+  uname_btn: 'Set username',
+  uname_saving: 'Saving…',
+  uname_done: '✅ Username saved!',
+  uname_checking: 'Checking…',
+  uname_short: 'At least 3 characters.',
+  uname_long: '20 characters maximum.',
+  uname_invalid: 'Letters, digits, _ and - only.',
+  uname_taken: 'This username is already taken. Try another.',
+  uname_error: 'An error occurred. Please try again.',
+
+  // ── WinModal ──────────────────────────────────────────────────
+  win_new_game: 'New game',
+  win_save_title: 'Save photo',
+  win_save_now: 'Save now',
+  win_cancel: 'Cancel',
+  win_a_friend: 'Your friend',
+  win_score: '⏱ {time} — ❌ {errors} error{s}',
+
+  // ── Scoring ───────────────────────────────────────────────────
+  scoring_rule: 'Score = real time +2 min per error or hint. Lowest wins.',
+  scoring_note: '+2 min per error · +2 min per hint',
 };

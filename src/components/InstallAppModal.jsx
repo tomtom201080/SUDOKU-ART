@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/InstallAppModal.jsx
 import './InstallAppModal.css';
 
@@ -11,6 +12,7 @@ function detectPlatform() {
 export default function InstallAppModal({ onClose }) {
   const { isIOS, isAndroid } = detectPlatform();
 
+  const { t } = useT();
   return (
     <div className="install-overlay">
       <div className="install-panel">
@@ -26,17 +28,17 @@ export default function InstallAppModal({ onClose }) {
 
         {isIOS && (
           <ol className="install-steps">
-            <li>Appuie sur le bouton <strong>Partager</strong> ⬆️ en bas de l'écran (Safari)</li>
-            <li>Fais défiler et choisis <strong>"Sur l'écran d'accueil"</strong></li>
-            <li>Appuie sur <strong>"Ajouter"</strong> en haut à droite</li>
+            <li>{t('install_ios1')}</li>
+            <li>{t('install_ios2')}</li>
+            <li>{t('install_ios3')}</li>
           </ol>
         )}
 
         {isAndroid && (
           <ol className="install-steps">
-            <li>Appuie sur le menu <strong>⋮</strong> (3 points) en haut à droite de Chrome</li>
-            <li>Choisis <strong>"Installer l'application"</strong> ou <strong>"Ajouter à l'écran d'accueil"</strong></li>
-            <li>Confirme l'ajout</li>
+            <li>{t('install_android1')}</li>
+            <li>{t('install_android2')}</li>
+            <li>{t('install_android3')}</li>
           </ol>
         )}
 

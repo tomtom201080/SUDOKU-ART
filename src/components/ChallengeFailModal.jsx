@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/ChallengeFailModal.jsx
 import { useState } from 'react';
 import { shareText } from '../utils/device';
@@ -30,14 +31,14 @@ export default function ChallengeFailModal({
     const message =
       `😢 J'ai perdu le défi Sudoku Art que tu m'as envoyé...\n` +
       `Difficulté : ${difficultyLabel} — Erreurs : ${errorCount} — Temps : ${formatTime(elapsedSeconds)}`;
-    await shareText(message, 'Résultat du défi Sudoku Art');
+    await shareText(message, t('fail_share_title'));
     setResultSent(true);
   };
 
   return (
     <div className="win-overlay">
       <div className="win-panel">
-        <h2>Partie perdue 😢</h2>
+        <h2>{t('fail_title')}</h2>
         <p className="win-difficulty">
           Trop d'erreurs ou temps écoulé — la photo ne sera pas dévoilée cette fois.
         </p>
@@ -61,8 +62,8 @@ export default function ChallengeFailModal({
         )}
 
         <div className="win-actions">
-          <button className="win-btn-primary" onClick={onReplay}>Nouvelle partie</button>
-          <button className="win-btn-secondary" onClick={onClose}>Fermer</button>
+          <button className="win-btn-primary" onClick={onReplay}>{t('fail_new_game')}</button>
+          <button className="win-btn-secondary" onClick={onClose}>{t('fail_close')}</button>
         </div>
       </div>
     </div>

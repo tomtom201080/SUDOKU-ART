@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/ChallengeComposer.jsx
 import { useRef, useState, useEffect } from 'react';
 import { uploadSharedPhoto, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
@@ -7,10 +8,7 @@ import './ChallengeComposer.css';
 
 const DIFFICULTY_OPTIONS = [
   { value: 'auto', label: 'Automatique (au hasard)' },
-  { value: 'facile', label: 'Facile' },
-  { value: 'moyen', label: 'Moyen' },
-  { value: 'complique', label: 'Compliqué' },
-  { value: 'enfer', label: 'Enfer' }
+  // dynamique
 ];
 
 const ERROR_OPTIONS = [
@@ -18,11 +16,11 @@ const ERROR_OPTIONS = [
   { value: 3, label: '3' },
   { value: 5, label: '5' },
   { value: 10, label: '10' },
-  { value: null, label: 'Illimité' }
+  // dynamique2
 ];
 
 const TIME_OPTIONS = [
-  { value: null, label: 'Illimité' },
+  // dynamique2,
   { value: 3, label: '3 min' },
   { value: 5, label: '5 min' },
   { value: 10, label: '10 min' },
@@ -46,6 +44,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
   const [difficultyMode, setDifficultyMode] = useState('auto');
   const [maxErrors, setMaxErrors] = useState(3);
   const [timeLimitMinutes, setTimeLimitMinutes] = useState(null);
+  const { t } = useT();
   const [status, setStatus] = useState('idle'); // idle | sending | done | error
   const [shareLink, setShareLink] = useState(null);
   const [linkCopied, setLinkCopied] = useState(false);
@@ -100,7 +99,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
       const fullMessage = message + disclaimer;
       if (isMobileDevice() && navigator.share) {
         try {
-          await navigator.share({ title: 'Défi Sudoku Art', text: fullMessage });
+          await navigator.share({ title: t('cc_share_title'), text: fullMessage });
           setStatus('done');
           return;
         } catch {
@@ -134,7 +133,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
                 </button>
               </div>
             )}
-            <button className="challenge-btn-primary" onClick={onClose}>Fermer</button>
+            <button className="challenge-btn-primary" onClick={onClose}>{t('cc_close')}</button>
           </>
         ) : (
           <>
@@ -215,7 +214,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
               onClick={handleSend}
               disabled={status === 'sending'}
             >
-              {status === 'sending' ? 'Envoi en cours…' : 'Créer et envoyer le défi'}
+              {status === 'sending' ? t('defi_sending') : t('cc_send_btn')}
             </button>
           </>
         )}
