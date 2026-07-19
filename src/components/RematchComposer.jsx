@@ -78,13 +78,12 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
         {status === 'done' ? (
           <>
             <p className="challenge-success">Défi envoyé ! On te dira qui a gagné dès que ton ami aura fini.</p>
-            <button className="challenge-btn-primary" onClick={onClose}>Fermer</button>
+            <button className="challenge-btn-primary" onClick={onClose}>{t('rc_close_btn')}</button>
           </>
         ) : (
           <>
             <p className="hint-step-text">
-              Ton ami jouera exactement la même grille que toi, et on comparera
-              vos résultats (erreurs et temps) une fois qu'il aura terminé.
+              {t('rc_desc')}
             </p>
 
             {!userEmail && (
@@ -95,7 +94,7 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
                   className="challenge-name-input"
                   value={challengerName}
                   onChange={(e) => setChallengerName(e.target.value)}
-                  placeholder="Ex : Thomas"
+                  placeholder={t('defi_prenom_placeholder')}
                 />
               </div>
             )}

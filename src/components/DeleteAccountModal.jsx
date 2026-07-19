@@ -21,7 +21,7 @@ export default function DeleteAccountModal({ onClose, onDeleted }) {
       if (fnError) throw fnError;
       onDeleted();
     } catch (err) {
-      setError("Une erreur s'est produite. Réessaie dans un instant.");
+      setError(t('del_error'));
       setLoading(false);
     }
   };

@@ -62,18 +62,16 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
 
       const link      = buildRematchLink(rematch.id);
       const limiteTxt = hintsLimit != null ? `\n💡 Max ${hintsLimit} indice${hintsLimit > 1 ? 's' : ''}` : '';
-      const regleTxt  = `\n⏱ Règle : +2 min par erreur ou indice utilisé${limiteTxt}`;
+      const regleTxt  = `${t('defi_rule_msg')}${limiteTxt}`;
 
       // Avertissement photo UNIQUEMENT en mode groupe avec photo perso
       const photoGroupWarning = groupMode && photoPath
-        ? `\n\n⚠️ Ce lien peut être joué par plusieurs personnes. Si tu le transfères, ta photo sera visible par tous ceux qui cliqueront dessus.`
+        ? `\n\n${t('defi_group_photo_warning')}`
         : !groupMode && photoPath
-        ? `\n⚠️ Ce lien est réservé à une seule personne — ne le transfère pas, sinon quelqu'un d'autre pourrait le prendre à ta place.`
+        ? `\n${t('defi_photo_personal_warning')}`
         : '';
 
-      const groupTxt = groupMode
-        ? `\nPlusieurs personnes peuvent jouer — partagez le lien !`
-        : '';
+      const groupTxt = groupMode ? `${t('defi_group_msg')}` : '';
 
       const senderName = userEmail ?? (challengerName.trim() || t('defi_a_friend'));
       const message =
@@ -115,7 +113,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
         {(step === 'config' || step === 'sending') && (
           <>
             {/* Mode : Perso ou Groupe */}
-            <p className="challenge-step-title">1. Mode du défi</p>
+            <p className="challenge-step-title">{t('defi_step1_label')}</p>
             <div className="defi-mode-toggle">
               <button
                 className={`defi-mode-btn ${!groupMode ? 'is-selected' : ''}`}

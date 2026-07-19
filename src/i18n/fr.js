@@ -334,4 +334,102 @@ export default {
   // ── Scoring ───────────────────────────────────────────────────
   scoring_rule: 'Score = temps réel +2 min par erreur ou indice. Le plus bas gagne.',
   scoring_note: '+2 min par erreur · +2 min par indice',
+  // ── AdConsentBanner ───────────────────────────────────────────
+  consent_text: 'Sudoku Art est gratuite grâce à des publicités. Acceptes-tu qu\'elles soient personnalisées selon tes intérêts ?',
+  consent_accept: 'Accepter',
+  consent_reject: 'Refuser',
+
+  // ── AdSlot ────────────────────────────────────────────────────
+  ad_placeholder: '📢 Emplacement publicitaire — sera actif une fois ton compte AdSense configuré',
+
+  // ── AuthScreen ────────────────────────────────────────────────
+  auth_error: 'Une erreur est survenue.',
+  auth_switch_signin: 'Déjà un compte ? Se connecter',
+  auth_switch_signup: 'Créer un compte',
+  auth_switch_forgot: 'Mot de passe oublié ?',
+  auth_switch_back: '← Retour à la connexion',
+
+  // ── ChallengeComposer ─────────────────────────────────────────
+  cc_title: '🎯 Envoyer une grille personnalisée',
+  cc_step3: '3. Nombre d\'erreurs autorisées',
+  cc_photo_disclaimer: '⚠️ Ce lien donne accès à la photo : ne le transfère qu\'à la personne à qui c\'est destiné !\n(Elle sera supprimée dans {days} jours.)',
+
+  // ── ChallengeFailModal ────────────────────────────────────────
+  fail_too_many: 'Trop d\'erreurs ou temps écoulé — la photo ne sera pas dévoilée cette fois.',
+  fail_result_sent: '✅ Résultat envoyé',
+  fail_send_result: '📤 Envoyer mon résultat à {email}',
+  fail_stats: '{errors} erreur{s} — ⏱ {time}',
+
+  // ── DefiComposer ──────────────────────────────────────────────
+  defi_step1_label: '1. Mode du défi',
+  defi_rule_msg: '\n⏱ Règle : +2 min par erreur ou indice utilisé',
+  defi_group_msg: '\nPlusieurs personnes peuvent jouer — partagez le lien !',
+  defi_photo_personal_warning: '⚠️ Ce lien est réservé à une seule personne — ne le transfère pas.',
+
+  // ── DefiDashboard ─────────────────────────────────────────────
+  dd_sender_label: 'Toi (expéditeur)',
+  dd_scoring: '⏱ +2 min par erreur · 💡 +2 min par indice',
+  dd_delete_title: 'Supprimer',
+
+  // ── HelpModal ─────────────────────────────────────────────────
+  help_rules_title: '❓ Règles & comment jouer',
+  help_center_cell: 'La case tout au centre est visible dès le départ',
+  help_correct_cell: 'Une case que tu remplis correctement se révèle immédiatement',
+  help_given_cell: 'Une case déjà donnée au départ ne se révèle que lorsqu\'une ligne, colonne ou carré est complet',
+  help_undo: '↩️ Annuler : revient au coup précédent',
+  help_hint_desc: '💡 Indice : propose de révéler un chiffre dans la grille',
+  help_diff_title: '🎯 Difficulté & rareté',
+  help_diff_desc: 'Plus la difficulté est élevée, moins il y a de chiffres donnés au départ. Chaque niveau débloque des tableaux de rareté différente.',
+  help_challenge_desc: 'Tu peux configurer un nombre d\'erreurs autorisées et un temps limite.',
+
+  // ── HintModal ─────────────────────────────────────────────────
+  hint_question: 'Quel chiffre veux-tu découvrir ?',
+
+  // ── HomeProgress ──────────────────────────────────────────────
+  progress_games_won: 'Parties\ngagnées',
+  progress_days_streak: 'Jours\nde suite',
+  progress_unlocked: 'Tableaux\ndébloqués',
+
+  // ── IncomingDefiModal ─────────────────────────────────────────
+  incoming_rule_short: '⏱ +2 min/erreur ou indice',
+
+  // ── KpiDashboard ──────────────────────────────────────────────
+  kpi_loading: 'Chargement…',
+  kpi_started_today: 'Parties commencées aujourd\'hui',
+  kpi_finished_today: 'Parties terminées aujourd\'hui',
+  kpi_total_started: 'Total commencées',
+  kpi_total_finished: 'Total terminées',
+  kpi_completion: 'Taux de complétion',
+  kpi_failed: 'Défis échoués',
+  kpi_with_photo: 'Parties avec photo perso',
+  kpi_challenges: 'Défis joués',
+  kpi_by_diff: 'Par difficulté',
+  kpi_diff_col: 'Difficulté',
+  kpi_started_col: 'Commencées',
+  kpi_finished_col: 'Terminées',
+  kpi_rate_col: 'Taux',
+  kpi_day_col: 'Jour',
+
+  // ── MaxErrorsModal ────────────────────────────────────────────
+  maxerr_watch_ad_full: '📺 Regarder une pub pour +1 chance',
+  maxerr_quit_full: 'Terminer la partie',
+
+  // ── RematchComposer ───────────────────────────────────────────
+  rc_result_msg: 'Mon résultat : {errors} erreur{s}, {min}m {sec}s. À toi de faire mieux !\n{link}',
+  rc_photo_warning: '⚠️ Ce lien donne accès à une photo : ne le transfère qu\'à la bonne personne (supprimée dans {days} jours).',
+  rc_close_btn: 'Fermer',
+  rc_desc: 'Ton ami jouera exactement la même grille que toi, et on comparera vos résultats une fois qu\'il aura terminé.',
+
+  // ── RematchResultDetail ───────────────────────────────────────
+  rrd_friend_better: '😅 Ton ami a fait mieux que toi cette fois.',
+
+  // ── WinModal ─────────────────────────────────────────────────
+  win_difficulty_label: 'Difficulté : ',
+  win_no_error: 'aucune erreur 🏆',
+  win_share_text: '{painting}Difficulté : {diff} — {time} — {errors}\nJoue aussi : https://sudoku-art.vercel.app',
+  win_result_msg: 'Difficulté : {diff} — Erreurs : {errors} — Temps : {time}',
+  win_stats_row: '❌ {errors} erreur{s} — ⏱ {time}',
+  win_table_raw: '⏱ Brut',
+  win_table_score: '🏁 Score',
+
 };

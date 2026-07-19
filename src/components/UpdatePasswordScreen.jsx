@@ -27,7 +27,7 @@ export default function UpdatePasswordScreen({ onDone }) {
       if (updateError) throw updateError;
       setSuccess(true);
     } catch (err) {
-      setError(err.message || 'Une erreur est survenue.');
+      setError(err.message || t('auth_error'));
     } finally {
       setLoading(false);
     }

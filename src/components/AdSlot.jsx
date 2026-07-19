@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/AdSlot.jsx
 import { useEffect } from 'react';
 import { loadAdsenseScript, getAdsenseClientId } from '../lib/adsense';
@@ -18,9 +19,10 @@ export default function AdSlot({ slot, format = 'auto' }) {
   }, [clientId, slot]);
 
   if (!clientId) {
-    return (
+    const { t } = useT();
+  return (
       <div className="ad-slot-placeholder">
-        📢 Emplacement publicitaire — sera actif une fois ton compte AdSense configuré
+        {t('ad_placeholder')}
       </div>
     );
   }

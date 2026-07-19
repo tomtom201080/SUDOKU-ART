@@ -73,7 +73,7 @@ export default function MaxErrorsModal({ errorCount, maxErrors = 3, onContinue, 
         <div className="maxerr-actions">
           {canShowAd ? (
             <button className="maxerr-btn-ad" onClick={() => setPhase('ad')}>
-              📺 Regarder une pub pour +1 chance
+              {t('maxerr_watch_ad_full')}
             </button>
           ) : (
             <button className="maxerr-btn-ad" onClick={onContinue}>
@@ -81,7 +81,7 @@ export default function MaxErrorsModal({ errorCount, maxErrors = 3, onContinue, 
             </button>
           )}
           <button className="maxerr-btn-quit" onClick={onGameOver}>
-            Terminer la partie
+            {t('maxerr_quit_full')}
           </button>
         </div>
       </div>

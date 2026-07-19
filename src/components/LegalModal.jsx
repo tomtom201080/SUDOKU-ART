@@ -3,7 +3,7 @@ import { useT } from '../i18n/index.jsx';
 import './LegalModal.css';
 
 export function TermsModal({ onClose }) {
-  const { t } = useT();
+  const { lang, t } = useT();
   return (
     <div className="legal-overlay" onClick={onClose}>
       <div className="legal-panel" onClick={e => e.stopPropagation()}>
@@ -11,7 +11,7 @@ export function TermsModal({ onClose }) {
           <h2>{t('legal_terms_title')}</h2>
           <button className="legal-close" onClick={onClose}>✕</button>
         </div>
-        <p className="legal-date">En vigueur depuis le 1er juillet 2025</p>
+        <p className="legal-date">{lang === 'fr' ? 'En vigueur depuis le 1er juillet 2025' : 'Effective July 1st, 2025'}</p>
 
         <section>
           <h3>1. Présentation du service</h3>
@@ -61,7 +61,7 @@ export function TermsModal({ onClose }) {
 }
 
 export function PrivacyModal({ onClose, onConsentChange }) {
-  const { t } = useT();
+  const { lang, t } = useT();
   return (
     <div className="legal-overlay" onClick={onClose}>
       <div className="legal-panel" onClick={e => e.stopPropagation()}>

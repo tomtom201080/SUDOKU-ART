@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/PrivacyPolicy.jsx
 import { setAdConsent } from '../lib/adConsent';
 import './PrivacyPolicy.css';
@@ -9,11 +10,12 @@ export default function PrivacyPolicy({ onClose, onConsentChange }) {
     onClose();
   };
 
+  const { t } = useT();
   return (
     <div className="privacy-overlay" onClick={onClose}>
       <div className="privacy-panel" onClick={(e) => e.stopPropagation()}>
         <div className="privacy-header">
-          <h2>Politique de confidentialité</h2>
+          <h2>{t('legal_privacy_title')}</h2>
           <button className="privacy-close" onClick={onClose}>✕</button>
         </div>
 
@@ -66,7 +68,7 @@ export default function PrivacyPolicy({ onClose, onConsentChange }) {
             Accepter
           </button>
         </div>
-        <button className="privacy-close-btn" onClick={onClose}>Fermer sans changer</button>
+        <button className="privacy-close-btn" onClick={onClose}>{t('legal_close_plain')}</button>
       </div>
     </div>
   );

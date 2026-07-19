@@ -60,7 +60,7 @@ export default function WinModal({
     const time = formatTime(elapsedSeconds);
     const errors = errorCount === 0 ? 'aucune erreur 🏆' : `${errorCount} erreur${errorCount > 1 ? 's' : ''}`;
     const painting = title ? `J'ai dévoilé "${title}" en finissant mon Sudoku Art ! 🎨\n` : '';
-    return `${painting}Difficulté : ${diff} — ${time} — ${errors}\nJoue aussi : https://sudoku-art.vercel.app`;
+    return t('win_share_text', { painting, diff, time, errors });
   };
 
   const handleShare = async () => {
@@ -93,7 +93,7 @@ export default function WinModal({
     const difficultyLabel = LEGACY_DIFFICULTY_LABELS[difficulty] ?? difficulty;
     const message =
       `🎉 J'ai réussi le défi Sudoku Art que tu m'as envoyé !\n` +
-      `Difficulté : ${difficultyLabel} — Erreurs : ${errorCount} — Temps : ${formatTime(elapsedSeconds)}`;
+      t('win_result_msg', { diff: difficultyLabel, errors: errorCount, time: formatTime(elapsedSeconds) });
     await shareText(message, 'Résultat du défi Sudoku Art');
     setResultSent(true);
   };
@@ -106,8 +106,7 @@ export default function WinModal({
       'Égalité parfaite !';
     const message =
       `${name}voici le résultat de notre défi sur la même grille :\n` +
-      `Toi : ${rematchOutcome.challengerErrors} erreur(s), ${formatTime(rematchOutcome.challengerSeconds)}\n` +
-      `Moi : ${rematchOutcome.recipientErrors} erreur(s), ${formatTime(rematchOutcome.recipientSeconds)}\n` +
+      `${t('rrd_me')}: ${rematchOutcome.challengerErrors}e ${formatTime(rematchOutcome.challengerSeconds)}\n${t('rrd_friend')}: ${rematchOutcome.recipientErrors}e ${formatTime(rematchOutcome.recipientSeconds)}\n` +
       verdict;
     await shareText(message, 'Résultat du défi Sudoku Art');
     setRematchResultSent(true);
@@ -117,11 +116,11 @@ export default function WinModal({
     <div className="win-overlay">
       <div className="win-panel">
         <h2>{t('win_title')}</h2>
-        <p className="win-difficulty">Difficulté : {LEGACY_DIFFICULTY_LABELS[difficulty] ?? difficulty}</p>
+        <p className="win-difficulty">{t('win_difficulty_label')}{LEGACY_DIFFICULTY_LABELS[difficulty] ?? difficulty}</p>
 
         {isChallengeGame && (
           <p className="win-challenge-stats">
-            ❌ {errorCount} erreur{errorCount === 1 ? '' : 's'} — ⏱ {formatTime(elapsedSeconds)}
+            {t('win_stats_row', { errors: errorCount, s: errorCount === 1 ? '' : 's', time: formatTime(elapsedSeconds) })}
           </p>
         )}
 
@@ -134,7 +133,7 @@ export default function WinModal({
             </p>
             <table className="rematch-outcome-table">
               <thead>
-                <tr><th></th><th>❌</th><th>💡</th><th>⏱ Brut</th><th>🏁 Score</th></tr>
+                <tr><th></th><th>❌</th><th>💡</th><th>{t('win_table_raw')}</th><th>{t('win_table_score')}</th></tr>
               </thead>
               <tbody>
                 <tr>

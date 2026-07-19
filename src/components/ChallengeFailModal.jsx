@@ -40,7 +40,7 @@ export default function ChallengeFailModal({
       <div className="win-panel">
         <h2>{t('fail_title')}</h2>
         <p className="win-difficulty">
-          Trop d'erreurs ou temps écoulé — la photo ne sera pas dévoilée cette fois.
+          {t('fail_too_many')}
         </p>
 
         {challengeMeta?.id && (
@@ -57,7 +57,7 @@ export default function ChallengeFailModal({
 
         {challengeMeta?.senderEmail && (
           <button className="win-btn-secondary win-send-result-btn" onClick={handleSendResult}>
-            {resultSent ? '✅ Résultat envoyé' : `📤 Envoyer mon résultat à ${challengeMeta.senderEmail}`}
+            {resultSent ? t('fail_result_sent') : t('fail_send_result', { email: challengeMeta.senderEmail })}
           </button>
         )}
 

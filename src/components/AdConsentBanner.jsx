@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/AdConsentBanner.jsx
 import { setAdConsent } from '../lib/adConsent';
 import './AdConsentBanner.css';
@@ -8,10 +9,11 @@ export default function AdConsentBanner({ onChoice, onShowPrivacy }) {
     onChoice(value);
   };
 
+  const { t } = useT();
   return (
     <div className="ad-consent-banner">
       <p>
-        Sudoku Art est gratuite grâce à des publicités. Acceptes-tu qu'elles
+        {t('consent_text')}
         soient personnalisées selon tes centres d'intérêt (via des cookies) ?
         Tu peux changer d'avis à tout moment dans les réglages.{' '}
         <button className="ad-consent-link" onClick={onShowPrivacy}>

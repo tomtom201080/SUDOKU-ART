@@ -73,7 +73,7 @@ export default function IncomingDefiModal({ rematch, onLogin, onPlayFree }) {
           {isGroup && <span>{t('incoming_group')}</span>}
           {hasPhoto && <span>📷 Photo cachée</span>}
           {hintsLimit != null && <span>💡 Max {hintsLimit}</span>}
-          <span>⏱ +2 min/erreur ou indice</span>
+          <span>{t('incoming_rule_short')}</span>
         </div>
 
         {step === 'choice' && (

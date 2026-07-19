@@ -1,3 +1,4 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/HomeProgress.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
@@ -5,6 +6,7 @@ import { getUnlockedIds } from '../utils/storage';
 import './HomeProgress.css';
 
 export default function HomeProgress({ userId }) {
+  const { t } = useT();
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
@@ -49,18 +51,18 @@ export default function HomeProgress({ userId }) {
     <div className="home-progress">
       <div className="home-progress-stat">
         <span className="home-progress-value">{stats.unlocked}</span>
-        <span className="home-progress-label">Tableaux<br/>débloqués</span>
+        <span className="home-progress-label">{t('progress_unlocked')}</span>
       </div>
       {stats.totalCompleted !== null && (
         <div className="home-progress-stat">
           <span className="home-progress-value">{stats.totalCompleted}</span>
-          <span className="home-progress-label">Parties<br/>gagnées</span>
+          <span className="home-progress-label">{t('progress_games_won')}</span>
         </div>
       )}
       {stats.streak !== null && stats.streak > 0 && (
         <div className="home-progress-stat">
           <span className="home-progress-value">🔥{stats.streak}</span>
-          <span className="home-progress-label">Jours<br/>de suite</span>
+          <span className="home-progress-label">{t('progress_days_streak')}</span>
         </div>
       )}
     </div>

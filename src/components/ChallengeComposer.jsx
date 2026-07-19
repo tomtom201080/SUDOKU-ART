@@ -118,7 +118,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
     <div className="challenge-overlay">
       <div className="challenge-panel">
         <div className="challenge-header">
-          <h2>🎯 Envoyer une grille personnalisée</h2>
+          <h2>{t('cc_title')}</h2>
           <button className="challenge-close" onClick={onClose}>✕</button>
         </div>
 
@@ -176,7 +176,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
             </div>
 
             <div className="challenge-step">
-              <p className="challenge-step-title">3. Nombre d'erreurs autorisées</p>
+              <p className="challenge-step-title">{t('cc_step3')}</p>
               <div className="challenge-options">
                 {ERROR_OPTIONS.map(opt => (
                   <button

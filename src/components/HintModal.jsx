@@ -92,7 +92,7 @@ export default function HintModal({
         <span className="hint-step-label">💡 {counterLabel}</span>
         <button className="hint-btn-close" onClick={onClose}>✕</button>
       </div>
-      <p className="hint-pick-question">Quel chiffre veux-tu découvrir ?</p>
+      <p className="hint-pick-question">{t('hint_question')}</p>
       <div className="hint-digit-grid">
         {digits.map(d => (
           <button key={d} className="hint-digit-btn" onClick={() => handlePickDigit(d)}>

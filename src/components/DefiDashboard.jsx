@@ -31,7 +31,7 @@ function GroupLeaderboard({ rematch, onClose }) {
       if (rematch.challenger_result_seconds > 0) {
         rows.unshift({
           id: 'challenger',
-          player_name: rematch.challenger_name || 'Toi (expéditeur)',
+          player_name: rematch.challenger_name || t('dd_sender_label'),
           errors: rematch.challenger_result_errors ?? 0,
           seconds: rematch.challenger_result_seconds ?? 0,
           hints: rematch.challenger_result_hints ?? 0,
@@ -78,7 +78,7 @@ function GroupLeaderboard({ rematch, onClose }) {
           );
         })}
 
-        <p className="rematch-scoring-note">⏱ +2 min par erreur · 💡 +2 min par indice</p>
+        <p className="rematch-scoring-note">{t('dd_scoring')}</p>
       </div>
     </div>
   );
@@ -131,7 +131,7 @@ function RematchRow({ r, isSent, onHide, onExpand }) {
         <button
           className="defi-row-delete"
           onClick={e => { e.stopPropagation(); onHide(r.id); }}
-          title="Supprimer"
+          title={t('dd_delete_title')}
         >🗑</button>
       </div>
     </div>

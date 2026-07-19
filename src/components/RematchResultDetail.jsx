@@ -21,7 +21,7 @@ export default function RematchResultDetail({ rematch, winner, onClose }) {
         <div className="rematch-outcome">
           <p className="rematch-outcome-title">
             {winner === 'challenger' && '🏆 Tu as gagné ce défi !'}
-            {winner === 'recipient' && "😅 Ton ami a fait mieux que toi cette fois."}
+            {winner === 'recipient' && t('rrd_friend_better')}
             {winner === 'tie' && '🤝 Égalité parfaite !'}
           </p>
           <table className="rematch-outcome-table">

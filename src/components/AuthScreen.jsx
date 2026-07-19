@@ -59,7 +59,7 @@ export default function AuthScreen({ onCancel }) {
         if (signInError) throw signInError;
       }
     } catch (err) {
-      setError(err.message || 'Une erreur est survenue.');
+      setError(err.message || t('auth_error'));
     } finally {
       setLoading(false);
     }

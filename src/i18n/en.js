@@ -334,4 +334,102 @@ export default {
   // ── Scoring ───────────────────────────────────────────────────
   scoring_rule: 'Score = real time +2 min per error or hint. Lowest wins.',
   scoring_note: '+2 min per error · +2 min per hint',
+  // ── AdConsentBanner ───────────────────────────────────────────
+  consent_text: 'Sudoku Art is free thanks to ads. Do you accept personalised ads based on your interests?',
+  consent_accept: 'Accept',
+  consent_reject: 'Decline',
+
+  // ── AdSlot ────────────────────────────────────────────────────
+  ad_placeholder: '📢 Ad slot — will be active once your AdSense account is approved',
+
+  // ── AuthScreen ────────────────────────────────────────────────
+  auth_error: 'An error occurred.',
+  auth_switch_signin: 'Already have an account? Sign in',
+  auth_switch_signup: 'Create an account',
+  auth_switch_forgot: 'Forgot password?',
+  auth_switch_back: '← Back to sign in',
+
+  // ── ChallengeComposer ─────────────────────────────────────────
+  cc_title: '🎯 Send a custom grid',
+  cc_step3: '3. Errors allowed',
+  cc_photo_disclaimer: '⚠️ This link gives access to the photo: only send it to the intended person!\n(It will be deleted in {days} days.)',
+
+  // ── ChallengeFailModal ────────────────────────────────────────
+  fail_too_many: 'Too many errors or time\'s up — the photo won\'t be revealed this time.',
+  fail_result_sent: '✅ Result sent',
+  fail_send_result: '📤 Send my result to {email}',
+  fail_stats: '{errors} error{s} — ⏱ {time}',
+
+  // ── DefiComposer ──────────────────────────────────────────────
+  defi_step1_label: '1. Challenge mode',
+  defi_rule_msg: '\n⏱ Rule: +2 min per error or hint used',
+  defi_group_msg: '\nMultiple people can play — share the link!',
+  defi_photo_personal_warning: '⚠️ This link is for one person only — don\'t forward it.',
+
+  // ── DefiDashboard ─────────────────────────────────────────────
+  dd_sender_label: 'You (sender)',
+  dd_scoring: '⏱ +2 min per error · 💡 +2 min per hint',
+  dd_delete_title: 'Delete',
+
+  // ── HelpModal ─────────────────────────────────────────────────
+  help_rules_title: '❓ Rules & how to play',
+  help_center_cell: 'The centre cell is revealed from the start',
+  help_correct_cell: 'A cell you fill in correctly is revealed immediately',
+  help_given_cell: 'A pre-filled cell is only revealed when a row, column or square is completed',
+  help_undo: '↩️ Undo: go back one move',
+  help_hint_desc: '💡 Hint: reveals a digit in the grid',
+  help_diff_title: '🎯 Difficulty & rarity',
+  help_diff_desc: 'Higher difficulty means fewer starting digits. Each level unlocks artwork of different rarity.',
+  help_challenge_desc: 'You can set a maximum number of errors and a time limit.',
+
+  // ── HintModal ─────────────────────────────────────────────────
+  hint_question: 'Which digit do you want to reveal?',
+
+  // ── HomeProgress ──────────────────────────────────────────────
+  progress_games_won: 'Games\nwon',
+  progress_days_streak: 'Day\nstreak',
+  progress_unlocked: 'Artworks\nunlocked',
+
+  // ── IncomingDefiModal ─────────────────────────────────────────
+  incoming_rule_short: '⏱ +2 min/error or hint',
+
+  // ── KpiDashboard ──────────────────────────────────────────────
+  kpi_loading: 'Loading…',
+  kpi_started_today: 'Games started today',
+  kpi_finished_today: 'Games finished today',
+  kpi_total_started: 'Total started',
+  kpi_total_finished: 'Total finished',
+  kpi_completion: 'Completion rate',
+  kpi_failed: 'Failed challenges',
+  kpi_with_photo: 'Games with custom photo',
+  kpi_challenges: 'Challenges played',
+  kpi_by_diff: 'By difficulty',
+  kpi_diff_col: 'Difficulty',
+  kpi_started_col: 'Started',
+  kpi_finished_col: 'Finished',
+  kpi_rate_col: 'Rate',
+  kpi_day_col: 'Day',
+
+  // ── MaxErrorsModal ────────────────────────────────────────────
+  maxerr_watch_ad_full: '📺 Watch an ad for +1 chance',
+  maxerr_quit_full: 'End the game',
+
+  // ── RematchComposer ───────────────────────────────────────────
+  rc_result_msg: 'My result: {errors} error{s}, {min}m {sec}s. Can you do better?\n{link}',
+  rc_photo_warning: '⚠️ This link gives access to a photo: only send it to the right person (deleted in {days} days).',
+  rc_close_btn: 'Close',
+  rc_desc: 'Your friend will play the exact same grid, and we\'ll compare your results once they finish.',
+
+  // ── RematchResultDetail ───────────────────────────────────────
+  rrd_friend_better: '😅 Your friend did better this time.',
+
+  // ── WinModal ─────────────────────────────────────────────────
+  win_difficulty_label: 'Difficulty: ',
+  win_no_error: 'no errors 🏆',
+  win_share_text: '{painting}Difficulty: {diff} — {time} — {errors}\nPlay too: https://sudoku-art.vercel.app',
+  win_result_msg: 'Difficulty: {diff} — Errors: {errors} — Time: {time}',
+  win_stats_row: '❌ {errors} error{s} — ⏱ {time}',
+  win_table_raw: '⏱ Raw',
+  win_table_score: '🏁 Score',
+
 };
