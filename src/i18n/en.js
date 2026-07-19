@@ -430,7 +430,7 @@ export default {
   win_result_msg: 'Difficulty: {diff} — Errors: {errors} — Time: {time}',
   win_stats_row: '❌ {errors} error{s} — ⏱ {time}',
   win_table_raw: '⏱ Raw',
-  win_table_score: '🏁 Score',,
-kpi_avg_errors: 'Avg. errors (won games)',
+  win_table_score: '🏁 Score',
+  kpi_avg_errors: 'Avg. errors (won games)',
   kpi_avg_time: 'Avg. time (won games)',
 };

@@ -1,11 +1,10 @@
 // src/i18n/index.jsx
-// Export direct de t() pour eviter tout probleme de scope dans Safari
-import { useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
+import LangContext from './context.js';
 
 const LANG_KEY = 'sudoku-devoile:lang';
 
-const TRANSLATIONS = {
-  fr: {
+const FR = {
   // ── Difficultés ──────────────────────────────────────────────
   diff_facile: 'Facile',
   diff_moyen: 'Moyen',
@@ -438,9 +437,11 @@ const TRANSLATIONS = {
   win_stats_row: '❌ {errors} erreur{s} — ⏱ {time}',
   win_table_raw: '⏱ Brut',
   win_table_score: '🏁 Score',
+  kpi_avg_errors: 'Erreurs moy. (parties gagnées)',
+  kpi_avg_time: 'Temps moyen (parties gagnées)',
+};
 
-},
-  en: {
+const EN = {
   // ── Difficulties ─────────────────────────────────────────────
   diff_facile: 'Easy',
   diff_moyen: 'Medium',
@@ -873,58 +874,61 @@ const TRANSLATIONS = {
   win_stats_row: '❌ {errors} error{s} — ⏱ {time}',
   win_table_raw: '⏱ Raw',
   win_table_score: '🏁 Score',
-
-}
+  kpi_avg_errors: 'Avg. errors (won games)',
+  kpi_avg_time: 'Avg. time (won games)',
 };
 
-var currentLang = (function detectL() {
+const TRANSLATIONS = { fr: FR, en: EN };
+
+function detectLang() {
   try {
     var s = localStorage.getItem(LANG_KEY);
     if (s === 'fr' || s === 'en') return s;
   } catch(e) {}
   var nav = (navigator.language || 'fr').toLowerCase();
   return nav.startsWith('fr') ? 'fr' : 'en';
-})();
+}
 
-var langListeners = [];
+var _currentLang = detectLang();
+export function getLang() { return _currentLang; }
 
-// Fonction de traduction exportée directement — importée par les composants
-// Pas de destructuring, pas de closure locale = pas de problème Safari
+export function LangProvider({ children }) {
+  const [lang, setLangState] = useState(detectLang);
+
+  const setLang = (l) => {
+    setLangState(l);
+    _currentLang = l;
+    try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
+  };
+
+  const t = (key, vars) => {
+    vars = vars || {};
+    var dict = TRANSLATIONS[lang] || TRANSLATIONS.fr;
+    var str = dict[key] || TRANSLATIONS.fr[key] || key;
+    return str.replace(/\{(\w+)\}/g, function(_, k) {
+      return vars[k] != null ? String(vars[k]) : '';
+    });
+  };
+
+  return (
+    <LangContext.Provider value={{ lang, setLang, t, getLang }}>
+      {children}
+    </LangContext.Provider>
+  );
+}
+
+export function useT() {
+  return useContext(LangContext);
+}
+
+// translate() — alias direct sans hook pour les composants
 export function translate(key, vars) {
-  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.fr;
+  vars = vars || {};
+  var dict = TRANSLATIONS[_currentLang] || TRANSLATIONS.fr;
   var str = dict[key] || TRANSLATIONS.fr[key] || key;
-  if (!vars) return str;
   return str.replace(/\{(\w+)\}/g, function(_, k) {
     return vars[k] != null ? String(vars[k]) : '';
   });
 }
 
-export function setLang(l) {
-  currentLang = l;
-  try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
-  langListeners.forEach(function(fn) { fn(); });
-}
-
-export function getLang() { return currentLang; }
-
-// Hook React pour forcer le re-render quand la langue change
-export function useTranslation() {
-  var pair = useState(0);
-  var forceUpdate = pair[1];
-  useEffect(function() {
-    var fn = function() { forceUpdate(function(n) { return n + 1; }); };
-    langListeners.push(fn);
-    return function() {
-      langListeners = langListeners.filter(function(x) { return x !== fn; });
-    };
-  }, []);
-  return { lang: currentLang, setLang: setLang, t: translate };
-}
-
-// Alias pour la rétrocompatibilité
-export var useT = useTranslation;
-
-// LangProvider : wrapper no-op (rétrocompatibilité)
-export function LangProvider(props) {
-  return props.children;
-}
+export { LangContext };
