@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/InstallAppModal.jsx
 import './InstallAppModal.css';
 
@@ -10,7 +10,6 @@ function detectPlatform() {
 }
 
 export default function InstallAppModal({ onClose }) {
-  const { t } = useT();
 
   const { isIOS, isAndroid } = detectPlatform();
   return (

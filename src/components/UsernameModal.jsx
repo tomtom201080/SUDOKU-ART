@@ -1,11 +1,10 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/UsernameModal.jsx
 import { useState } from 'react';
 import { validateUsername, checkUsernameAvailable, saveUsername } from '../lib/profiles';
 import './UsernameModal.css';
 
 export default function UsernameModal({ userId, onDone }) {
-  const { t } = useT();
   const [value, setValue] = useState('');
   const [error, setError] = useState(null);
   const [checking, setChecking] = useState(false);

@@ -33,7 +33,7 @@ import DeleteAccountModal from './components/DeleteAccountModal';
 import OnboardingModal from './components/OnboardingModal';
 import HomeProgress from './components/HomeProgress';
 import { getAdConsent } from './lib/adConsent';
-import { useT } from './i18n/index.jsx';
+import { translate as t, useT } from './i18n/index.jsx';
 import { useGame } from './hooks/useGame';
 import { useNetworkStatus } from './hooks/useNetworkStatus';
 import './components/LegalModal.css';
@@ -77,7 +77,7 @@ function formatTime(totalSeconds) {
 }
 
 export default function App() {
-  const { lang, setLang, t } = useT();
+  const { lang, setLang } = useT();
 
   const DIFFICULTY_LABELS = {
     facile: t('diff_facile'),

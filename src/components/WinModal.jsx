@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 import { calcAdjustedScore, formatAdjustedScore } from '../lib/rematches';
 // src/components/WinModal.jsx
 import { useState } from 'react';
@@ -30,7 +30,6 @@ export default function WinModal({
   onClose,
   onRequestRematch,
 }) {
-  const { t } = useT();
   const diffLabel = (d) => ({ facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') })[d] ?? d;
   const [showSaveNotice, setShowSaveNotice] = useState(false);
   const [resultSent, setResultSent] = useState(false);

@@ -1,11 +1,10 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/DeleteAccountModal.jsx
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import './LegalModal.css';
 
 export default function DeleteAccountModal({ onClose, onDeleted }) {
-  const { t } = useT();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

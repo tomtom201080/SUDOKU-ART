@@ -1,10 +1,9 @@
 // src/components/DifficultySelector.jsx
 import { useRef, useState } from 'react';
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 import './DifficultySelector.css';
 
 function useDiffOptions() {
-  const { t } = useT();
   return [
     { id: 'facile',    label: t('diff_facile'), icon: '😌' },
     { id: 'moyen',     label: t('diff_moyen'),  icon: '🙂' },
@@ -14,7 +13,6 @@ function useDiffOptions() {
 }
 
 function DifficultyScreen({ title, customImage, onSelectDifficulty, onBack }) {
-  const { t } = useT();
   const opts = useDiffOptions();
   return (
     <div className="ds-sub">
@@ -34,7 +32,6 @@ function DifficultyScreen({ title, customImage, onSelectDifficulty, onBack }) {
 }
 
 function PhotoScreen({ onSelectDifficulty, onSendChallenge, onBack }) {
-  const { t } = useT();
   const [customImage, setCustomImage] = useState(null);
   const [mode, setMode] = useState(null);
   const fileInputRef = useRef(null);
@@ -88,7 +85,6 @@ function PhotoScreen({ onSelectDifficulty, onSendChallenge, onBack }) {
 }
 
 function HomeScreen({ onPick, onOpenDefi }) {
-  const { t } = useT();
   return (
     <div className="ds-home">
       <div className="ds-logo-block">
@@ -122,7 +118,6 @@ function HomeScreen({ onPick, onOpenDefi }) {
 }
 
 export default function DifficultySelector({ onSelect, onRequestSendChallenge, onOpenDefi }) {
-  const { t } = useT();
   const [screen, setScreen] = useState('home');
 
   if (screen === 'paintings') return (

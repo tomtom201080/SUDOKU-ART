@@ -1,9 +1,8 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/HelpModal.jsx
 import './HelpModal.css';
 
 export default function HelpModal({ onClose }) {
-  const { t } = useT();
   return (
     <div className="help-overlay" onClick={onClose}>
       <div className="help-panel" onClick={(e) => e.stopPropagation()}>

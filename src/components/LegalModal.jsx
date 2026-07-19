@@ -1,9 +1,9 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/LegalModal.jsx
 import './LegalModal.css';
 
 export function TermsModal({ onClose }) {
-  const { lang, t } = useT();
+  const { lang } = useT();
   return (
     <div className="legal-overlay" onClick={onClose}>
       <div className="legal-panel" onClick={e => e.stopPropagation()}>
@@ -61,7 +61,7 @@ export function TermsModal({ onClose }) {
 }
 
 export function PrivacyModal({ onClose, onConsentChange }) {
-  const { lang, t } = useT();
+  const { lang } = useT();
   return (
     <div className="legal-overlay" onClick={onClose}>
       <div className="legal-panel" onClick={e => e.stopPropagation()}>

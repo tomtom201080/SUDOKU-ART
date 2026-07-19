@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/RematchResultDetail.jsx
 import '../components/WinModal.css';
 import './PaintingDetailModal.css';
@@ -12,7 +12,6 @@ function formatTime(totalSeconds) {
 export default function RematchResultDetail({ rematch, winner, onClose }) {
   if (!rematch) return null;
 
-  const { t } = useT();
   return (
     <div className="painting-detail-overlay" onClick={onClose}>
       <div className="painting-detail-panel" onClick={(e) => e.stopPropagation()}>

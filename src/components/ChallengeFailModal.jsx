@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/ChallengeFailModal.jsx
 import { useState } from 'react';
 import { shareText } from '../utils/device';

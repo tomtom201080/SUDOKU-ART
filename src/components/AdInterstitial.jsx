@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/AdInterstitial.jsx
 // S'affiche avant une action "premium" (envoi de défi, grille avec photo).
 // Respecte le consentement : si l'utilisateur a refusé les pubs, on passe.
@@ -10,7 +10,6 @@ import './AdInterstitial.css';
 const WAIT_SECONDS = 5;
 
 export default function AdInterstitial({ onContinue, onClose }) {
-  const { t } = useT();
 
   const [countdown, setCountdown] = useState(WAIT_SECONDS);
   const intervalRef = useRef(null);  const consent = getAdConsent();

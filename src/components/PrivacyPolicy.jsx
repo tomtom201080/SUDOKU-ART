@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/PrivacyPolicy.jsx
 import { setAdConsent } from '../lib/adConsent';
 import './PrivacyPolicy.css';
@@ -10,7 +10,6 @@ export default function PrivacyPolicy({ onClose, onConsentChange }) {
     onClose();
   };
 
-  const { t } = useT();
   return (
     <div className="privacy-overlay" onClick={onClose}>
       <div className="privacy-panel" onClick={(e) => e.stopPropagation()}>

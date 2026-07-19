@@ -1,6 +1,6 @@
 // src/components/DefiComposer.jsx
 import { useRef, useState } from 'react';
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 import { generateSudoku } from '../sudoku/generator';
 import { uploadSharedPhoto } from '../lib/sharedPhoto';
 import { createRematch, buildRematchLink } from '../lib/rematches';
@@ -11,7 +11,6 @@ import './DefiComposer.css';
 
 
 export default function DefiComposer({ onClose, onStartGame, userId, userEmail }) {
-  const { t } = useT();
   const DIFFICULTY_OPTIONS = [
     { id: 'facile',    label: t('diff_facile'), icon: '😌' },
     { id: 'moyen',     label: t('diff_moyen'),  icon: '🙂' },

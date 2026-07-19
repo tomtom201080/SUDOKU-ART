@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/NumberPad.jsx
 import { forwardRef } from 'react';
 import './NumberPad.css';
@@ -14,7 +14,6 @@ const NumberPad = forwardRef(function NumberPad({
   hintsDisabled,
   completedDigits
 }, ref) {
-  const { t } = useT();
   return (
     <div className="number-pad" ref={ref}>
       <div className="number-pad-digits">

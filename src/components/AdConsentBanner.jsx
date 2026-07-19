@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/AdConsentBanner.jsx
 import { setAdConsent } from '../lib/adConsent';
 import './AdConsentBanner.css';
@@ -9,7 +9,6 @@ export default function AdConsentBanner({ onChoice, onShowPrivacy }) {
     onChoice(value);
   };
 
-  const { t } = useT();
   return (
     <div className="ad-consent-banner">
       <p>

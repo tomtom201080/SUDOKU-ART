@@ -1,5 +1,5 @@
 // src/components/DefiDashboard.jsx
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 import { useEffect, useState } from 'react';
 import {
   fetchSentRematches, fetchReceivedRematches,
@@ -20,7 +20,6 @@ function fmtDate(iso) {
 
 // ─── Classement mode groupe ───────────────────────────────────────
 function GroupLeaderboard({ rematch, onClose }) {
-  const { t } = useT();
   const [results, setResults] = useState(null);
   const diffLabel = (d) => ({ facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') })[d] ?? d;
 
@@ -140,7 +139,6 @@ function RematchRow({ r, isSent, onHide, onExpand }) {
 
 // ─── Dashboard principal ─────────────────────────────────────────
 export default function DefiDashboard({ userId, onClose, onCreateDefi }) {
-  const { t } = useT();
   const [tab, setTab]         = useState('sent');
   const [sent, setSent]       = useState(null);
   const [received, setReceived] = useState(null);

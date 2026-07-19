@@ -1,11 +1,10 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/UpdatePasswordScreen.jsx
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import './AuthScreen.css';
 
 export default function UpdatePasswordScreen({ onDone }) {
-  const { t } = useT();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);

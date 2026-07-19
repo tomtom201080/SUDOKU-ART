@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/Gallery.jsx
 import { useMemo, useState } from 'react';
 import { TIER_LABELS } from '../data/imageLibrary';
@@ -6,7 +6,6 @@ import PaintingDetailModal from './PaintingDetailModal';
 import './Gallery.css';
 
 export default function Gallery({ gallery, onClose }) {
-  const { t } = useT();
   const [activeTier, setActiveTier] = useState('all');
   const [selectedImage, setSelectedImage] = useState(null);
 

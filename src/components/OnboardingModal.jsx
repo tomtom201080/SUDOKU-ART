@@ -1,10 +1,9 @@
 // src/components/OnboardingModal.jsx
 import { useState } from 'react';
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 import './OnboardingModal.css';
 
 export default function OnboardingModal({ onClose }) {
-  const { t } = useT();
   const SLIDES = [
     { icon: '🧩', title: t('onboarding_s1_title'), text: t('onboarding_s1_text') },
     { icon: '🖼️', title: t('onboarding_s2_title'), text: t('onboarding_s2_text') },

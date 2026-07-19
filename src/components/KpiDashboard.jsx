@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/KpiDashboard.jsx
 import { useEffect, useState } from 'react';
 import { fetchAllGameEvents } from '../lib/analytics';
@@ -13,7 +13,6 @@ const DIFFICULTY_LABELS = {
 };
 
 export default function KpiDashboard({ onClose }) {
-  const { t } = useT();
   const [kpis, setKpis] = useState(null);
   const [error, setError] = useState(null);
 

@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/ChallengeComposer.jsx
 import { useRef, useState, useEffect } from 'react';
 import { uploadSharedPhoto, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
@@ -29,7 +29,6 @@ const TIME_OPTIONS = [
 ];
 
 export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null }) {
-  const { t } = useT();
 
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(preloadedPhotoUrl);

@@ -1,9 +1,8 @@
 // src/components/QuitConfirmModal.jsx
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 import './QuitConfirmModal.css';
 
 export default function QuitConfirmModal({ onContinue, onLogin, onQuit }) {
-  const { t } = useT();
   return (
     <div className="quit-overlay">
       <div className="quit-panel">

@@ -1,10 +1,11 @@
 // src/i18n/index.jsx
-// Global store pattern : pas de Context React, pas de TDZ, pas de circular dep
+// Export direct de t() pour eviter tout probleme de scope dans Safari
 import { useState, useEffect } from 'react';
 
 const LANG_KEY = 'sudoku-devoile:lang';
 
-const FR = {
+const TRANSLATIONS = {
+  fr: {
   // ── Difficultés ──────────────────────────────────────────────
   diff_facile: 'Facile',
   diff_moyen: 'Moyen',
@@ -438,8 +439,8 @@ const FR = {
   win_table_raw: '⏱ Brut',
   win_table_score: '🏁 Score',
 
-};
-const EN = {
+},
+  en: {
   // ── Difficulties ─────────────────────────────────────────────
   diff_facile: 'Easy',
   diff_moyen: 'Medium',
@@ -873,53 +874,57 @@ const EN = {
   win_table_raw: '⏱ Raw',
   win_table_score: '🏁 Score',
 
+}
 };
 
-// État global — initialisé immédiatement, jamais en TDZ
-var _lang = (function() {
+var currentLang = (function detectL() {
   try {
     var s = localStorage.getItem(LANG_KEY);
     if (s === 'fr' || s === 'en') return s;
   } catch(e) {}
-  var n = (navigator.language || 'fr').toLowerCase();
-  return n.startsWith('fr') ? 'fr' : 'en';
+  var nav = (navigator.language || 'fr').toLowerCase();
+  return nav.startsWith('fr') ? 'fr' : 'en';
 })();
 
-var _listeners = new Set();
+var langListeners = [];
 
-function _t(key, vars) {
-  vars = vars || {};
-  var dict = _lang === 'en' ? EN : FR;
-  var str = dict[key] || FR[key] || key;
+// Fonction de traduction exportée directement — importée par les composants
+// Pas de destructuring, pas de closure locale = pas de problème Safari
+export function translate(key, vars) {
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.fr;
+  var str = dict[key] || TRANSLATIONS.fr[key] || key;
+  if (!vars) return str;
   return str.replace(/\{(\w+)\}/g, function(_, k) {
-    return vars[k] != null ? vars[k] : '';
+    return vars[k] != null ? String(vars[k]) : '';
   });
 }
 
-export function setGlobalLang(l) {
-  _lang = l;
+export function setLang(l) {
+  currentLang = l;
   try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
-  _listeners.forEach(function(fn) { fn(); });
+  langListeners.forEach(function(fn) { fn(); });
 }
 
-export function getGlobalLang() { return _lang; }
+export function getLang() { return currentLang; }
 
-// Hook React — s'abonne aux changements de langue
-export function useT() {
-  var update = useState(0)[1];
+// Hook React pour forcer le re-render quand la langue change
+export function useTranslation() {
+  var pair = useState(0);
+  var forceUpdate = pair[1];
   useEffect(function() {
-    var fn = function() { update(function(n) { return n + 1; }); };
-    _listeners.add(fn);
-    return function() { _listeners.delete(fn); };
+    var fn = function() { forceUpdate(function(n) { return n + 1; }); };
+    langListeners.push(fn);
+    return function() {
+      langListeners = langListeners.filter(function(x) { return x !== fn; });
+    };
   }, []);
-  return {
-    lang: _lang,
-    setLang: setGlobalLang,
-    t: _t,
-  };
+  return { lang: currentLang, setLang: setLang, t: translate };
 }
 
-// Composant Provider (rétrocompatibilité — maintenant un simple wrapper)
-export function LangProvider({ children }) {
-  return children;
+// Alias pour la rétrocompatibilité
+export var useT = useTranslation;
+
+// LangProvider : wrapper no-op (rétrocompatibilité)
+export function LangProvider(props) {
+  return props.children;
 }

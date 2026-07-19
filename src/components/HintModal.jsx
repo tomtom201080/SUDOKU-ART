@@ -1,7 +1,7 @@
 // src/components/HintModal.jsx
 // Nouveau flux : pub → choix du chiffre → révélation animée dans la grille
 import { useState, useEffect, useCallback } from 'react';
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 import { getAdConsent } from '../lib/adConsent';
 import { loadAdsenseScript, getAdsenseClientId } from '../lib/adsense';
 import './HintModal.css';
@@ -16,7 +16,6 @@ export default function HintModal({
   hintsUsed = 0,
   maxHints = null
 }) {
-  const { t } = useT();
   const [phase, setPhase] = useState('ad'); // 'ad' | 'pick'
   const [countdown, setCountdown] = useState(AD_WAIT);
   const consent = getAdConsent();

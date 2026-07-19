@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/RematchComposer.jsx
 import { useRef, useState } from 'react';
 import { uploadSharedPhoto, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
@@ -7,7 +7,6 @@ import { isMobileDevice } from '../utils/device';
 import './ChallengeComposer.css';
 
 export default function RematchComposer({ puzzleData, difficulty, errorCount, elapsedSeconds, userId, userEmail, onClose }) {
-  const { t } = useT();
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [challengerName, setChallengerName] = useState('');

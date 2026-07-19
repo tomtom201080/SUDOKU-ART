@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/IncomingDefiModal.jsx
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
@@ -9,7 +9,6 @@ import './IncomingDefiModal.css';
 
 // Vérifie que le pseudo n'est pas déjà pris dans CE défi
 async function checkPseudoAvailableForDefi(rematchId, pseudo) {
-  const { t } = useT();
 
   const { data } = await supabase
     .from('rematch_results')
