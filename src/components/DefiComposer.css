@@ -61,3 +61,38 @@
   color: var(--text-color);
   line-height: 1.45;
 }
+
+.defi-hints-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.defi-hint-limit-btn {
+  flex: 1;
+  padding: 9px 4px;
+  border-radius: 10px;
+  border: 1.5px solid var(--card-border);
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.defi-hint-limit-btn.is-selected {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--card-bg));
+}
+
+.defi-scoring-rule {
+  background: var(--bg-color);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}

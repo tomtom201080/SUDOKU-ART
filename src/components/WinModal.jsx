@@ -1,4 +1,5 @@
 import { useT } from '../i18n/index.jsx';
+import { calcAdjustedScore, formatAdjustedScore } from '../lib/rematches';
 // src/components/WinModal.jsx
 import { useState } from 'react';
 import { isMobileDevice, shareText } from '../utils/device';
@@ -131,21 +132,26 @@ export default function WinModal({
             </p>
             <table className="rematch-outcome-table">
               <thead>
-                <tr><th></th><th>{t('win_errors')}</th><th>{t('win_time')}</th></tr>
+                <tr><th></th><th>❌</th><th>💡</th><th>⏱ Brut</th><th>🏁 Score</th></tr>
               </thead>
               <tbody>
                 <tr>
                   <td>{rematchOutcome.challengerName || 'Ton ami'}</td>
                   <td>{rematchOutcome.challengerErrors}</td>
+                  <td>{rematchOutcome.challengerHints ?? 0}</td>
                   <td>{formatTime(rematchOutcome.challengerSeconds)}</td>
+                  <td><strong>{formatAdjustedScore(calcAdjustedScore({ seconds: rematchOutcome.challengerSeconds, errors: rematchOutcome.challengerErrors, hints: rematchOutcome.challengerHints ?? 0 }))}</strong></td>
                 </tr>
                 <tr>
                   <td>{t('win_me')}</td>
                   <td>{rematchOutcome.recipientErrors}</td>
+                  <td>{rematchOutcome.recipientHints ?? 0}</td>
                   <td>{formatTime(rematchOutcome.recipientSeconds)}</td>
+                  <td><strong>{formatAdjustedScore(calcAdjustedScore({ seconds: rematchOutcome.recipientSeconds, errors: rematchOutcome.recipientErrors, hints: rematchOutcome.recipientHints ?? 0 }))}</strong></td>
                 </tr>
               </tbody>
             </table>
+            <p className="rematch-scoring-note">⏱ +2 min par erreur · 💡 +2 min par indice</p>
             {!rematchOutcome.challengerHasAccount && (
               <button className="win-btn-secondary win-send-result-btn" onClick={handleSendRematchResult}>
                 {rematchResultSent ? t('win_rematch_sent') : t('win_rematch_send')}

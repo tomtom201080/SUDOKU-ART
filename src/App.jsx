@@ -441,11 +441,14 @@ export default function App() {
   const [hintRevealCell, setHintRevealCell] = useState(null); // { row, col, value }
 
   const handleRevealHint = (row, col, value) => {
-    // 1. Place le chiffre dans la grille
+    // Forcer le mode normal (pas notes) avant de poser le chiffre
+    if (game.notesMode) game.toggleNotesMode();
+    // Placer le chiffre — setCellValue nettoie déjà les notes de la case
+    // et des cases voisines (ligne/colonne/carré) si la valeur est correcte
     game.setCellValue(row, col, value);
     game.setHintsUsed(h => h + 1);
     setShowHint(false);
-    // 2. Déclenche l'animation étoiles sur cette case
+    // Déclencher l'animation étoiles sur cette case
     setHintRevealCell({ row, col, value });
     setTimeout(() => setHintRevealCell(null), 2200);
   };
@@ -739,6 +742,10 @@ export default function App() {
           onUndo={game.undo}
           canUndo={game.canUndo}
           onHint={handleOpenHint}
+          hintsDisabled={
+            game.challengeMeta?.hints_limit != null &&
+            game.hintsUsed >= game.challengeMeta.hints_limit
+          }
           completedDigits={game.completedDigits}
         />
       </div>

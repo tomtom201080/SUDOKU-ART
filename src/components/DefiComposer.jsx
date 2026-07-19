@@ -18,8 +18,9 @@ const DIFFICULTY_OPTIONS = [
 
 export default function DefiComposer({ onClose, onStartGame, userId, userEmail }) {
   const { t } = useT();
-  const [step, setStep]               = useState('config'); // 'config' | 'sending' | 'done'
+  const [step, setStep]               = useState('config');
   const [difficulty, setDifficulty]   = useState(null);
+  const [hintsLimit, setHintsLimit]   = useState(null); // null = illimité
   const [photoFile, setPhotoFile]     = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [challengerName, setChallengerName] = useState('');
@@ -55,18 +56,22 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
         photoPath,
         challengerName:    userEmail ?? (challengerName.trim() || 'Un ami'),
         challengerUserId:  userId ?? null,
-        challengerErrors:  0,   // sera mis à jour à la fin de la partie de l'expéditeur
+        challengerErrors:  0,
         challengerSeconds: 0,
+        challengerHints:   0,
+        hintsLimit:        hintsLimit,
       });
 
       const link = buildRematchLink(rematch.id);
+      const limiteTxt = hintsLimit != null ? `\n💡 Max ${hintsLimit} indice${hintsLimit > 1 ? 's' : ''}` : '';
+      const regleTxt = `\n⏱ Règle : +2 min par erreur ou indice utilisé${limiteTxt}`;
       const photoDisclaimer = photoPath
         ? `\n⚠️ Ce lien donne accès à ta photo, envoie-le uniquement à la bonne personne.`
         : '';
       const message =
         `🎯 Je te défie sur Sudoku Art !\n` +
-        `Résous cette grille${photoPath ? ' et découvre ma photo cachée' : ''} — qui finira le plus vite ?\n` +
-        `${link}${photoDisclaimer}`;
+        `Résous cette grille${photoPath ? ' et découvre ma photo cachée' : ''} — qui finira avec le meilleur score ?\n` +
+        `${link}${regleTxt}${photoDisclaimer}`;
 
       // 4. Envoyer le lien
       if (isMobileDevice() && navigator.share) {
@@ -121,8 +126,27 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
               ))}
             </div>
 
+            {/* Limite d'indices */}
+            <p className="challenge-step-title">3. Limite d'indices</p>
+            <div className="defi-hints-row">
+              {[null, 1, 2, 3].map(v => (
+                <button
+                  key={String(v)}
+                  className={`defi-hint-limit-btn ${hintsLimit === v ? 'is-selected' : ''}`}
+                  onClick={() => setHintsLimit(v)}
+                >
+                  {v == null ? '∞ Libre' : `${v} indice${v > 1 ? 's' : ''}`}
+                </button>
+              ))}
+            </div>
+
+            {/* Règle de scoring */}
+            <div className="defi-scoring-rule">
+              ⏱ Règle : le score = temps réel <strong>+2 min</strong> par erreur <strong>+2 min</strong> par indice utilisé. Le plus bas gagne.
+            </div>
+
             {/* Photo optionnelle */}
-            <p className="challenge-step-title">2. Ajouter une photo (optionnel)</p>
+            <p className="challenge-step-title">4. Ajouter une photo (optionnel)</p>
             {photoPreview ? (
               <div className="defi-photo-row">
                 <img className="defi-photo-thumb" src={photoPreview} alt="Photo choisie" />
@@ -139,7 +163,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
             {/* Prénom si pas connecté */}
             {!userEmail && (
               <>
-                <p className="challenge-step-title">3. Ton prénom (pour le résultat)</p>
+                <p className="challenge-step-title">5. Ton prénom (pour le résultat)</p>
                 <input
                   className="challenge-name-input"
                   type="text"

@@ -545,12 +545,12 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached } = {}) {
 
     const isCorrect = value !== 0 && value === puzzleData.solution[row][col];
 
-    // On efface les notes de la case qu'on vient de remplir, et si la valeur
+    // On efface TOUJOURS les notes de la case qu'on vient de remplir, et si la valeur
     // posée est correcte, on retire ce chiffre des notes de toutes les cases
     // de la même ligne, colonne et carré (il n'est plus une supposition valide).
     setNotesGrid(prev => {
       const cloned = cloneNotes(prev);
-      cloned[row][col] = Array(9).fill(false);
+      cloned[row][col] = Array(9).fill(false); // toujours vider la case cible
       if (isCorrect) {
         for (let r = 0; r < 9; r++) {
           for (let c = 0; c < 9; c++) {

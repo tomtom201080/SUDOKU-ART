@@ -46,14 +46,10 @@ export function markRematchAsStarted(id) {
 // challenger, on enregistre son résultat et la grille elle-même pour que le
 // destinataire joue exactement la même.
 export async function createRematch({
-  puzzle,
-  solution,
-  difficulty,
-  photoPath,
-  challengerName,
-  challengerUserId,
-  challengerErrors,
-  challengerSeconds
+  puzzle, solution, difficulty, photoPath,
+  challengerName, challengerUserId,
+  challengerErrors, challengerSeconds, challengerHints = 0,
+  hintsLimit = null
 }) {
   const { data, error } = await supabase
     .from('rematches')
@@ -65,7 +61,9 @@ export async function createRematch({
       challenger_name: challengerName ?? null,
       challenger_user_id: challengerUserId ?? null,
       challenger_result_errors: challengerErrors,
-      challenger_result_seconds: challengerSeconds
+      challenger_result_seconds: challengerSeconds,
+      challenger_result_hints: challengerHints,
+      hints_limit: hintsLimit ?? null
     })
     .select()
     .single();
@@ -123,12 +121,13 @@ export async function claimRematchToken(id) {
 }
 
 // Enregistre le résultat du destinataire une fois sa partie terminée.
-export async function submitRematchResult(id, { errors, seconds, userId }) {
+export async function submitRematchResult(id, { errors, seconds, hints = 0, userId }) {
   await supabase
     .from('rematches')
     .update({
       recipient_result_errors: errors,
       recipient_result_seconds: seconds,
+      recipient_result_hints: hints,
       recipient_user_id: userId ?? null,
       completed: true
     })
@@ -158,11 +157,30 @@ export async function markRematchNotified(id) {
 // Règle du gagnant : celui qui a fait le moins d'erreurs gagne. À erreurs
 // égales, celui qui a été le plus rapide gagne. Si tout est identique,
 // égalité.
-export function determineRematchWinner({ challengerErrors, challengerSeconds, recipientErrors, recipientSeconds }) {
-  if (recipientErrors < challengerErrors) return 'recipient';
-  if (recipientErrors > challengerErrors) return 'challenger';
-  if (recipientSeconds < challengerSeconds) return 'recipient';
-  if (recipientSeconds > challengerSeconds) return 'challenger';
+const PENALTY_SECONDS = 120; // +2 minutes par erreur ou par indice utilisé
+
+// Calcule le score ajusté (temps réel + pénalités).
+// Plus petit = meilleur.
+export function calcAdjustedScore({ seconds, errors, hints = 0 }) {
+  if (seconds == null) return Infinity;
+  return seconds + (errors ?? 0) * PENALTY_SECONDS + (hints ?? 0) * PENALTY_SECONDS;
+}
+
+// Formate un score ajusté en mm:ss pour affichage.
+export function formatAdjustedScore(score) {
+  if (!isFinite(score)) return '—';
+  const s = Math.round(score);
+  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+}
+
+export function determineRematchWinner({
+  challengerErrors, challengerSeconds, challengerHints = 0,
+  recipientErrors,  recipientSeconds,  recipientHints  = 0
+}) {
+  const cs = calcAdjustedScore({ seconds: challengerSeconds, errors: challengerErrors, hints: challengerHints });
+  const rs = calcAdjustedScore({ seconds: recipientSeconds,  errors: recipientErrors,  hints: recipientHints  });
+  if (rs < cs) return 'recipient';
+  if (cs < rs) return 'challenger';
   return 'tie';
 }
 
