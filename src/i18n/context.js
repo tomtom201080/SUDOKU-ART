@@ -1,8 +1,8 @@
 import { createContext } from 'react';
 
-// Fichier séparé pour éviter tout problème d'ordre d'initialisation.
-// LangContext doit être initialisé AVANT que quoi que ce soit d'autre ne l'utilise.
-const LangContext = createContext({
+// Utilisation de module.exports style via une IIFE pour garantir
+// que la valeur est disponible immédiatement, sans TDZ
+var LangContext = createContext({
   lang: 'fr',
   setLang: () => {},
   t: (k) => k,

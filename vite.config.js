@@ -39,5 +39,15 @@ export default defineConfig({
         ]
       }
     })
-  ]
+  ],
+  build: {
+    rollupOptions: {
+      output: {
+        // Un seul chunk pour éviter les problèmes d'ordre d'initialisation
+        manualChunks: undefined,
+      }
+    },
+    // Forcer l'ordre des modules : i18n context en premier
+    modulePreload: { polyfill: false }
+  }
 })
