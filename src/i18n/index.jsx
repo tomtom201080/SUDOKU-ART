@@ -1,8 +1,8 @@
-import { createContext, useContext, useState } from 'react';
+import { useContext, useState } from 'react';
+import LangContext from './context.js';
 
 const LANG_KEY = 'sudoku-devoile:lang';
 
-// Traductions intégrées directement pour éviter les circular dependencies
 const FR = {
   // ── Difficultés ──────────────────────────────────────────────
   diff_facile: 'Facile',
@@ -886,11 +886,7 @@ function detectLang() {
   return nav.startsWith('fr') ? 'fr' : 'en';
 }
 
-export const LangContext = createContext({
-  lang: 'fr',
-  setLang: () => {},
-  t: (k) => k,
-});
+export { LangContext };
 
 export function LangProvider({ children }) {
   const [lang, setLangState] = useState(detectLang);
