@@ -139,6 +139,7 @@ function RematchRow({ r, isSent, onHide, onExpand }) {
 
 // ─── Dashboard principal ─────────────────────────────────────────
 export default function DefiDashboard({ userId, onClose, onCreateDefi }) {
+  const { lang } = useT();
   const [tab, setTab]         = useState('sent');
   const [sent, setSent]       = useState(null);
   const [received, setReceived] = useState(null);
