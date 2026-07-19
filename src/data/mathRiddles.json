@@ -1,0 +1,252 @@
+[
+  {
+    "question": "Léonard a 3 ans de plus que son apprenti. Ensemble, ils ont 27 ans. Quel âge a l'apprenti ?",
+    "answer": "12",
+    "level": "facile"
+  },
+  {
+    "question": "Un atelier compte deux fois plus de pinceaux que de chevalets. Il y a 6 chevalets. Combien de pinceaux et chevalets en tout ?",
+    "answer": "18",
+    "level": "facile"
+  },
+  {
+    "question": "Léonard dessine 4 croquis par jour pendant 5 jours, puis 3 croquis le 6e jour. Combien de croquis en tout ?",
+    "answer": "23",
+    "level": "facile"
+  },
+  {
+    "question": "Un carnet contient 30 pages. Léonard en a déjà rempli les deux tiers. Combien de pages reste-t-il à remplir ?",
+    "answer": "10",
+    "level": "facile"
+  },
+  {
+    "question": "Trois apprentis se partagent équitablement 21 outils, puis chacun en donne 2 à Léonard. Combien d'outils garde chaque apprenti ?",
+    "answer": "5",
+    "level": "facile"
+  },
+  {
+    "question": "Un mécanisme a 5 engrenages. On double leur nombre, puis on en retire 3. Combien en reste-t-il ?",
+    "answer": "7",
+    "level": "facile"
+  },
+  {
+    "question": "Léonard range 18 esquisses dans des tiroirs de 3 esquisses chacun, puis ferme la moitié des tiroirs remplis. Combien de tiroirs restent ouverts ?",
+    "answer": "3",
+    "level": "facile"
+  },
+  {
+    "question": "Une maquette utilise 4 roues. Pour 3 maquettes identiques, puis on perd 2 roues en chemin, combien de roues reste-t-il ?",
+    "answer": "10",
+    "level": "facile"
+  },
+  {
+    "question": "Léonard a 2 ans de moins que Botticelli. Botticelli a 25 ans. Quel âge aura Léonard dans 5 ans ?",
+    "answer": "28",
+    "level": "facile"
+  },
+  {
+    "question": "Un pont compte 4 arches. Un second pont en a le double, moins 1. Combien d'arches a le second pont ?",
+    "answer": "7",
+    "level": "facile"
+  },
+  {
+    "question": "Léonard vend 2 tableaux à 10 florins chacun, puis dépense 6 florins en pinceaux. Combien de florins lui reste-t-il ?",
+    "answer": "14",
+    "level": "facile"
+  },
+  {
+    "question": "Sur 20 feuilles, Léonard en utilise la moitié pour des croquis, puis 3 de plus pour des notes. Combien de feuilles vierges reste-t-il ?",
+    "answer": "7",
+    "level": "facile"
+  },
+  {
+    "question": "Un coffre contient 12 vis. On y ajoute le même nombre, puis on en retire un quart du total. Quel est le nombre final de vis ?",
+    "answer": "18",
+    "level": "facile"
+  },
+  {
+    "question": "Léonard a peint un tiers d'une fresque de 36 m², puis encore 8 m². Combien de m² lui reste-t-il à peindre ?",
+    "answer": "16",
+    "level": "moyen"
+  },
+  {
+    "question": "Un mécanisme coûtait 80 florins. Après une hausse de 25%, puis une remise de 10 florins, quel est le prix final ?",
+    "answer": "90",
+    "level": "moyen"
+  },
+  {
+    "question": "Le double de l'âge de Léonard, diminué de 9, donne 53. Quel âge a Léonard ?",
+    "answer": "31",
+    "level": "moyen"
+  },
+  {
+    "question": "Une corde de 48 cm est coupée en 4 morceaux égaux, puis on recolle 2 morceaux ensemble. Quelle est la longueur du plus long morceau obtenu (en cm) ?",
+    "answer": "24",
+    "level": "moyen"
+  },
+  {
+    "question": "Léonard a réalisé les 2/5 de ses 40 croquis prévus, puis en a raté 3. Combien de croquis valides a-t-il ?",
+    "answer": "13",
+    "level": "moyen"
+  },
+  {
+    "question": "Trois apprentis gagnent ensemble 27 florins, répartis à parts égales. Si Léonard double la part de chacun, combien gagne un apprenti au total ?",
+    "answer": "18",
+    "level": "moyen"
+  },
+  {
+    "question": "Un engrenage tourne à 60% de sa vitesse maximale de 50 tours/minute, puis on l'accélère de 5 tours/minute. Quelle est sa nouvelle vitesse (arrondie) ?",
+    "answer": "35",
+    "level": "moyen"
+  },
+  {
+    "question": "La moitié d'un parchemin de 90 cm est utilisée, puis on en découpe encore 15 cm dans le reste. Quelle longueur reste-t-il (en cm) ?",
+    "answer": "30",
+    "level": "moyen"
+  },
+  {
+    "question": "Léonard a 4 ans de plus que le double de l'âge de son neveu. Léonard a 30 ans. Quel âge a son neveu ?",
+    "answer": "13",
+    "level": "moyen"
+  },
+  {
+    "question": "Un atelier produit 45 pièces, dont un quart sont défectueuses. Les bonnes pièces sont vendues par lots de 3. Combien de lots complets obtient-on ?",
+    "answer": "11",
+    "level": "moyen"
+  },
+  {
+    "question": "Léonard partage 100 florins en 4 parts égales, puis reprend 5 florins sur chaque part pour ses couleurs. Que reste-t-il par part ?",
+    "answer": "20",
+    "level": "moyen"
+  },
+  {
+    "question": "Une lettre met 2 jours de plus à arriver que prévu. Le trajet prévu dure 3 jours, et le messager fait l'aller-retour. Combien de jours dure le trajet complet réel ?",
+    "answer": "10",
+    "level": "moyen"
+  },
+  {
+    "question": "Un triangle rectangle a des côtés de 3 et 4. Léonard ajoute 2 unités à l'hypoténuse calculée. Quel est ce nouveau nombre ?",
+    "answer": "7",
+    "level": "complique"
+  },
+  {
+    "question": "Un rectangle mesure 12 cm sur 5 cm. Léonard le découpe en 2 parts égales dans la longueur. Quelle est l'aire d'une part (en cm²) ?",
+    "answer": "30",
+    "level": "complique"
+  },
+  {
+    "question": "Le rapport entre deux engrenages est de 3:2. Le premier fait 18 tours ; le second en fait 4 de moins que calculé par le ratio. Combien de tours fait le second engrenage ?",
+    "answer": "8",
+    "level": "complique"
+  },
+  {
+    "question": "Un cercle a un rayon de 7. En prenant Pi = 22/7, Léonard double sa circonférence calculée. Quel est ce nombre (arrondi) ?",
+    "answer": "88",
+    "level": "complique"
+  },
+  {
+    "question": "Une échelle de 13 unités s'appuie contre un mur, sa base à 5 unités du mur. Léonard ajoute 3 unités à la hauteur atteinte. Quelle hauteur obtient-il ?",
+    "answer": "15",
+    "level": "complique"
+  },
+  {
+    "question": "Un carré a un périmètre de 32. Léonard trace un second carré dont le côté est le double du premier. Quel est le périmètre du second carré ?",
+    "answer": "64",
+    "level": "complique"
+  },
+  {
+    "question": "Le rapport de deux poulies est 5:3. La grande fait 45 tours. La petite fait ce nombre de tours, moins la moitié de ce résultat. Combien de tours fait-elle vraiment ?",
+    "answer": "14",
+    "level": "complique"
+  },
+  {
+    "question": "Trois nombres consécutifs ont pour somme 36. Léonard multiplie le plus petit par 2. Quel est le résultat ?",
+    "answer": "22",
+    "level": "complique"
+  },
+  {
+    "question": "Un triangle rectangle a des côtés de 6 et 8. Léonard retranche 2 à l'hypoténuse calculée. Quel est ce nombre ?",
+    "answer": "8",
+    "level": "complique"
+  },
+  {
+    "question": "5 ouvriers construisent un mur en 12 jours. Léonard double l'équipe. Combien de jours faut-il, moins 1 jour gagné grâce à une meilleure organisation ?",
+    "answer": "5",
+    "level": "complique"
+  },
+  {
+    "question": "Un rectangle a une aire de 96 et une largeur de 8. Léonard ajoute 3 à la longueur trouvée. Quelle est cette nouvelle longueur ?",
+    "answer": "15",
+    "level": "complique"
+  },
+  {
+    "question": "La somme de l'âge de Léonard et du double de l'âge de son apprenti est 70. L'apprenti a 20 ans. Quel âge a Léonard ?",
+    "answer": "30",
+    "level": "complique"
+  },
+  {
+    "question": "Suite : 2, 4, 8, 16, ... Léonard ajoute 5 au 6e terme. Quel est le résultat ?",
+    "answer": "69",
+    "level": "enfer"
+  },
+  {
+    "question": "Suite triangulaire : 1, 3, 6, 10, 15, ... Quel est le 7e terme, moins 4 ?",
+    "answer": "24",
+    "level": "enfer"
+  },
+  {
+    "question": "Un nombre multiplié par lui-même donne 144. Léonard en prend la moitié. Quel est ce résultat ?",
+    "answer": "6",
+    "level": "enfer"
+  },
+  {
+    "question": "3 machines identiques produisent 60 pièces en 4 heures. Avec 5 machines, combien de pièces de plus sont produites en 4 heures par rapport aux 3 machines ?",
+    "answer": "40",
+    "level": "enfer"
+  },
+  {
+    "question": "Suite de Fibonacci : 1, 1, 2, 3, 5, 8, 13, ... Léonard retranche 5 au 9e terme. Quel est le résultat ?",
+    "answer": "29",
+    "level": "enfer"
+  },
+  {
+    "question": "Trois coffres sont étiquetés \"Or\", \"Argent\" et \"Vide\", mais les étiquettes sont TOUTES fausses. Le coffre étiqueté \"Vide\" contient en réalité l'or ou l'argent. Léonard ouvre justement ce coffre et y trouve de l'argent. Lequel des deux autres coffres contient l'or : celui étiqueté \"Or\" ou celui étiqueté \"Argent\" ? (réponds par le mot écrit sur l'étiquette)",
+    "answer": "argent",
+    "level": "enfer"
+  },
+  {
+    "question": "Le double d'un nombre, diminué de 7, donne 15. Léonard élève ce nombre au carré. Quel est le résultat ?",
+    "answer": "121",
+    "level": "enfer"
+  },
+  {
+    "question": "Un cube a une arête de 4. Léonard retire un huitième de son volume. Quel volume reste-t-il ?",
+    "answer": "56",
+    "level": "enfer"
+  },
+  {
+    "question": "La somme de trois nombres consécutifs est 36. Léonard additionne le plus grand et le plus petit. Quel est le résultat ?",
+    "answer": "24",
+    "level": "enfer"
+  },
+  {
+    "question": "Un rectangle a une aire de 96 et une largeur de 8. Léonard calcule le périmètre de ce rectangle. Quel est ce périmètre ?",
+    "answer": "40",
+    "level": "enfer"
+  },
+  {
+    "question": "Parmi 50 inventions, Léonard en a dessiné les 3/5 avant 1500, et le reste après. Combien en a-t-il dessiné après 1500 ?",
+    "answer": "20",
+    "level": "enfer"
+  },
+  {
+    "question": "Un nombre est divisible par 3 et par 4, et se situe entre 20 et 30. Quel est ce nombre ?",
+    "answer": "24",
+    "level": "enfer"
+  },
+  {
+    "question": "Trois apprentis ont chacun un âge différent. Leur somme fait 36, et le plus âgé a le double du plus jeune. Le troisième a 12 ans. Quel est l'âge du plus jeune ?",
+    "answer": "8",
+    "level": "enfer"
+  }
+]

@@ -1,0 +1,264 @@
+.win-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 16px;
+}
+
+.win-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 24px;
+  width: min(92vw, 420px);
+  max-height: 85vh;
+  overflow-y: auto;
+  text-align: center;
+}
+
+.win-difficulty {
+  color: var(--text-muted);
+  margin-top: -8px;
+  text-transform: capitalize;
+}
+
+.win-reward-label {
+  font-weight: 600;
+  margin: 16px 0 8px;
+}
+
+.win-reward-image {
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  background: var(--bg-color);
+  border-radius: 12px;
+}
+
+@media (max-height: 700px) {
+  .win-reward-image {
+    max-height: 240px;
+  }
+}
+
+.win-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.win-btn-primary,
+.win-btn-secondary {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.win-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.win-btn-secondary {
+  background: var(--card-bg);
+  color: var(--text-color);
+}
+
+.win-photo-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.win-photo-actions .win-btn-secondary {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.win-challenge-stats {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.painting-info {
+  text-align: left;
+  background: var(--bg-color);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 10px;
+}
+
+.painting-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin: 0 0 4px;
+}
+
+.painting-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0 0 2px;
+}
+
+.painting-museum {
+  font-size: 0.8rem;
+  margin: 6px 0 0;
+}
+
+.painting-fun-fact {
+  font-size: 0.8rem;
+  color: var(--text-color);
+  margin: 8px 0 0;
+  font-style: italic;
+}
+
+.painting-observe {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 6px 0 0;
+}
+
+.win-challenge-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.win-send-result-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-top: 10px;
+}
+
+.rematch-outcome {
+  background: var(--bg-color);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 12px;
+  margin: 12px 0;
+}
+
+.rematch-outcome-title {
+  font-weight: 700;
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.rematch-outcome-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.rematch-outcome-table th,
+.rematch-outcome-table td {
+  text-align: center;
+  padding: 4px 6px;
+}
+
+.rematch-outcome-table td:first-child {
+  text-align: left;
+  font-weight: 600;
+}
+
+.math-answer-form {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.math-answer-form input {
+  flex: 1;
+}
+
+.math-answer-form button {
+  flex: 0 0 auto;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.save-notice-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  padding: 16px;
+}
+
+.save-notice-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 22px;
+  width: min(92vw, 380px);
+  max-height: 85vh;
+  overflow-y: auto;
+  text-align: center;
+}
+
+.save-notice-panel h3 {
+  margin-top: 0;
+}
+
+.save-notice-panel p {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  line-height: 1.5;
+}
+
+.save-notice-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.save-notice-actions button {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.win-score {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 16px 0;
+  padding: 14px;
+  background: var(--bg-color);
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+}
+
+.rematch-scoring-note {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 4px 0 8px;
+}

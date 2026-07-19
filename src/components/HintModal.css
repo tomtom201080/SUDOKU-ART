@@ -1,0 +1,131 @@
+.hint-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.25);
+  z-index: 150;
+  max-width: 600px;
+  width: calc(100% - 24px);
+}
+
+.hint-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.hint-step-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.hint-step-progress {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.hint-step-text {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--text-color);
+  margin: 0 0 12px;
+}
+
+.hint-bar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.hint-btn-primary,
+.hint-btn-secondary {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.hint-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.hint-btn-secondary {
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+.hint-btn-secondary:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.hint-btn-close {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: var(--bg-color);
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.hint-reveal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0 4px;
+}
+
+.hint-reveal-number {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.hint-pick-question {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 6px 0 10px;
+  color: var(--text-color);
+}
+
+.hint-digit-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+  margin-bottom: 4px;
+}
+
+.hint-digit-btn {
+  aspect-ratio: 1;
+  font-size: 1.3rem;
+  font-weight: 700;
+  background: var(--bg-color);
+  border: 2px solid var(--card-border);
+  border-radius: 10px;
+  color: var(--accent);
+  cursor: pointer;
+  transition: transform 0.1s, border-color 0.15s;
+}
+
+.hint-digit-btn:hover {
+  border-color: var(--accent);
+  transform: scale(1.08);
+}
+
+.hint-digit-btn:active {
+  transform: scale(0.93);
+}

@@ -1,0 +1,252 @@
+.sudoku-board {
+  display: flex;
+  flex-direction: column;
+  width: min(98vw, calc(100vh - 220px), 760px);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border: 3px solid var(--grid-border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--card-border);
+  box-shadow: 0 6px 20px rgba(46, 42, 34, 0.12);
+}
+
+.sudoku-row {
+  display: flex;
+  flex: 1;
+}
+
+.sudoku-cell {
+  position: relative;
+  flex: 1;
+  border: 1px solid var(--grid-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  background-color: #FFFFFF;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.sudoku-cell.thick-right {
+  border-right: 3px solid var(--grid-line);
+}
+
+.sudoku-cell.thick-bottom {
+  border-bottom: 3px solid var(--grid-line);
+}
+
+.sudoku-cell.is-given {
+  cursor: default;
+}
+
+.sudoku-cell.is-peer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #3E8E8C;
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.sudoku-cell.is-same-value::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #3E8E8C;
+  opacity: 0.45;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.sudoku-cell.is-selected {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  z-index: 2;
+}
+
+.cell-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.cell-cover {
+  position: absolute;
+  inset: 0;
+  background: #FFFFFF;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cell-value {
+  position: relative;
+  z-index: 2;
+  font-size: clamp(18px, 6vw, 30px);
+  font-weight: 600;
+  color: #1A1A1A;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.9), 0 0 6px rgba(255, 255, 255, 0.6);
+}
+
+.sudoku-cell.is-same-value .cell-value {
+  color: #0036E8;
+}
+
+.sudoku-cell.has-error .cell-value {
+  color: #FF0000 !important;
+  font-weight: 800;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 1), 0 0 6px rgba(255, 255, 255, 0.8);
+}
+
+.cell-notes {
+  position: absolute;
+  inset: 2px;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  pointer-events: none;
+}
+
+.note-digit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(9px, 2vw, 12px);
+  font-weight: 700;
+  color: #1A1A1A;
+}
+
+.cell-sparkle {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(18px, 5vw, 26px);
+  pointer-events: none;
+  z-index: 3;
+  animation: sparkle-pop 1.1s ease-out forwards;
+}
+
+@keyframes sparkle-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-15deg);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.3) rotate(10deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.85) rotate(0deg);
+  }
+}
+
+/* --- Mode sombre : la grille a des couleurs codées en dur (pas des
+   variables) car les cases doivent rester lisibles quel que soit le thème
+   de la photo affichée derrière ; on les redéfinit donc explicitement ici. --- */
+body.dark .sudoku-cell {
+  background-color: #232A35;
+}
+
+body.dark .cell-cover {
+  background: #232A35;
+}
+
+body.dark .cell-value {
+  color: #ECEAE3;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.9), 0 0 6px rgba(0, 0, 0, 0.6);
+}
+
+body.dark .sudoku-cell.is-same-value .cell-value {
+  color: #5C8DFF;
+}
+
+body.dark .sudoku-cell.has-error .cell-value {
+  color: #FF5C5C !important;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 1), 0 0 6px rgba(0, 0, 0, 0.8);
+}
+
+body.dark .note-digit {
+  color: #D8D8EE;
+}
+
+/* Surlignage de l'indice animé étape par étape : une couleur différente
+   pour la ligne, la colonne, le carré, puis la conclusion finale. */
+.sudoku-cell.hint-zone-row {
+  background-color: rgba(33, 150, 243, 0.28) !important;
+}
+
+.sudoku-cell.hint-zone-col {
+  background-color: rgba(255, 152, 0, 0.28) !important;
+}
+
+.sudoku-cell.hint-zone-box {
+  background-color: rgba(156, 39, 176, 0.22) !important;
+}
+
+.sudoku-cell.hint-zone-answer {
+  background-color: rgba(76, 175, 80, 0.35) !important;
+}
+
+.sudoku-cell.hint-zone-partial {
+  background-color: rgba(0, 188, 212, 0.32) !important;
+}
+
+.sudoku-cell.hint-target {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+  z-index: 2;
+}
+
+body.dark .sudoku-cell.hint-zone-row {
+  background-color: rgba(33, 150, 243, 0.35) !important;
+}
+
+body.dark .sudoku-cell.hint-zone-col {
+  background-color: rgba(255, 152, 0, 0.35) !important;
+}
+
+body.dark .sudoku-cell.hint-zone-box {
+  background-color: rgba(156, 39, 176, 0.3) !important;
+}
+
+body.dark .sudoku-cell.hint-zone-answer {
+  background-color: rgba(76, 175, 80, 0.4) !important;
+}
+
+/* Révélation d'un indice : chiffre en couleur accent avec étoiles animées */
+.hint-revealed .cell-value {
+  color: var(--accent);
+  font-weight: 800;
+  animation: hint-pop 0.35s ease-out;
+}
+
+.cell-hint-stars {
+  position: absolute;
+  font-size: 1.1rem;
+  animation: hint-stars 2s ease-out forwards;
+  pointer-events: none;
+  top: -4px;
+  right: -4px;
+}
+
+@keyframes hint-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  60% { transform: scale(1.3); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes hint-stars {
+  0% { transform: scale(0) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1.4) rotate(20deg); opacity: 1; }
+  100% { transform: scale(0.8) rotate(-10deg); opacity: 0; }
+}
