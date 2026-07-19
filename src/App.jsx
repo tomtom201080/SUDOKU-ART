@@ -452,8 +452,9 @@ export default function App() {
     setHighlightValue(0);
   };
 
-  const [username, setUsername] = useState(null);      // pseudo de l'utilisateur connecté
+  const [username, setUsername] = useState(null);
   const [showUsernameModal, setShowUsernameModal] = useState(false);
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
   // Charger le profil dès qu'on est connecté
   useEffect(() => {
