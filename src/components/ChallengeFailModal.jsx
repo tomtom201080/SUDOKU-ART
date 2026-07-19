@@ -4,10 +4,8 @@ import { useState } from 'react';
 import { shareText } from '../utils/device';
 import './WinModal.css';
 
-const DIFFICULTY_LABELS = {
-  moyen: 'Moyen',
-  complique: 'Compliqué',
-  enfer: 'Enfer'
+const DIFF_L = {
+
 };
 
 function formatTime(totalSeconds) {
@@ -27,9 +25,9 @@ export default function ChallengeFailModal({
   const [resultSent, setResultSent] = useState(false);
 
   const handleSendResult = async () => {
-    const difficultyLabel = DIFFICULTY_LABELS[difficulty] ?? difficulty;
+    const difficultyLabel = DIFF_L[difficulty] ?? difficulty;
     const message =
-      `😢 J'ai perdu le défi Sudoku Art que tu m'as envoyé...\n` +
+      lang === 'fr' ? `😢 J'ai perdu le défi Sudoku Art que tu m'as envoyé...\n` : `😢 I lost the Sudoku Art challenge you sent me...\n` +
       `Difficulté : ${difficultyLabel} — Erreurs : ${errorCount} — Temps : ${formatTime(elapsedSeconds)}`;
     await shareText(message, t('fail_share_title'));
     setResultSent(true);

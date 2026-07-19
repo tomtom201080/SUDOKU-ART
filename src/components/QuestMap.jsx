@@ -18,7 +18,7 @@ export default function QuestMap({ userId, onClose, onPlayStage }) {
   if (completedStages === null) {
     return (
       <div className="quest-overlay">
-        <div className="quest-panel"><p>Chargement de ta quête…</p></div>
+        <div className="quest-panel"><p>{lang === 'fr' ? 'Chargement de ta quête…' : 'Loading your quest…'}</p></div>
       </div>
     );
   }

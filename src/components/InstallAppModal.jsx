@@ -21,7 +21,7 @@ export default function InstallAppModal({ onClose }) {
         </div>
 
         <p className="install-intro">
-          Ajoute l'appli sur ton écran d'accueil : elle s'ouvrira comme une
+          Ajoute llang === 'fr' ? 'appli sur ton écran d\'' : 'app on your home screen'accueil : elle s'ouvrira comme une
           vraie application, en plein écran, sans passer par le navigateur.
         </p>
 

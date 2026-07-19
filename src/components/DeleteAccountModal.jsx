@@ -72,7 +72,7 @@ export default function DeleteAccountModal({ onClose, onDeleted }) {
                 onClick={handleDelete}
                 disabled={loading}
               >
-                {loading ? t('del_deleting') : 'Oui, supprimer mon compte'}
+                {loading ? t('del_deleting') : t('del_confirm2')}
               </button>
             </div>
           </>

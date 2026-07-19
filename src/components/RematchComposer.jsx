@@ -44,7 +44,7 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
 
       const link = buildRematchLink(rematch.id);
       const message =
-        `🧩 Je te défie sur LA MÊME grille de Sudoku Art que je viens de finir !\n` +
+        lang === 'fr' ? `🧩 Je te défie sur LA MÊME grille de Sudoku Art que je viens de finir !\n` : `🧩 I challenge you on THE SAME Sudoku Art grid I just finished!\n` +
         `Mon résultat : ${errorCount} erreur${errorCount === 1 ? '' : 's'}, ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s. À toi de faire mieux !\n` +
         `${link}` +
         (photoPath ? `\n⚠️ Ce lien donne accès à une photo : ne le transfère qu'à la bonne personne (supprimée dans ${SHARE_EXPIRY_DAYS} jours).` : '');
@@ -70,13 +70,13 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
     <div className="challenge-overlay">
       <div className="challenge-panel">
         <div className="challenge-header">
-          <h2>🎯 Défier un ami avec cette grille</h2>
+          <h2>{t('rematch_title')}</h2>
           <button className="challenge-close" onClick={onClose}>✕</button>
         </div>
 
         {status === 'done' ? (
           <>
-            <p className="challenge-success">Défi envoyé ! On te dira qui a gagné dès que ton ami aura fini.</p>
+            <p className="challenge-success">{t('rematch_success')}</p>
             <button className="challenge-btn-primary" onClick={onClose}>{t('rc_close_btn')}</button>
           </>
         ) : (
@@ -87,7 +87,7 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
 
             {!userEmail && (
               <div className="challenge-step">
-                <p className="challenge-step-title">Ton prénom (optionnel, pour qu'on sache qui a gagné)</p>
+                <p className="challenge-step-title">{lang === 'fr' ? 'Ton prénom (optionnel)' : 'Your name (optional)'}</p>
                 <input
                   type="text"
                   className="challenge-name-input"

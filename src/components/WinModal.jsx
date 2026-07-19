@@ -7,9 +7,9 @@ import './WinModal.css';
 
 // DIFFICULTY_LABELS dynamique via App.jsx
 const LEGACY_DIFFICULTY_LABELS = {
-  moyen: 'Moyen',
-  complique: 'Compliqué',
-  enfer: 'Enfer'
+  moyen: translate('diff_moyen'),
+  complique: translate('diff_complique'),
+  enfer: translate('diff_enfer')
 };
 
 function formatTime(totalSeconds) {
@@ -30,7 +30,7 @@ export default function WinModal({
   onClose,
   onRequestRematch,
 }) {
-  const diffLabel = (d) => ({ facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') })[d] ?? d;
+  const diffLabel = (d) => translate(d === 'facile' ? 'diff_facile' : d === 'moyen' ? 'diff_moyen' : d === 'complique' ? 'diff_complique' : 'diff_enfer');
   const [showSaveNotice, setShowSaveNotice] = useState(false);
   const [resultSent, setResultSent] = useState(false);
   const [rematchResultSent, setRematchResultSent] = useState(false);
@@ -57,7 +57,7 @@ export default function WinModal({
     const diff = diffLabel(difficulty) ?? difficulty ?? '';
     const title = rewardImage?.title;
     const time = formatTime(elapsedSeconds);
-    const errors = errorCount === 0 ? 'aucune erreur 🏆' : `${errorCount} erreur${errorCount > 1 ? 's' : ''}`;
+    const errors = errorCount === 0 ? lang === 'fr' ? 'aucune erreur 🏆' : 'no errors 🏆' : lang === 'fr' ? `${errorCount} erreur${errorCount > 1 ? 's' : ''}` : `${errorCount} error${errorCount > 1 ? 's' : ''}`;
     const painting = title ? `J'ai dévoilé "${title}" en finissant mon Sudoku Art ! 🎨\n` : '';
     return t('win_share_text', { painting, diff, time, errors });
   };
@@ -91,9 +91,9 @@ export default function WinModal({
   const handleSendResult = async () => {
     const difficultyLabel = diffLabel(difficulty) ?? difficulty;
     const message =
-      `🎉 J'ai réussi le défi Sudoku Art que tu m'as envoyé !\n` +
+      lang === 'fr' ? `🎉 J'ai réussi le défi Sudoku Art que tu m'as envoyé !\n` : `🎉 I completed the Sudoku Art challenge you sent me!\n` +
       t('win_result_msg', { diff: difficultyLabel, errors: errorCount, time: formatTime(elapsedSeconds) });
-    await shareText(message, 'Résultat du défi Sudoku Art');
+    await shareText(message, lang === 'fr' ? 'Résultat du défi Sudoku Art' : 'Sudoku Art Challenge Result');
     setResultSent(true);
   };
 
@@ -101,13 +101,13 @@ export default function WinModal({
     const name = rematchOutcome.challengerName ? `${rematchOutcome.challengerName}, ` : '';
     const verdict =
       rematchOutcome.winner === 'recipient' ? "J'ai gagné ! 🏆" :
-      rematchOutcome.winner === 'challenger' ? 'Tu as gagné cette fois 😅' :
+      rematchOutcome.winner === 'challenger' ? lang === 'fr' ? 'Tu as gagné cette fois 😅' : 'You won this time 😅' :
       'Égalité parfaite !';
     const message =
-      `${name}voici le résultat de notre défi sur la même grille :\n` +
+      lang === 'fr' ? `${name}voici le résultat de notre défi sur la même grille :\n` : `${name}here's the result of our challenge on the same grid:\n` +
       `${t('rrd_me')}: ${rematchOutcome.challengerErrors}e ${formatTime(rematchOutcome.challengerSeconds)}\n${t('rrd_friend')}: ${rematchOutcome.recipientErrors}e ${formatTime(rematchOutcome.recipientSeconds)}\n` +
       verdict;
-    await shareText(message, 'Résultat du défi Sudoku Art');
+    await shareText(message, lang === 'fr' ? 'Résultat du défi Sudoku Art' : 'Sudoku Art Challenge Result');
     setRematchResultSent(true);
   };
 

@@ -6,10 +6,10 @@ import { computeKpis } from '../utils/kpiStats';
 import './KpiDashboard.css';
 
 const DIFFICULTY_LABELS = {
-  facile: 'Facile',
-  moyen: 'Moyen',
-  complique: 'Compliqué',
-  enfer: 'Enfer'
+  facile: translate('diff_facile'),
+  moyen: translate('diff_moyen'),
+  complique: translate('diff_complique'),
+  enfer: translate('diff_enfer')
 };
 
 export default function KpiDashboard({ onClose }) {
@@ -19,7 +19,7 @@ export default function KpiDashboard({ onClose }) {
   useEffect(() => {
     fetchAllGameEvents()
       .then(events => setKpis(computeKpis(events)))
-      .catch(err => setError(err.message || 'Erreur de chargement'));
+      .catch(err => setError(err.message || translate('auth_error')));
   }, []);
 
   return (
@@ -63,11 +63,11 @@ export default function KpiDashboard({ onClose }) {
               </div>
               <div className="kpi-card">
                 <span className="kpi-value">{kpis.avgErrors}</span>
-                <span className="kpi-label">Erreurs moy. (parties gagnées)</span>
+                <span className="kpi-label">{translate('kpi_avg_errors')}</span>
               </div>
               <div className="kpi-card">
                 <span className="kpi-value">{kpis.avgTime}</span>
-                <span className="kpi-label">Temps moyen (parties gagnées)</span>
+                <span className="kpi-label">{translate('kpi_avg_time')}</span>
               </div>
               <div className="kpi-card">
                 <span className="kpi-value">{kpis.customPhotoGames}</span>

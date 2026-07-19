@@ -6,7 +6,7 @@ import { isMobileDevice } from '../utils/device';
 import './AuthScreen.css';
 
 const APP_URL = typeof window !== 'undefined' ? window.location.origin : '';
-const SHARE_TEXT = "Sudoku Art : un Sudoku où une photo se dévoile au fil de la partie ! Essaie : ";
+const SHARE_TEXT = lang === "fr" ? "Sudoku Art : un Sudoku où une photo se dévoile ! Essaie : " : "Sudoku Art: a Sudoku where a photo reveals itself! Try it: ";
 
 export default function AuthScreen({ onCancel }) {
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup' | 'forgot'
@@ -45,14 +45,14 @@ export default function AuthScreen({ onCancel }) {
       if (mode === 'signup') {
         const { error: signUpError } = await supabase.auth.signUp({ email, password });
         if (signUpError) throw signUpError;
-        setInfoMessage('Compte créé ! Vérifie ta boîte mail pour confirmer ton adresse, puis connecte-toi.');
+        setInfoMessage(lang === 'fr' ? 'Compte créé ! Vérifie ta boîte mail pour confirmer ton adresse.' : 'Account created! Check your email to confirm your address.');
         setMode('signin');
       } else if (mode === 'forgot') {
         const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: APP_URL
         });
         if (resetError) throw resetError;
-        setInfoMessage('Email envoyé ! Clique sur le lien reçu pour choisir un nouveau mot de passe.');
+        setInfoMessage(lang === 'fr' ? 'Email envoyé ! Clique sur le lien pour choisir un nouveau mot de passe.' : 'Email sent! Click the link to choose a new password.');
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
         if (signInError) throw signInError;
@@ -71,7 +71,7 @@ export default function AuthScreen({ onCancel }) {
         <h1>Sudoku Art</h1>
         <p className="auth-tagline">
           {onCancel
-            ? "Un compte permet d'envoyer des défis à tes amis et de garder ta progression. Jouer en solo ne nécessite aucun compte."
+            ? (lang === 'fr' ? "Un compte permet d'envoyer des défis et de garder ta progression." : "An account lets you send challenges and save your progress.")
             : "Un Sudoku classique avec un twist : complète des carrés pour dévoiler, petit à petit, une photo cachée derrière la grille — la tienne, ou une image surprise qui change selon la saison."}
         </p>
         <button className="auth-share-btn" onClick={handleShare}>
@@ -138,10 +138,10 @@ export default function AuthScreen({ onCancel }) {
             {loading
               ? 'Un instant…'
               : mode === 'signup'
-                ? 'Créer mon compte'
+                ? t('auth_create_btn')
                 : mode === 'forgot'
-                  ? 'Envoyer le lien'
-                  : 'Se connecter'}
+                  ? t('auth_send_link')
+                  : t('auth_signin_btn')}
           </button>
 
           {mode === 'signin' && (

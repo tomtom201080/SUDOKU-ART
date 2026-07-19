@@ -103,7 +103,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
   const [history, setHistory] = useState([]);
   const [celebrate, setCelebrate] = useState([]); // [{ type: 'box'|'row'|'col', index }]
   const [challengeMeta, setChallengeMeta] = useState(null); // { id, maxErrors, timeLimitSeconds }
-  const [nextWatermark, setNextWatermark] = useState(null); // filigrane préchargé en avance, pour un "Nouvelle partie" immédiat
+  const [nextWatermark, setNextWatermark] = useState(null); // filigrane préchargé en avance, pour un "New game" immédiat
   const [tempFullReveal, setTempFullReveal] = useState(false); // affichage complet temporaire après une zone complétée
   const [activeRematch, setActiveRematch] = useState(null); // { id, challengerName, challengerErrors, challengerSeconds }
   const [rematchOutcome, setRematchOutcome] = useState(null); // résultat comparé, une fois la partie terminée
@@ -461,7 +461,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
   }, [difficulty, watermark, manifest, userId]);
 
   // Précharge, pendant la partie en cours, l'image qui servirait de filigrane
-  // à une éventuelle partie suivante de même difficulté ("Nouvelle partie"
+  // à une éventuelle partie suivante de même difficulté ("New game"
   // cliqué juste après la victoire) : comme ça, même un enchaînement
   // immédiat ne perd pas de temps à charger.
   useEffect(() => {

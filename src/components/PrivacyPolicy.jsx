@@ -39,7 +39,7 @@ export default function PrivacyPolicy({ onClose, onConsentChange }) {
         </section>
 
         <section>
-          <h3>Publicité</h3>
+          <h3>{lang === 'fr' ? 'Publicité' : 'Advertising'}</h3>
           <p>
             Sudoku Art peut afficher des publicités fournies par Google
             AdSense. Google peut utiliser des cookies pour personnaliser ces

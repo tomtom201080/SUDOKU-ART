@@ -195,7 +195,7 @@ export default function App() {
 
   // Si on vient de se connecter (ou de créer un compte) spécifiquement pour
   // envoyer un défi, on ouvre automatiquement le composeur juste après. Si la
-  // connexion a été faite depuis le bouton générique "Se connecter", on
+  // connexion a été faite depuis le bouton générique lang === "fr" ? "Se connecter" : "Sign in", on
   // retombe normalement sur l'écran de choix de difficulté.
   useEffect(() => {
     if (session && showAuthScreen) {
@@ -553,9 +553,9 @@ export default function App() {
   );
 
   const accountButton = session ? (
-    <button className="icon-btn" onClick={() => supabase.auth.signOut()} title="Déconnexion">🚪</button>
+    <button className="icon-btn" onClick={() => supabase.auth.signOut()} title={lang === "fr" ? "Déconnexion" : "Sign out"}>🚪</button>
   ) : (
-    <button className="icon-btn" onClick={() => setShowAuthScreen(true)} title="Se connecter">👤</button>
+    <button className="icon-btn" onClick={() => setShowAuthScreen(true)} title={lang === "fr" ? "Se connecter" : "Sign in"}>👤</button>
   );
 
   const profileButton = session ? (
@@ -646,8 +646,8 @@ export default function App() {
             >
               🎯 Ton ami a fini le défi que tu lui as envoyé !{' '}
               {winner === 'tie' && 'Égalité parfaite.'}
-              {winner === 'challenger' && 'Tu as gagné 🏆'}
-              {winner === 'recipient' && "Il/elle a fait mieux que toi cette fois 😅"}
+              {winner === 'challenger' && lang === 'fr' ? 'Tu as gagné 🏆' : 'You won 🏆'}
+              {winner === 'recipient' && lang === "fr" ? "Il/elle a fait mieux que toi 😅" : "They did better this time 😅"}
               <button onClick={(e) => { e.stopPropagation(); handleDismissRematchNotification(r.id); }}>✕</button>
             </div>
           );
@@ -931,7 +931,7 @@ export default function App() {
       {session?.user?.email === 't.dabadie@gmail.com' && (
         <button
           onClick={game.solveGridForTesting}
-          title="[TEST] Compléter la grille"
+          title="[TEST] Complete grid"
           style={{
             position: 'fixed', bottom: 24, right: 16, zIndex: 999,
             background: '#333', color: '#fff', border: 'none',

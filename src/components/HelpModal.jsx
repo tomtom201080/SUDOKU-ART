@@ -53,11 +53,11 @@ export default function HelpModal({ onClose }) {
         </section>
 
         <section className="help-section">
-          <h3>🎮 Les boutons sous la grille</h3>
+          <h3>{lang === 'fr' ? '🎮 Les boutons sous la grille' : '🎮 Buttons below the grid'}</h3>
           <ul>
             <li><strong>Chiffres 1-9</strong> : pose la valeur dans la case sélectionnée (un chiffre disparaît du pavé une fois ses 9 occurrences placées)</li>
             <li><strong>✕ Effacer</strong> : vide la case sélectionnée</li>
-            <li><strong>✏️ Notes</strong> : bascule en mode "petites annotations" — pose plusieurs chiffres candidats dans une case sans valider, pour t'aider à réfléchir</li>
+            <li><strong>✏️ Notes</strong> {lang === 'fr' ? ': bascule en mode annotations' : ': toggle annotation mode'} sans valider, pour t'aider à réfléchir</li>
             <li>{t('help_undo')}</li>
             <li>{t('help_hint_desc')}</li>
           </ul>
@@ -74,7 +74,7 @@ export default function HelpModal({ onClose }) {
         </section>
 
         <section className="help-section">
-          <h3>📷 Photo personnelle & défis</h3>
+          <h3>{lang === 'fr' ? '📷 Photo personnelle & défis' : '📷 Personal photo & challenges'}</h3>
           <p>
             Tu peux choisir une photo de ton appareil au lieu d'un tableau.
             Tu peux aussi envoyer une grille personnalisée à un ami (avec sa

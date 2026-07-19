@@ -60,7 +60,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
       });
 
       const link      = buildRematchLink(rematch.id);
-      const limiteTxt = hintsLimit != null ? `\n💡 Max ${hintsLimit} indice${hintsLimit > 1 ? 's' : ''}` : '';
+      const limiteTxt = hintsLimit != null ? lang === 'fr' ? `\n💡 Max ${hintsLimit} indice${hintsLimit > 1 ? 's' : ''}` : `\n💡 Max ${hintsLimit} hint${hintsLimit > 1 ? 's' : ''}` : '';
       const regleTxt  = `${t('defi_rule_msg')}${limiteTxt}`;
 
       // Avertissement photo UNIQUEMENT en mode groupe avec photo perso
@@ -74,8 +74,8 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
 
       const senderName = userEmail ?? (challengerName.trim() || t('defi_a_friend'));
       const message =
-        `🎯 ${senderName} te défie sur Sudoku Art !\n` +
-        `Résous cette grille${photoPath ? ' et découvre ma photo cachée' : ''} — qui finira avec le meilleur score ?${groupTxt}\n` +
+        lang === 'fr' ? `🎯 ${senderName} te défie sur Sudoku Art !\n` : `🎯 ${senderName} challenges you on Sudoku Art!\n` +
+        lang === 'fr' ? `Résous cette grille${photoPath ? ' et découvre ma photo cachée' : ''} — qui finira avec le meilleur score ?${groupTxt}\n` : `Solve this grid${photoPath ? ' and discover my hidden photo' : ''} — who will get the best score?${groupTxt}\n` +
         `${link}${regleTxt}${photoGroupWarning}`;
 
       if (isMobileDevice() && navigator.share) {
@@ -99,13 +99,13 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
     <div className="challenge-overlay">
       <div className="challenge-panel">
         <div className="challenge-header">
-          <h2>🎯 Créer un défi</h2>
+          <h2>{t('defi_title')}</h2>
           <button className="challenge-close" onClick={onClose}>✕</button>
         </div>
 
         {step === 'done' && (
           <div className="defi-done">
-            <p className="challenge-success">✅ Défi envoyé ! La grille se lance…</p>
+            <p className="challenge-success">{t('defi_done')}</p>
           </div>
         )}
 
@@ -133,7 +133,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
             </div>
 
             {/* Difficulté */}
-            <p className="challenge-step-title">2. Difficulté</p>
+            <p className="challenge-step-title">{lang === 'fr' ? '2. Difficulté' : '2. Difficulty'}</p>
             <div className="defi-difficulty-grid">
               {DIFFICULTY_OPTIONS.map(opt => (
                 <button
@@ -148,7 +148,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
             </div>
 
             {/* Limite d'indices */}
-            <p className="challenge-step-title">3. Limite d'indices</p>
+            <p className="challenge-step-title">{lang === 'fr' ? '3. Limite d\'indices' : '3. Hint limit'}</p>
             <div className="defi-hints-row">
               {[null, 1, 2, 3].map(v => (
                 <button
@@ -156,7 +156,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
                   className={`defi-hint-limit-btn ${hintsLimit === v ? 'is-selected' : ''}`}
                   onClick={() => setHintsLimit(v)}
                 >
-                  {v == null ? '∞ Libre' : `${v} indice${v > 1 ? 's' : ''}`}
+                  {v == null ? '∞ Libre' : lang === 'fr' ? `${v} indice${v > 1 ? 's' : ''}` : `${v} hint${v > 1 ? 's' : ''}`}
                 </button>
               ))}
             </div>
@@ -191,7 +191,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
             {/* Prénom si pas connecté */}
             {!userEmail && (
               <>
-                <p className="challenge-step-title">5. Ton prénom</p>
+                <p className="challenge-step-title">{lang === 'fr' ? '5. Ton prénom' : '5. Your name'}</p>
                 <input
                   className="challenge-name-input"
                   type="text"

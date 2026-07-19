@@ -20,7 +20,7 @@ async function checkPseudoAvailableForDefi(rematchId, pseudo) {
 }
 
 export default function IncomingDefiModal({ rematch, onLogin, onPlayFree }) {
-  const [step, setStep] = useState('choice'); // 'choice' | 'pseudo'
+  const [step, setStep] = useState('choice'); // 'choice' | 'pseudo' // 'choice' | 'pseudo'
   const [pseudo, setPseudo] = useState('');
   const [error, setError] = useState(null);
   const [checking, setChecking] = useState(false);
@@ -113,7 +113,7 @@ export default function IncomingDefiModal({ rematch, onLogin, onPlayFree }) {
                 onClick={handleSubmitPseudo}
                 disabled={checking}
               >
-                {checking ? t('incoming_pseudo_checking') : '▶ Jouer avec ce pseudo'}
+                {checking ? t('incoming_pseudo_checking') : translate('incoming_pseudo_btn')}
               </button>
               <button className="quit-btn-quit" onClick={() => setStep('choice')}>
                 ← Retour

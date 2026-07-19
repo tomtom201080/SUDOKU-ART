@@ -86,8 +86,8 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
         ? `🔮 Je te lance un défi Sudoku Art... avec une photo mystère cachée derrière la grille ! 🧩📸\n` +
           `Résous-la pour la découvrir 👀\n\n` +
           `${link}\n\n`
-        : `🧩 Je te lance un défi Sudoku Art !\n` +
-          `Peux-tu résoudre cette grille ?\n\n` +
+        : lang === 'fr' ? `🧩 Je te lance un défi Sudoku Art !\n` : `🧩 I'm challenging you on Sudoku Art!\n` +
+          lang === 'fr' ? `Peux-tu résoudre cette grille ?\n\n` : `Can you solve this grid?\n\n` +
           `${link}\n\n`;
 
       const disclaimer = path
@@ -126,7 +126,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
             <p className="challenge-success">Défi envoyé ! Il sera valable {SHARE_EXPIRY_DAYS} jours.</p>
             {shareLink && (
               <div className="challenge-link-fallback">
-                <p>Le sélecteur WhatsApp ne s'est pas ouvert ? Copie le lien et colle-le toi-même :</p>
+                <p>{lang === 'fr' ? 'Le sélecteur WhatsApp ne s\'est pas ouvert ? Copie le lien :' : 'WhatsApp didn\'t open? Copy the link:'}</p>
                 <button className="challenge-copy-btn" onClick={handleCopyLink}>
                   {linkCopied ? '✅ Lien copié !' : '📋 Copier le lien'}
                 </button>
@@ -160,7 +160,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
             </div>
 
             <div className="challenge-step">
-              <p className="challenge-step-title">2. Niveau de difficulté</p>
+              <p className="challenge-step-title">{lang === 'fr' ? '2. Niveau de difficulté' : '2. Difficulty level'}</p>
               <div className="challenge-options">
                 {DIFFICULTY_OPTIONS.map(opt => (
                   <button
