@@ -233,3 +233,25 @@ export async function fetchGroupResults(rematchId) {
     .order('seconds', { ascending: true });
   return data ?? [];
 }
+
+// Supprime un défi de la vue de l'utilisateur (soft delete via un champ hidden)
+// On ne supprime pas vraiment la row car l'autre joueur en a peut-être besoin.
+export async function hideRematch(rematchId, userId) {
+  // On stocke les IDs masqués dans localStorage côté client — simple et sans
+  // nécessiter de colonne supplémentaire en base.
+  try {
+    const key = `sudoku-devoile:hiddenRematches:${userId}`;
+    const existing = JSON.parse(localStorage.getItem(key) || '[]');
+    if (!existing.includes(rematchId)) {
+      existing.push(rematchId);
+      localStorage.setItem(key, JSON.stringify(existing));
+    }
+  } catch {}
+}
+
+export function getHiddenRematchIds(userId) {
+  try {
+    const key = `sudoku-devoile:hiddenRematches:${userId}`;
+    return JSON.parse(localStorage.getItem(key) || '[]');
+  } catch { return []; }
+}
