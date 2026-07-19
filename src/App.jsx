@@ -210,6 +210,10 @@ export default function App() {
     }
   }, [session, showAuthScreen, authIntent, pendingRematch]);
 
+  // username DOIT être déclaré avant useGame() qui le référence
+  const [username, setUsername] = useState(null);
+  const [showUsernameModal, setShowUsernameModal] = useState(false);
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const [showMaxErrors, setShowMaxErrors] = useState(false);
 
   const game = useGame(manifest, session?.user?.id ?? null, {
@@ -452,10 +456,6 @@ export default function App() {
     setSelectedCell(null);
     setHighlightValue(0);
   };
-
-  const [username, setUsername] = useState(null);
-  const [showUsernameModal, setShowUsernameModal] = useState(false);
-  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
   // Charger le profil dès qu'on est connecté
   useEffect(() => {
