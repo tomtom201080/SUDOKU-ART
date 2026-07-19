@@ -12,6 +12,7 @@ import ChallengeComposer from './components/ChallengeComposer';
 import RematchComposer from './components/RematchComposer';
 import DefiComposer from './components/DefiComposer';
 import DefiDashboard from './components/DefiDashboard';
+import ErrorBoundary from './components/ErrorBoundary';
 import QuitConfirmModal from './components/QuitConfirmModal';
 import MaxErrorsModal from './components/MaxErrorsModal';
 import IncomingDefiModal from './components/IncomingDefiModal';
@@ -711,22 +712,26 @@ export default function App() {
           />
         )}
         {showDefiComposer && (
-          <DefiComposer
-            onClose={() => setShowDefiComposer(false)}
-            onStartGame={handleDefiStartGame}
-            userId={session?.user?.id ?? null}
-            userEmail={username ?? session?.user?.email ?? null}
-          />
+          <ErrorBoundary>
+            <DefiComposer
+              onClose={() => setShowDefiComposer(false)}
+              onStartGame={handleDefiStartGame}
+              userId={session?.user?.id ?? null}
+              userEmail={username ?? session?.user?.email ?? null}
+            />
+          </ErrorBoundary>
         )}
         {showDefiDashboard && (
-          <DefiDashboard
-            userId={session?.user?.id ?? null}
-            onClose={() => setShowDefiDashboard(false)}
-            onCreateDefi={() => {
-              setShowDefiDashboard(false);
-              setPendingAdAction('defi');
-            }}
-          />
+          <ErrorBoundary>
+            <DefiDashboard
+              userId={session?.user?.id ?? null}
+              onClose={() => setShowDefiDashboard(false)}
+              onCreateDefi={() => {
+                setShowDefiDashboard(false);
+                setPendingAdAction('defi');
+              }}
+            />
+          </ErrorBoundary>
         )}
         {pendingAdAction && (
           <AdInterstitial
