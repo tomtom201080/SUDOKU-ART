@@ -888,6 +888,8 @@ function detectLang() {
 
 export { LangContext };
 
+export function getLang() { return _moduleLang; }
+
 export function LangProvider({ children }) {
   const [lang, setLangState] = useState(detectLang);
 

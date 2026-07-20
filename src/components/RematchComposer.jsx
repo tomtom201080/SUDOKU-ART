@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { useT, getLang } from '../i18n/index.jsx';
 // src/components/RematchComposer.jsx
 import { useRef, useState } from 'react';
 import { uploadSharedPhoto, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
@@ -45,7 +45,7 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
 
       const link = buildRematchLink(rematch.id);
       const message =
-        true /* fr fallback */
+        getLang() === 'fr'
         ? `🧩 Je te défie sur LA MÊME grille de Sudoku Art !\nMon résultat : ${errorCount} erreur${errorCount === 1 ? '' : 's'}, ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s.\n${link}` + (photoPath ? `\n⚠️ Ce lien donne accès à une photo (supprimée dans ${SHARE_EXPIRY_DAYS} j).` : '')
         : `🧩 I challenge you on THE SAME Sudoku Art grid!\nMy result: ${errorCount} error${errorCount === 1 ? '' : 's'}, ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s.\n${link}` + (photoPath ? `\n⚠️ This link gives access to a photo (deleted in ${SHARE_EXPIRY_DAYS} days).` : '');
 

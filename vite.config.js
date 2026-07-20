@@ -26,6 +26,7 @@ export default defineConfig({
     })
   ],
   build: {
-    rollupOptions: { output: { manualChunks: undefined } }
+    rollupOptions: { output: { manualChunks: undefined } },
+    modulePreload: { polyfill: false }
   }
 })

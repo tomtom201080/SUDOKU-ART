@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { useT, getLang } from '../i18n/index.jsx';
 // src/components/AuthScreen.jsx
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
@@ -72,7 +72,7 @@ export default function AuthScreen({ onCancel }) {
         <h1>Sudoku Art</h1>
         <p className="auth-tagline">
           {onCancel
-            ? (true /* fr fallback */ ? "Un compte permet d'envoyer des défis et de garder ta progression." : "An account lets you send challenges and save your progress.")
+            ? (getLang() === 'fr' ? "Un compte permet d'envoyer des défis et de garder ta progression." : "An account lets you send challenges and save your progress.")
             : "Un Sudoku classique avec un twist : complète des carrés pour dévoiler, petit à petit, une photo cachée derrière la grille — la tienne, ou une image surprise qui change selon la saison."}
         </p>
         <button className="auth-share-btn" onClick={handleShare}>

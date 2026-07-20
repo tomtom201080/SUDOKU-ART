@@ -1,5 +1,5 @@
 // src/components/DefiDashboard.jsx
-import { useT } from '../i18n/index.jsx';
+import { useT, getLang } from '../i18n/index.jsx';
 import { useEffect, useState } from 'react';
 import {
   fetchSentRematches, fetchReceivedRematches,
@@ -54,7 +54,7 @@ function GroupLeaderboard({ rematch, onClose }) {
         </div>
         <p className="group-leaderboard-meta">
           {diffLabel(rematch.difficulty) ?? rematch.difficulty} · {fmtDate(rematch.created_at)}
-          {rematch.hints_limit != null && true /* fr fallback */ ? ` · Max ${rematch.hints_limit} indice${rematch.hints_limit > 1 ? 's' : ''}` : ` · Max ${rematch.hints_limit} hint${rematch.hints_limit > 1 ? 's' : ''}`}
+          {rematch.hints_limit != null && getLang() === 'fr' ? ` · Max ${rematch.hints_limit} indice${rematch.hints_limit > 1 ? 's' : ''}` : ` · Max ${rematch.hints_limit} hint${rematch.hints_limit > 1 ? 's' : ''}`}
         </p>
 
         {results === null && <p className="defi-dash-empty">{t('defi_loading')}</p>}

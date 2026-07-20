@@ -33,7 +33,7 @@ import DeleteAccountModal from './components/DeleteAccountModal';
 import OnboardingModal from './components/OnboardingModal';
 import HomeProgress from './components/HomeProgress';
 import { getAdConsent } from './lib/adConsent';
-import { useT } from './i18n/index.jsx';
+import { useT, getLang } from './i18n/index.jsx';
 import { useGame } from './hooks/useGame';
 import { useNetworkStatus } from './hooks/useNetworkStatus';
 import './components/LegalModal.css';
@@ -644,7 +644,7 @@ export default function App() {
               style={{ cursor: 'pointer' }}
             >
               🎯 Ton ami a fini le défi que tu lui as envoyé !{' '}
-              {winner === 'tie' && true /* fr fallback */ ? t('_galit_parfaite') : 'Perfect tie!'}
+              {winner === 'tie' && getLang() === 'fr' ? t('_galit_parfaite') : 'Perfect tie!'}
               {winner === 'challenger' && t('_tu_as_gagn')}
               {winner === 'recipient' && t('_il_elle_a_fait_mieux_que_toi')}
               <button onClick={(e) => { e.stopPropagation(); handleDismissRematchNotification(r.id); }}>✕</button>

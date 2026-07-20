@@ -1,6 +1,6 @@
 // src/components/DefiComposer.jsx
 import { useRef, useState } from 'react';
-import { useT } from '../i18n/index.jsx';
+import { useT, getLang } from '../i18n/index.jsx';
 import { generateSudoku } from '../sudoku/generator';
 import { uploadSharedPhoto } from '../lib/sharedPhoto';
 import { createRematch, buildRematchLink } from '../lib/rematches';
@@ -60,7 +60,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
         groupMode });
 
       const link      = buildRematchLink(rematch.id);
-      const limiteTxt = hintsLimit != null ? true /* fr fallback */ ? `\n💡 Max ${hintsLimit} indice${hintsLimit > 1 ? 's' : ''}` : `\n💡 Max ${hintsLimit} hint${hintsLimit > 1 ? 's' : ''}` : '';
+      const limiteTxt = hintsLimit != null ? getLang() === 'fr' ? `\n💡 Max ${hintsLimit} indice${hintsLimit > 1 ? 's' : ''}` : `\n💡 Max ${hintsLimit} hint${hintsLimit > 1 ? 's' : ''}` : '';
       const regleTxt  = `${t('defi_rule_msg')}${limiteTxt}`;
 
       // Avertissement photo UNIQUEMENT en mode groupe avec photo perso
@@ -74,8 +74,8 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
 
       const senderName = userEmail ?? (challengerName.trim() || t('defi_a_friend'));
       const message =
-        true /* fr fallback */ ? `🎯 ${senderName} te défie sur Sudoku Art !\n` : `🎯 ${senderName} challenges you on Sudoku Art!\n` +
-        true /* fr fallback */ ? `Résous cette grille${photoPath ? ' et découvre ma photo cachée' : ''} — qui finira avec le meilleur score ?${groupTxt}\n` : `Solve this grid${photoPath ? ' and discover my hidden photo' : ''} — who will get the best score?${groupTxt}\n` +
+        getLang() === 'fr' ? `🎯 ${senderName} te défie sur Sudoku Art !\n` : `🎯 ${senderName} challenges you on Sudoku Art!\n` +
+        getLang() === 'fr' ? `Résous cette grille${photoPath ? ' et découvre ma photo cachée' : ''} — qui finira avec le meilleur score ?${groupTxt}\n` : `Solve this grid${photoPath ? ' and discover my hidden photo' : ''} — who will get the best score?${groupTxt}\n` +
         `${link}${regleTxt}${photoGroupWarning}`;
 
       if (isMobileDevice() && navigator.share) {
@@ -90,7 +90,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
 
     } catch (err) {
       console.error(err);
-      setError(true /* fr fallback */ ? "L'envoi a échoué. Réessaie." : "Send failed. Try again.");
+      setError(getLang() === 'fr' ? "L'envoi a échoué. Réessaie." : "Send failed. Try again.");
       setStep('config');
     }
   };
@@ -148,7 +148,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
             </div>
 
             {/* Limite d'indices */}
-            <p className="challenge-step-title">{true /* fr fallback */ ? '3. Limite d\'indices' : '3. Hint limit'}</p>
+            <p className="challenge-step-title">{getLang() === 'fr' ? '3. Limite d\'indices' : '3. Hint limit'}</p>
             <div className="defi-hints-row">
               {[null, 1, 2, 3].map(v => (
                 <button
@@ -156,7 +156,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
                   className={`defi-hint-limit-btn ${hintsLimit === v ? 'is-selected' : ''}`}
                   onClick={() => setHintsLimit(v)}
                 >
-                  {v == null ? '∞ Libre' : true /* fr fallback */ ? `${v} indice${v > 1 ? 's' : ''}` : `${v} hint${v > 1 ? 's' : ''}`}
+                  {v == null ? '∞ Libre' : getLang() === 'fr' ? `${v} indice${v > 1 ? 's' : ''}` : `${v} hint${v > 1 ? 's' : ''}`}
                 </button>
               ))}
             </div>

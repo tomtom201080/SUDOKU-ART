@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { useT, getLang } from '../i18n/index.jsx';
 // src/components/InstallAppModal.jsx
 import './InstallAppModal.css';
 
@@ -22,7 +22,7 @@ export default function InstallAppModal({ onClose }) {
         </div>
 
         <p className="install-intro">
-          Ajoute ltrue /* fr fallback */ ? 'appli sur ton écran d\'' : 'app on your home screen'accueil : elle s'ouvrira comme une
+          Ajoute lgetLang() === 'fr' ? 'appli sur ton écran d\'' : 'app on your home screen'accueil : elle s'ouvrira comme une
           vraie application, en plein écran, sans passer par le navigateur.
         </p>
 

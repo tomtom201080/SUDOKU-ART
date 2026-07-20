@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { useT, getLang } from '../i18n/index.jsx';
 import { calcAdjustedScore, formatAdjustedScore } from '../lib/rematches';
 // src/components/WinModal.jsx
 import { useState } from 'react';
@@ -57,8 +57,8 @@ export default function WinModal({
     const diff = diffLabel(difficulty) ?? difficulty ?? '';
     const title = rewardImage?.title;
     const time = formatTime(elapsedSeconds);
-    const errors = errorCount === 0 ? t('_aucune_erreur') : true /* fr fallback */ ? `${errorCount} erreur${errorCount > 1 ? 's' : ''}` : `${errorCount} error${errorCount > 1 ? 's' : ''}`;
-    const painting = title ? true /* fr fallback */ ? `J'ai dévoilé "${title}" sur Sudoku Art ! 🎨\n` : `I revealed "${title}" on Sudoku Art! 🎨\n` : '';
+    const errors = errorCount === 0 ? t('_aucune_erreur') : getLang() === 'fr' ? `${errorCount} erreur${errorCount > 1 ? 's' : ''}` : `${errorCount} error${errorCount > 1 ? 's' : ''}`;
+    const painting = title ? getLang() === 'fr' ? `J'ai dévoilé "${title}" sur Sudoku Art ! 🎨\n` : `I revealed "${title}" on Sudoku Art! 🎨\n` : '';
     return t('win_share_text', { painting, diff, time, errors });
   };
 
@@ -91,7 +91,7 @@ export default function WinModal({
   const handleSendResult = async () => {
     const difficultyLabel = diffLabel(difficulty) ?? difficulty;
     const message =
-      true /* fr fallback */ ? `🎉 J'ai réussi le défi Sudoku Art que tu m'as envoyé !\n` : `🎉 I completed the Sudoku Art challenge you sent me!\n` +
+      getLang() === 'fr' ? `🎉 J'ai réussi le défi Sudoku Art que tu m'as envoyé !\n` : `🎉 I completed the Sudoku Art challenge you sent me!\n` +
       t('win_result_msg', { diff: difficultyLabel, errors: errorCount, time: formatTime(elapsedSeconds) });
     await shareText(message() === 'fr' ? 'Résultat du défi Sudoku Art' : 'Sudoku Art Challenge Result');
     setResultSent(true);
@@ -100,11 +100,11 @@ export default function WinModal({
   const handleSendRematchResult = async () => {
     const name = rematchOutcome.challengerName ? `${rematchOutcome.challengerName}, ` : '';
     const verdict =
-      rematchOutcome.winner === 'recipient' ? true /* fr fallback */ ? 'J\'ai gagné ! 🏆' : 'I won! 🏆' :
+      rematchOutcome.winner === 'recipient' ? getLang() === 'fr' ? 'J\'ai gagné ! 🏆' : 'I won! 🏆' :
       rematchOutcome.winner === 'challenger' ? t('_tu_as_gagn_cette_fois') :
       t('_galit_parfaite');
     const message =
-      true /* fr fallback */ ? `${name}voici le résultat de notre défi sur la même grille :\n` : `${name}here's the result of our challenge on the same grid:\n` +
+      getLang() === 'fr' ? `${name}voici le résultat de notre défi sur la même grille :\n` : `${name}here's the result of our challenge on the same grid:\n` +
       `${t('rrd_me')}: ${rematchOutcome.challengerErrors}e ${formatTime(rematchOutcome.challengerSeconds)}\n${t('rrd_friend')}: ${rematchOutcome.recipientErrors}e ${formatTime(rematchOutcome.recipientSeconds)}\n` +
       verdict;
     await shareText(message() === 'fr' ? 'Résultat du défi Sudoku Art' : 'Sudoku Art Challenge Result');

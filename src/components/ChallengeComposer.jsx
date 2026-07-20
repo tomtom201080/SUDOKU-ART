@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { useT, getLang } from '../i18n/index.jsx';
 // src/components/ChallengeComposer.jsx
 import { useRef, useState, useEffect } from 'react';
 import { uploadSharedPhoto, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
@@ -85,14 +85,14 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
 
       const message = path
         ? `🔮 Je te lance un défi Sudoku Art... avec une photo mystère cachée derrière la grille ! 🧩📸\n` +
-          true /* fr fallback */ ? `Résous-la pour la découvrir 👀\n\n` : `Solve it to discover the photo 👀\n\n` +
+          getLang() === 'fr' ? `Résous-la pour la découvrir 👀\n\n` : `Solve it to discover the photo 👀\n\n` +
           `${link}\n\n`
-        : true /* fr fallback */ ? `🧩 Je te lance un défi Sudoku Art !\n` : `🧩 I'm challenging you on Sudoku Art!\n` +
-          true /* fr fallback */ ? `Peux-tu résoudre cette grille ?\n\n` : `Can you solve this grid?\n\n` +
+        : getLang() === 'fr' ? `🧩 Je te lance un défi Sudoku Art !\n` : `🧩 I'm challenging you on Sudoku Art!\n` +
+          getLang() === 'fr' ? `Peux-tu résoudre cette grille ?\n\n` : `Can you solve this grid?\n\n` +
           `${link}\n\n`;
 
       const disclaimer = path
-        ? true /* fr fallback */ ? `⚠️ Ce lien donne accès à la photo (supprimée dans ${SHARE_EXPIRY_DAYS} j). Ne pas transférer.` : `⚠️ This link gives access to the photo (deleted in ${SHARE_EXPIRY_DAYS} days). Don't forward.`
+        ? getLang() === 'fr' ? `⚠️ Ce lien donne accès à la photo (supprimée dans ${SHARE_EXPIRY_DAYS} j). Ne pas transférer.` : `⚠️ This link gives access to the photo (deleted in ${SHARE_EXPIRY_DAYS} days). Don't forward.`
         : '';
 
       const fullMessage = message + disclaimer;
@@ -126,7 +126,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
             <p className="challenge-success">Défi envoyé ! Il sera valable {SHARE_EXPIRY_DAYS} jours.</p>
             {shareLink && (
               <div className="challenge-link-fallback">
-                <p>{true /* fr fallback */ ? 'Le sélecteur WhatsApp ne s\'est pas ouvert ? Copie le lien :' : 'WhatsApp didn\'t open? Copy the link:'}</p>
+                <p>{getLang() === 'fr' ? 'Le sélecteur WhatsApp ne s\'est pas ouvert ? Copie le lien :' : 'WhatsApp didn\'t open? Copy the link:'}</p>
                 <button className="challenge-copy-btn" onClick={handleCopyLink}>
                   {linkCopied ? t('_lien_copi') : '📋 Copier le lien'}
                 </button>
@@ -205,7 +205,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
             </div>
 
             {status === 'error' && (
-              <p className="challenge-error-note">{true /* fr fallback */ ? 'L\'envoi a échoué, réessaie.' : 'Send failed, try again.'}</p>
+              <p className="challenge-error-note">{getLang() === 'fr' ? 'L\'envoi a échoué, réessaie.' : 'Send failed, try again.'}</p>
             )}
 
             <button
