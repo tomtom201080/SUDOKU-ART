@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { useT, translate } from '../i18n/index.jsx';
 // src/components/KpiDashboard.jsx
 import { useEffect, useState } from 'react';
 import { fetchAllGameEvents } from '../lib/analytics';

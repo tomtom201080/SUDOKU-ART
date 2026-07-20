@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { useT, translate } from '../i18n/index.jsx';
 // src/components/IncomingDefiModal.jsx
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';

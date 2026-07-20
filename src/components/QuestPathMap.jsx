@@ -1,4 +1,4 @@
-import { useT } from '../i18n/index.jsx';
+import { useT, translate } from '../i18n/index.jsx';
 // src/components/QuestPathMap.jsx
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { resolveIcon } from './questIcons/index.js';

@@ -1,4 +1,4 @@
-import { useT, getLang } from '../i18n/index.jsx';
+import { useT, getLang, translate } from '../i18n/index.jsx';
 import { calcAdjustedScore, formatAdjustedScore } from '../lib/rematches';
 // src/components/WinModal.jsx
 import { useState } from 'react';
