@@ -1,12 +1,10 @@
-import { useT, getLang } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/ChallengeFailModal.jsx
 import { useState } from 'react';
 import { shareText } from '../utils/device';
 import './WinModal.css';
 
-const DIFF_L = {
-
-};
+const DIFFICULTY_KEYS = { facile: 'diff_facile', moyen: 'diff_moyen', complique: 'diff_complique', enfer: 'diff_enfer' };
 
 function formatTime(totalSeconds) {
   const minutes = Math.floor(totalSeconds / 60);
@@ -26,11 +24,8 @@ export default function ChallengeFailModal({
   const [resultSent, setResultSent] = useState(false);
 
   const handleSendResult = async () => {
-    const difficultyLabel = DIFF_L[difficulty] ?? difficulty;
-    const message =
-      getLang() === 'fr'
-      ? `😢 J'ai perdu le défi Sudoku Art que tu m'as envoyé...\nDifficulté : ${difficultyLabel} — Erreurs : ${errorCount} — Temps : ${formatTime(elapsedSeconds)}`
-      : `😢 I lost the Sudoku Art challenge you sent me...\nDifficulty: ${difficultyLabel} — Errors: ${errorCount} — Time: ${formatTime(elapsedSeconds)}`;
+    const difficultyLabel = DIFFICULTY_KEYS[difficulty] ? t(DIFFICULTY_KEYS[difficulty]) : difficulty;
+    const message = t('fail_result_share_lost', { diff: difficultyLabel, errors: errorCount, time: formatTime(elapsedSeconds) });
     await shareText(message, t('fail_share_title'));
     setResultSent(true);
   };
@@ -45,13 +40,13 @@ export default function ChallengeFailModal({
 
         {challengeMeta?.id && (
           <p className="win-challenge-stats">
-            ❌ {errorCount} erreur{errorCount === 1 ? '' : 's'} — ⏱ {formatTime(elapsedSeconds)}
+            {t('fail_stats', { errors: errorCount, s: errorCount === 1 ? '' : 's', time: formatTime(elapsedSeconds) })}
           </p>
         )}
 
         {challengeMeta?.id && (
           <p className="win-challenge-note">
-            Cette photo et ce défi vont maintenant être supprimés de nos serveurs.
+            {t('win_challenge_note')}
           </p>
         )}
 

@@ -1,6 +1,6 @@
 // src/components/DefiComposer.jsx
 import { useRef, useState } from 'react';
-import { useT, getLang } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 import { generateSudoku } from '../sudoku/generator';
 import { uploadSharedPhoto } from '../lib/sharedPhoto';
 import { createRematch, buildRematchLink } from '../lib/rematches';
@@ -60,7 +60,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
         groupMode });
 
       const link      = buildRematchLink(rematch.id);
-      const limiteTxt = hintsLimit != null ? getLang() === 'fr' ? `\n💡 Max ${hintsLimit} indice${hintsLimit > 1 ? 's' : ''}` : `\n💡 Max ${hintsLimit} hint${hintsLimit > 1 ? 's' : ''}` : '';
+      const limiteTxt = hintsLimit != null ? `\n💡 Max ${t('defi_hint_count', { v: hintsLimit, s: hintsLimit > 1 ? 's' : '' })}` : '';
       const regleTxt  = `${t('defi_rule_msg')}${limiteTxt}`;
 
       // Avertissement photo UNIQUEMENT en mode groupe avec photo perso
@@ -74,8 +74,8 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
 
       const senderName = userEmail ?? (challengerName.trim() || t('defi_a_friend'));
       const message =
-        getLang() === 'fr' ? `🎯 ${senderName} te défie sur Sudoku Art !\n` : `🎯 ${senderName} challenges you on Sudoku Art!\n` +
-        getLang() === 'fr' ? `Résous cette grille${photoPath ? ' et découvre ma photo cachée' : ''} — qui finira avec le meilleur score ?${groupTxt}\n` : `Solve this grid${photoPath ? ' and discover my hidden photo' : ''} — who will get the best score?${groupTxt}\n` +
+        t('defi_share_intro', { name: senderName }) +
+        t('defi_share_body', { photoNote: photoPath ? t('defi_share_photo_note') : '', groupNote: groupTxt }) +
         `${link}${regleTxt}${photoGroupWarning}`;
 
       if (isMobileDevice() && navigator.share) {
@@ -90,7 +90,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
 
     } catch (err) {
       console.error(err);
-      setError(getLang() === 'fr' ? "L'envoi a échoué. Réessaie." : "Send failed. Try again.");
+      setError(t('defi_send_failed'));
       setStep('config');
     }
   };
@@ -133,7 +133,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
             </div>
 
             {/* Difficulté */}
-            <p className="challenge-step-title">{t('_2_difficult')}</p>
+            <p className="challenge-step-title">{t('defi_step2_label')}</p>
             <div className="defi-difficulty-grid">
               {DIFFICULTY_OPTIONS.map(opt => (
                 <button
@@ -148,7 +148,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
             </div>
 
             {/* Limite d'indices */}
-            <p className="challenge-step-title">{getLang() === 'fr' ? '3. Limite d\'indices' : '3. Hint limit'}</p>
+            <p className="challenge-step-title">{t('defi_hint_limit_label')}</p>
             <div className="defi-hints-row">
               {[null, 1, 2, 3].map(v => (
                 <button
@@ -156,27 +156,27 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
                   className={`defi-hint-limit-btn ${hintsLimit === v ? 'is-selected' : ''}`}
                   onClick={() => setHintsLimit(v)}
                 >
-                  {v == null ? '∞ Libre' : getLang() === 'fr' ? `${v} indice${v > 1 ? 's' : ''}` : `${v} hint${v > 1 ? 's' : ''}`}
+                  {v == null ? t('defi_hint_unlimited') : t('defi_hint_count', { v, s: v > 1 ? 's' : '' })}
                 </button>
               ))}
             </div>
 
             {/* Règle de scoring */}
             <div className="defi-scoring-rule">
-              ⏱ Score = temps réel <strong>+2 min</strong> par erreur ou indice. Le plus bas gagne.
+              {t('defi_scoring_hint')}
             </div>
 
             {/* Photo optionnelle */}
-            <p className="challenge-step-title">{t('_4_photo_optionnel')}</p>
+            <p className="challenge-step-title">{t('defi_step4_label')}</p>
             {photoPreview ? (
               <div className="defi-photo-row">
-                <img className="defi-photo-thumb" src={photoPreview} alt="Photo choisie" />
+                <img className="defi-photo-thumb" src={photoPreview} alt={t('cc_photo_selected_alt')} />
                 <button className="challenge-link-btn" onClick={handlePickPhoto}>{t('defi_photo_change')}</button>
                 <button className="challenge-link-btn" onClick={() => { URL.revokeObjectURL(photoPreview); setPhotoFile(null); setPhotoPreview(null); }}>{t('defi_photo_remove')}</button>
               </div>
             ) : (
               <button className="challenge-pick-btn" onClick={handlePickPhoto}>
-                📷 Choisir une photo
+                {t('defi_share_pick_photo_btn')}
               </button>
             )}
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
@@ -184,14 +184,14 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
             {/* Avertissement photo en mode groupe */}
             {groupMode && photoPreview && (
               <div className="defi-group-photo-warning">
-                ⚠️ En mode Groupe, ta photo sera visible par toutes les personnes qui cliqueront sur le lien, même si le message est retransféré.
+                {t('defi_group_photo_warning')}
               </div>
             )}
 
             {/* Prénom si pas connecté */}
             {!userEmail && (
               <>
-                <p className="challenge-step-title">{t('_5_ton_pr_nom')}</p>
+                <p className="challenge-step-title">{t('defi_step5_label')}</p>
                 <input
                   className="challenge-name-input"
                   type="text"
@@ -206,7 +206,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
 
             {!userId && (
               <div className="defi-no-account-warning">
-                💡 Sans compte, tu ne sauras pas qui a joué ni les résultats.
+                {t('defi_no_account')}
               </div>
             )}
 

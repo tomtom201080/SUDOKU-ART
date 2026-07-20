@@ -1,10 +1,11 @@
-import { translate as t, useT } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/AdSlot.jsx
 import { useEffect } from 'react';
 import { loadAdsenseScript, getAdsenseClientId } from '../lib/adsense';
 import './AdSlot.css';
 
 export default function AdSlot({ slot, format = 'auto' }) {
+  const { t } = useT();
   const clientId = getAdsenseClientId();
 
   useEffect(() => {
@@ -19,8 +20,7 @@ export default function AdSlot({ slot, format = 'auto' }) {
   }, [clientId, slot]);
 
   if (!clientId) {
-    const { t } = useT();
-  return (
+    return (
       <div className="ad-slot-placeholder">
         {t('ad_placeholder')}
       </div>

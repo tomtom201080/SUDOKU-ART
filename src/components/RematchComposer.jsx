@@ -1,4 +1,4 @@
-import { useT, getLang } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/RematchComposer.jsx
 import { useRef, useState } from 'react';
 import { uploadSharedPhoto, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
@@ -45,9 +45,13 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
 
       const link = buildRematchLink(rematch.id);
       const message =
-        getLang() === 'fr'
-        ? `🧩 Je te défie sur LA MÊME grille de Sudoku Art !\nMon résultat : ${errorCount} erreur${errorCount === 1 ? '' : 's'}, ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s.\n${link}` + (photoPath ? `\n⚠️ Ce lien donne accès à une photo (supprimée dans ${SHARE_EXPIRY_DAYS} j).` : '')
-        : `🧩 I challenge you on THE SAME Sudoku Art grid!\nMy result: ${errorCount} error${errorCount === 1 ? '' : 's'}, ${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s.\n${link}` + (photoPath ? `\n⚠️ This link gives access to a photo (deleted in ${SHARE_EXPIRY_DAYS} days).` : '');
+        t('rematch_share_text', {
+          errors: errorCount,
+          s: errorCount === 1 ? '' : 's',
+          min: Math.floor(elapsedSeconds / 60),
+          sec: elapsedSeconds % 60,
+          link
+        }) + (photoPath ? t('rematch_photo_share_warning', { days: SHARE_EXPIRY_DAYS }) : '');
 
       if (isMobileDevice() && navigator.share) {
         try {
@@ -87,7 +91,7 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
 
             {!userEmail && (
               <div className="challenge-step">
-                <p className="challenge-step-title">{t('_ton_pr_nom_optionnel')}</p>
+                <p className="challenge-step-title">{t('rematch_prenom_title')}</p>
                 <input
                   type="text"
                   className="challenge-name-input"
@@ -99,12 +103,12 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
             )}
 
             <div className="challenge-step">
-              <p className="challenge-step-title">{t('_ajouter_une_photo_perso_optio')}</p>
+              <p className="challenge-step-title">{t('rematch_photo_title')}</p>
               {photoPreview ? (
-                <img className="challenge-photo-preview" src={photoPreview} alt="Photo choisie" />
+                <img className="challenge-photo-preview" src={photoPreview} alt={t('cc_photo_selected_alt')} />
               ) : (
                 <button className="challenge-pick-btn" onClick={handlePickPhoto}>
-                  📷 Choisir une photo
+                  {t('defi_share_pick_photo_btn')}
                 </button>
               )}
               <input
@@ -116,7 +120,7 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, el
               />
               {photoPreview && (
                 <button className="challenge-link-btn" onClick={handlePickPhoto}>
-                  Changer de photo
+                  {t('rematch_change')}
                 </button>
               )}
             </div>

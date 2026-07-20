@@ -1,4 +1,4 @@
-import { useT, getLang } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/ChallengeComposer.jsx
 import { useRef, useState, useEffect } from 'react';
 import { uploadSharedPhoto, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
@@ -25,6 +25,12 @@ const TIME_OPTIONS = [
 
 export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null }) {
   const { t } = useT();
+  const DIFFICULTY_OPTIONS = [
+    { value: 'facile', label: t('diff_facile') },
+    { value: 'moyen', label: t('diff_moyen') },
+    { value: 'complique', label: t('diff_complique') },
+    { value: 'enfer', label: t('diff_enfer') },
+  ];
 
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(preloadedPhotoUrl);
@@ -79,16 +85,10 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
       setShareLink(link);
 
       const message = path
-        ? `🔮 Je te lance un défi Sudoku Art... avec une photo mystère cachée derrière la grille ! 🧩📸\n` +
-          getLang() === 'fr' ? `Résous-la pour la découvrir 👀\n\n` : `Solve it to discover the photo 👀\n\n` +
-          `${link}\n\n`
-        : getLang() === 'fr' ? `🧩 Je te lance un défi Sudoku Art !\n` : `🧩 I'm challenging you on Sudoku Art!\n` +
-          getLang() === 'fr' ? `Peux-tu résoudre cette grille ?\n\n` : `Can you solve this grid?\n\n` +
-          `${link}\n\n`;
+        ? t('cc_share_msg_with_photo', { link })
+        : t('cc_share_msg_no_photo', { link });
 
-      const disclaimer = path
-        ? getLang() === 'fr' ? `⚠️ Ce lien donne accès à la photo (supprimée dans ${SHARE_EXPIRY_DAYS} j). Ne pas transférer.` : `⚠️ This link gives access to the photo (deleted in ${SHARE_EXPIRY_DAYS} days). Don't forward.`
-        : '';
+      const disclaimer = path ? t('cc_share_disclaimer', { days: SHARE_EXPIRY_DAYS }) : '';
 
       const fullMessage = message + disclaimer;
       if (isMobileDevice() && navigator.share) {
@@ -118,12 +118,12 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
 
         {status === 'done' ? (
           <>
-            <p className="challenge-success">Défi envoyé ! Il sera valable {SHARE_EXPIRY_DAYS} jours.</p>
+            <p className="challenge-success">{t('cc_success_msg', { days: SHARE_EXPIRY_DAYS })}</p>
             {shareLink && (
               <div className="challenge-link-fallback">
-                <p>{getLang() === 'fr' ? 'Le sélecteur WhatsApp ne s\'est pas ouvert ? Copie le lien :' : 'WhatsApp didn\'t open? Copy the link:'}</p>
+                <p>{t('cc_whatsapp_fallback')}</p>
                 <button className="challenge-copy-btn" onClick={handleCopyLink}>
-                  {linkCopied ? t('_lien_copi') : '📋 Copier le lien'}
+                  {linkCopied ? t('cc_link_copied') : t('cc_copy_link_btn')}
                 </button>
               </div>
             )}
@@ -132,12 +132,12 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
         ) : (
           <>
             <div className="challenge-step">
-              <p className="challenge-step-title">{t('_1_choose_the_photo_to_reveal')}</p>
+              <p className="challenge-step-title">{t('cc_step1')}</p>
               {photoPreview ? (
-                <img className="challenge-photo-preview" src={photoPreview} alt="Photo choisie" />
+                <img className="challenge-photo-preview" src={photoPreview} alt={t('cc_photo_selected_alt')} />
               ) : (
                 <button className="challenge-pick-btn" onClick={handlePickPhoto}>
-                  📷 Choisir une photo
+                  {t('defi_pick_photo')}
                 </button>
               )}
               <input
@@ -149,13 +149,13 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
               />
               {photoPreview && (
                 <button className="challenge-link-btn" onClick={handlePickPhoto}>
-                  Changer de photo
+                  {t('rematch_change')}
                 </button>
               )}
             </div>
 
             <div className="challenge-step">
-              <p className="challenge-step-title">{t('_2_niveau_de_difficult')}</p>
+              <p className="challenge-step-title">{t('cc_step2')}</p>
               <div className="challenge-options">
                 {DIFFICULTY_OPTIONS.map(opt => (
                   <button
@@ -185,7 +185,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
             </div>
 
             <div className="challenge-step">
-              <p className="challenge-step-title">{t('_4_temps_respecter')}</p>
+              <p className="challenge-step-title">{t('cc_step4')}</p>
               <div className="challenge-options">
                 {TIME_OPTIONS.map(opt => (
                   <button
@@ -200,7 +200,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
             </div>
 
             {status === 'error' && (
-              <p className="challenge-error-note">{getLang() === 'fr' ? 'L\'envoi a échoué, réessaie.' : 'Send failed, try again.'}</p>
+              <p className="challenge-error-note">{t('cc_send_failed')}</p>
             )}
 
             <button

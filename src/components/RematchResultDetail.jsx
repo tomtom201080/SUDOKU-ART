@@ -20,9 +20,9 @@ export default function RematchResultDetail({ rematch, winner, onClose }) {
 
         <div className="rematch-outcome">
           <p className="rematch-outcome-title">
-            {winner === 'challenger' && t('_tu_as_gagn_ce_d_fi')}
+            {winner === 'challenger' && t('win_rematch_title_win')}
             {winner === 'recipient' && t('rrd_friend_better')}
-            {winner === 'tie' && t('_galit_parfaite')}
+            {winner === 'tie' && t('rematch_perfect_tie')}
           </p>
           <table className="rematch-outcome-table">
             <thead>
