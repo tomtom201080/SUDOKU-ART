@@ -1,0 +1,88 @@
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 260;
+  padding: 16px;
+}
+
+.help-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 22px;
+  width: min(92vw, 520px);
+  max-height: 85vh;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.help-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  position: sticky;
+  top: -22px;
+  background: var(--card-bg);
+  padding: 22px 0 8px;
+  margin: -22px -22px 8px;
+  padding-left: 22px;
+  padding-right: 22px;
+}
+
+.help-header h2 {
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.help-close {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.help-section {
+  margin: 18px 0;
+}
+
+.help-section h3 {
+  font-size: 0.95rem;
+  margin: 0 0 8px;
+}
+
+.help-section p {
+  font-size: 0.88rem;
+  color: var(--text-color);
+  line-height: 1.5;
+  margin: 0 0 8px;
+}
+
+.help-section ul {
+  margin: 0 0 8px;
+  padding-left: 20px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.help-section li {
+  margin-bottom: 4px;
+}
+
+.help-done-btn {
+  width: 100%;
+  background: var(--accent);
+  border: none;
+  color: var(--accent-text);
+  border-radius: 10px;
+  padding: 14px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+}

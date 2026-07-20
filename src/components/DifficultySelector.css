@@ -1,0 +1,248 @@
+/* ─── Écran d'accueil : 3 vignettes ─── */
+.ds-home {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 8px 0;
+}
+
+.ds-logo-block {
+  text-align: center;
+}
+
+.ds-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0 0 4px;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+}
+
+.ds-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.ds-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.ds-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 10px;
+  background: var(--card-bg);
+  border: 1.5px solid var(--card-border);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+  text-align: center;
+}
+
+.ds-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 16px rgba(15, 123, 108, 0.15);
+}
+
+.ds-card:active {
+  transform: scale(0.96);
+}
+
+.ds-card-icon {
+  font-size: 2.2rem;
+}
+
+.ds-card-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.ds-card-desc {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+/* ─── Sous-écrans ─── */
+.ds-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0;
+}
+
+.ds-back {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  padding: 0;
+  align-self: flex-start;
+}
+
+.ds-sub-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+}
+
+.ds-sub-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  text-align: center;
+  margin: 0;
+}
+
+/* ─── Grille de difficulté ─── */
+.difficulty-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.difficulty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 8px;
+  border-radius: 14px;
+  border: 2px solid var(--card-border);
+  background: var(--bg-color);
+  cursor: pointer;
+  transition: transform 0.1s, border-color 0.15s;
+}
+
+.difficulty-card:active { transform: scale(0.95); }
+.difficulty-facile:hover  { border-color: #4caf50; }
+.difficulty-moyen:hover   { border-color: #2196f3; }
+.difficulty-complique:hover { border-color: #ff9800; }
+.difficulty-enfer:hover   { border-color: #f44336; }
+
+.difficulty-icon  { font-size: 2rem; }
+.difficulty-label { font-size: 1rem; font-weight: 700; color: var(--text-color); }
+.difficulty-tier  { font-size: 0.7rem; color: var(--text-muted); text-align: center; line-height: 1.2; }
+
+/* ─── Photo ─── */
+.ds-photo-preview {
+  width: 100%;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+}
+
+.ds-photo-pick-btn {
+  width: 100%;
+  padding: 16px;
+  border: 2px dashed var(--accent);
+  border-radius: 14px;
+  background: none;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+/* ─── Défi ─── */
+.ds-challenge-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ds-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: var(--text-color);
+}
+
+.ds-step span {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 700;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.send-challenge-btn {
+  width: 100%;
+  background: var(--accent);
+  color: var(--accent-text);
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.send-challenge-note {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+}
+
+/* ─── Choix jouer seul vs envoyer ─── */
+.ds-photo-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ds-choice-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--card-bg);
+  border: 1.5px solid var(--card-border);
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s;
+}
+
+.ds-choice-btn:hover {
+  border-color: var(--accent);
+}
+
+.ds-choice-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.ds-choice-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-color);
+  display: block;
+}
+
+.ds-choice-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: block;
+  line-height: 1.35;
+  margin-top: 2px;
+}

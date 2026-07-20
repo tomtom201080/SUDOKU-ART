@@ -1,0 +1,76 @@
+.quit-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 310;
+  padding: 24px;
+}
+
+.quit-panel {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 28px 24px 20px;
+  width: min(92vw, 360px);
+  text-align: center;
+}
+
+.quit-icon {
+  font-size: 2.4rem;
+  margin: 0 0 8px;
+}
+
+.quit-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+
+.quit-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0 0 20px;
+}
+
+.quit-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quit-btn-primary {
+  width: 100%;
+  padding: 13px;
+  background: var(--accent);
+  color: var(--accent-text);
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.quit-btn-login {
+  width: 100%;
+  padding: 13px;
+  background: var(--card-bg);
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.quit-btn-quit {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 4px;
+}
