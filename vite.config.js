@@ -1,12 +1,31 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 
-// PWA désactivé temporairement pour débloquer le crash iPhone
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      manifest: {
+        name: 'Sudoku Art',
+        short_name: 'Sudoku Art',
+        theme_color: '#0F7B6C',
+        background_color: '#F7F1E4',
+        display: 'standalone',
+        icons: [
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+        ]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png}'],
+        skipWaiting: true,
+        clientsClaim: true
+      }
+    })
+  ],
   build: {
-    rollupOptions: {
-      output: { manualChunks: undefined }
-    }
+    rollupOptions: { output: { manualChunks: undefined } }
   }
 })

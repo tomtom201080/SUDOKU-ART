@@ -1,5 +1,4 @@
-// src/i18n/index.jsx
-import { createContext, useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import LangContext from './context.js';
 
 const LANG_KEY = 'sudoku-devoile:lang';
@@ -437,8 +436,7 @@ const FR = {
   win_stats_row: '❌ {errors} erreur{s} — ⏱ {time}',
   win_table_raw: '⏱ Brut',
   win_table_score: '🏁 Score',
-  kpi_avg_errors: 'Erreurs moy. (parties gagnées)',
-  kpi_avg_time: 'Temps moyen (parties gagnées)',
+
 };
 
 const EN = {
@@ -874,44 +872,38 @@ const EN = {
   win_stats_row: '❌ {errors} error{s} — ⏱ {time}',
   win_table_raw: '⏱ Raw',
   win_table_score: '🏁 Score',
-  kpi_avg_errors: 'Avg. errors (won games)',
-  kpi_avg_time: 'Avg. time (won games)',
+
 };
 
 const TRANSLATIONS = { fr: FR, en: EN };
 
 function detectLang() {
   try {
-    var s = localStorage.getItem(LANG_KEY);
-    if (s === 'fr' || s === 'en') return s;
-  } catch(e) {}
-  var nav = (navigator.language || 'fr').toLowerCase();
+    const stored = localStorage.getItem(LANG_KEY);
+    if (stored === 'fr' || stored === 'en') return stored;
+  } catch {}
+  const nav = (navigator.language || 'fr').toLowerCase();
   return nav.startsWith('fr') ? 'fr' : 'en';
 }
 
-var _currentLang = detectLang();
-export function getLang() { return _currentLang; }
+export { LangContext };
 
 export function LangProvider({ children }) {
   const [lang, setLangState] = useState(detectLang);
 
   const setLang = (l) => {
     setLangState(l);
-    _currentLang = l;
-    try { localStorage.setItem(LANG_KEY, l); } catch(e) {}
+    try { localStorage.setItem(LANG_KEY, l); } catch {}
   };
 
-  const t = (key, vars) => {
-    vars = vars || {};
-    var dict = TRANSLATIONS[lang] || TRANSLATIONS.fr;
-    var str = dict[key] || TRANSLATIONS.fr[key] || key;
-    return str.replace(/\{(\w+)\}/g, function(_, k) {
-      return vars[k] != null ? String(vars[k]) : '';
-    });
+  const t = (key, vars = {}) => {
+    const dict = TRANSLATIONS[lang] || TRANSLATIONS.fr;
+    const str = dict[key] || TRANSLATIONS.fr[key] || key;
+    return str.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? ''));
   };
 
   return (
-    <LangContext.Provider value={{ lang, setLang, t, getLang }}>
+    <LangContext.Provider value={{ lang, setLang, t }}>
       {children}
     </LangContext.Provider>
   );
@@ -921,14 +913,19 @@ export function useT() {
   return useContext(LangContext);
 }
 
-// translate() — alias direct sans hook pour les composants
+// Variable module pour translate() sans hook
+var _moduleLang = (function() {
+  try { var s = localStorage.getItem('sudoku-devoile:lang'); if (s==='fr'||s==='en') return s; } catch(e) {}
+  return (navigator.language||'fr').toLowerCase().startsWith('fr') ? 'fr' : 'en';
+})();
+
 export function translate(key, vars) {
-  vars = vars || {};
-  var dict = TRANSLATIONS[_currentLang] || TRANSLATIONS.fr;
-  var str = dict[key] || TRANSLATIONS.fr[key] || key;
+  const dict = TRANSLATIONS[_moduleLang] || TRANSLATIONS.fr;
+  const str = (dict && dict[key]) || TRANSLATIONS.fr[key] || key;
+  if (!vars) return str;
   return str.replace(/\{(\w+)\}/g, function(_, k) {
     return vars[k] != null ? String(vars[k]) : '';
   });
 }
 
-export { LangContext };
+export function setModuleLang(l) { _moduleLang = l; }

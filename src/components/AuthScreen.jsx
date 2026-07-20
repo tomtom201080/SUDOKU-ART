@@ -1,4 +1,4 @@
-import { translate as t, useT, getLang } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/AuthScreen.jsx
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
@@ -6,9 +6,10 @@ import { isMobileDevice } from '../utils/device';
 import './AuthScreen.css';
 
 const APP_URL = typeof window !== 'undefined' ? window.location.origin : '';
-const SHARE_TEXT = getLang() === "fr" ? "Sudoku Art : un Sudoku où une photo se dévoile ! Essaie : " : "Sudoku Art: a Sudoku where a photo reveals itself! Try it: ";
+const SHARE_TEXT = t('_sudoku_art___un_sudoku_o__une');
 
 export default function AuthScreen({ onCancel }) {
+  const { t } = useT();
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup' | 'forgot'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,14 +46,14 @@ export default function AuthScreen({ onCancel }) {
       if (mode === 'signup') {
         const { error: signUpError } = await supabase.auth.signUp({ email, password });
         if (signUpError) throw signUpError;
-        setInfoMessage(getLang() === 'fr' ? 'Compte créé ! Vérifie ta boîte mail pour confirmer ton adresse.' : 'Account created! Check your email to confirm your address.');
+        setInfoMessage(t('_compte_cr_v_rifie_ta_bo_te'));
         setMode('signin');
       } else if (mode === 'forgot') {
         const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: APP_URL
         });
         if (resetError) throw resetError;
-        setInfoMessage(getLang() === 'fr' ? 'Email envoyé ! Clique sur le lien pour choisir un nouveau mot de passe.' : 'Email sent! Click the link to choose a new password.');
+        setInfoMessage(t('_email_envoy_clique_sur_le_l'));
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
         if (signInError) throw signInError;
@@ -71,7 +72,7 @@ export default function AuthScreen({ onCancel }) {
         <h1>Sudoku Art</h1>
         <p className="auth-tagline">
           {onCancel
-            ? (getLang() === 'fr' ? "Un compte permet d'envoyer des défis et de garder ta progression." : "An account lets you send challenges and save your progress.")
+            ? (true /* fr fallback */ ? "Un compte permet d'envoyer des défis et de garder ta progression." : "An account lets you send challenges and save your progress.")
             : "Un Sudoku classique avec un twist : complète des carrés pour dévoiler, petit à petit, une photo cachée derrière la grille — la tienne, ou une image surprise qui change selon la saison."}
         </p>
         <button className="auth-share-btn" onClick={handleShare}>
@@ -103,7 +104,7 @@ export default function AuthScreen({ onCancel }) {
           </div>
         )}
 
-        {mode === 'forgot' && <h2 className="auth-forgot-title">{getLang() === 'fr' ? 'Mot de passe oublié' : 'Forgot password'}</h2>}
+        {mode === 'forgot' && <h2 className="auth-forgot-title">{t('_mot_de_passe_oubli')}</h2>}
 
         <form onSubmit={handleSubmit} className="auth-form">
           <label>

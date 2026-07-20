@@ -1,10 +1,11 @@
-import { translate as t, useT, getLang } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/UpdatePasswordScreen.jsx
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import './AuthScreen.css';
 
 export default function UpdatePasswordScreen({ onDone }) {
+  const { t } = useT();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,7 +17,7 @@ export default function UpdatePasswordScreen({ onDone }) {
     setError('');
 
     if (password !== confirmPassword) {
-      setError(getLang() === 'fr' ? 'Les deux mots de passe ne correspondent pas.' : 'Passwords do not match.');
+      setError(t('_les_deux_mots_de_passe_ne_corr'));
       return;
     }
 
@@ -45,7 +46,7 @@ export default function UpdatePasswordScreen({ onDone }) {
       <div className="auth-card">
         {success ? (
           <>
-            <p className="auth-info">{getLang() === 'fr' ? 'Mot de passe mis à jour !' : 'Password updated!'}</p>
+            <p className="auth-info">{t('_mot_de_passe_mis_jour')}</p>
             <button className="auth-submit-btn" onClick={onDone}>
               Continuer vers le jeu
             </button>
@@ -79,7 +80,7 @@ export default function UpdatePasswordScreen({ onDone }) {
             {error && <p className="auth-error">{error}</p>}
 
             <button type="submit" className="auth-submit-btn" disabled={loading}>
-              {loading ? 'Un instant…' : getLang() === 'fr' ? 'Mettre à jour le mot de passe' : 'Update password'}
+              {loading ? 'Un instant…' : t('_mettre_jour_le_mot_de_passe')}
             </button>
           </form>
         )}

@@ -1,8 +1,10 @@
+import { useT } from '../i18n/index.jsx';
 // src/components/PaintingDetailModal.jsx
 import '../components/WinModal.css';
 import './PaintingDetailModal.css';
 
 export default function PaintingDetailModal({ image, onClose }) {
+  const { t } = useT();
   if (!image) return null;
   return (
     <div className="painting-detail-overlay" onClick={onClose}>
@@ -12,7 +14,7 @@ export default function PaintingDetailModal({ image, onClose }) {
         <img
           className="win-reward-image painting-detail-image"
           src={image.path}
-          alt={image.title ?? getLang() === 'fr' ? 'Tableau débloqué' : 'Artwork unlocked'}
+          alt={image.title ?? t('_tableau_d_bloqu')}
         />
 
         {image.title && (

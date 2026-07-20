@@ -1,9 +1,10 @@
-import { translate as t, useT, getLang } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/PrivacyPolicy.jsx
 import { setAdConsent } from '../lib/adConsent';
 import './PrivacyPolicy.css';
 
 export default function PrivacyPolicy({ onClose, onConsentChange }) {
+  const { t } = useT();
   const handleChoice = (value) => {
     setAdConsent(value);
     if (onConsentChange) onConsentChange(value);
@@ -19,7 +20,7 @@ export default function PrivacyPolicy({ onClose, onConsentChange }) {
         </div>
 
         <section>
-          <h3>{getLang() === 'fr' ? 'Données collectées' : 'Data collected'}</h3>
+          <h3>{t('_donn_es_collect_es')}</h3>
           <p>
             Sudoku Art collecte les données suivantes : votre adresse email
             (si vous créez un compte), votre progression de jeu, et les
@@ -29,7 +30,7 @@ export default function PrivacyPolicy({ onClose, onConsentChange }) {
         </section>
 
         <section>
-          <h3>{getLang() === 'fr' ? 'Utilisation des données' : 'Data usage'}</h3>
+          <h3>{t('_utilisation_des_donn_es')}</h3>
           <p>
             Ces données servent uniquement à faire fonctionner l'application
             (sauvegarde de progression, défis entre amis, statistiques
@@ -39,7 +40,7 @@ export default function PrivacyPolicy({ onClose, onConsentChange }) {
         </section>
 
         <section>
-          <h3>{getLang() === 'fr' ? 'Publicité' : 'Advertising'}</h3>
+          <h3>{t('_publicit')}</h3>
           <p>
             Sudoku Art peut afficher des publicités fournies par Google
             AdSense. Google peut utiliser des cookies pour personnaliser ces
@@ -51,7 +52,7 @@ export default function PrivacyPolicy({ onClose, onConsentChange }) {
         </section>
 
         <section>
-          <h3>{getLang() === 'fr' ? 'Vos droits' : 'Your rights'}</h3>
+          <h3>{t('_vos_droits')}</h3>
           <p>
             Conformément au RGPD, vous pouvez demander l'accès, la
             rectification ou la suppression de vos données à tout moment en

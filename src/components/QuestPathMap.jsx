@@ -1,4 +1,4 @@
-import { useT , getLang} from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/QuestPathMap.jsx
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { resolveIcon } from './questIcons/index.js';
@@ -75,6 +75,7 @@ export default function QuestPathMap({
   onPlayStage,
   onClose
 }) {
+  const { t } = useT();
   const containerRef = useRef(null);
   const avatarMemoryKey = `sudoku-devoile:questAvatarStage:${trackKey}`;
 
@@ -234,7 +235,7 @@ export default function QuestPathMap({
                   style={{ left: x - NODE_RADIUS, top: y - NODE_RADIUS }}
                   disabled={isLocked}
                   onClick={() => onPlayStage(stage)}
-                  title={isLocked ? getLang() === 'fr' ? 'Étape verrouillée' : 'Locked step' : stage.image.title}
+                  title={isLocked ? t('_tape_verrouill_e') : stage.image.title}
                 >
                   {isCompleted ? (
                     <img className="quest-node-thumb" src={stage.image.url} alt={stage.image.title} />

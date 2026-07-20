@@ -1,5 +1,5 @@
 // src/components/DefiDashboard.jsx
-import { translate as t, useT, getLang } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 import { useEffect, useState } from 'react';
 import {
   fetchSentRematches, fetchReceivedRematches,
@@ -34,8 +34,7 @@ function GroupLeaderboard({ rematch, onClose }) {
           errors: rematch.challenger_result_errors ?? 0,
           seconds: rematch.challenger_result_seconds ?? 0,
           hints: rematch.challenger_result_hints ?? 0,
-          isChallenger: true,
-        });
+          isChallenger: true });
       }
       // Trier par score ajusté
       rows.sort((a, b) =>
@@ -50,12 +49,12 @@ function GroupLeaderboard({ rematch, onClose }) {
     <div className="group-leaderboard-overlay" onClick={onClose}>
       <div className="group-leaderboard-panel" onClick={e => e.stopPropagation()}>
         <div className="group-leaderboard-header">
-          <h3>{getLang() === 'fr' ? '🏆 Classement' : '🏆 Leaderboard'}</h3>
+          <h3>{t('_classement')}</h3>
           <button onClick={onClose}>✕</button>
         </div>
         <p className="group-leaderboard-meta">
           {diffLabel(rematch.difficulty) ?? rematch.difficulty} · {fmtDate(rematch.created_at)}
-          {rematch.hints_limit != null && getLang() === 'fr' ? ` · Max ${rematch.hints_limit} indice${rematch.hints_limit > 1 ? 's' : ''}` : ` · Max ${rematch.hints_limit} hint${rematch.hints_limit > 1 ? 's' : ''}`}
+          {rematch.hints_limit != null && true /* fr fallback */ ? ` · Max ${rematch.hints_limit} indice${rematch.hints_limit > 1 ? 's' : ''}` : ` · Max ${rematch.hints_limit} hint${rematch.hints_limit > 1 ? 's' : ''}`}
         </p>
 
         {results === null && <p className="defi-dash-empty">{t('defi_loading')}</p>}
@@ -91,8 +90,7 @@ function PersonalResult({ r, isSent }) {
     challengerHints: r.challenger_result_hints ?? 0,
     recipientErrors: r.recipient_result_errors,
     recipientSeconds: r.recipient_result_seconds,
-    recipientHints: r.recipient_result_hints ?? 0,
-  });
+    recipientHints: r.recipient_result_hints ?? 0 });
   const iWon = (isSent && w === 'challenger') || (!isSent && w === 'recipient');
   const tie  = w === 'tie';
 
@@ -139,6 +137,7 @@ function RematchRow({ r, isSent, onHide, onExpand }) {
 
 // ─── Dashboard principal ─────────────────────────────────────────
 export default function DefiDashboard({ userId, onClose, onCreateDefi }) {
+  const { t } = useT();
   const [tab, setTab]         = useState('sent');
   const [sent, setSent]       = useState(null);
   const [received, setReceived] = useState(null);

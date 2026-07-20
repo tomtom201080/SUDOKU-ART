@@ -1,9 +1,11 @@
-import { translate as t, useT } from '../i18n/index.jsx';
 // src/components/AdConsentBanner.jsx
+import { useT } from '../i18n/index.jsx';
 import { setAdConsent } from '../lib/adConsent';
 import './AdConsentBanner.css';
 
 export default function AdConsentBanner({ onChoice, onShowPrivacy }) {
+  const { t } = useT();
+
   const handleChoice = (value) => {
     setAdConsent(value);
     onChoice(value);
@@ -12,19 +14,17 @@ export default function AdConsentBanner({ onChoice, onShowPrivacy }) {
   return (
     <div className="ad-consent-banner">
       <p>
-        {t('consent_text')}
-        soient personnalisées selon tes centres d'intérêt (via des cookies) ?
-        Tu peux changer d '}
+        {t('consent_text')}{' '}
         <button className="ad-consent-link" onClick={onShowPrivacy}>
-          En savoir plus
+          {t('consent_learn_more')}
         </button>
       </p>
       <div className="ad-consent-actions">
         <button className="ad-consent-btn-secondary" onClick={() => handleChoice('rejected')}>
-          Refuser
+          {t('consent_reject')}
         </button>
         <button className="ad-consent-btn-primary" onClick={() => handleChoice('accepted')}>
-          Accepter
+          {t('consent_accept')}
         </button>
       </div>
     </div>

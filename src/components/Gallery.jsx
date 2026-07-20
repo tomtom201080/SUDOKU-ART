@@ -1,4 +1,4 @@
-import { translate as t, useT, getLang } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/Gallery.jsx
 import { useMemo, useState } from 'react';
 import { TIER_LABELS } from '../data/imageLibrary';
@@ -6,6 +6,7 @@ import PaintingDetailModal from './PaintingDetailModal';
 import './Gallery.css';
 
 export default function Gallery({ gallery, onClose }) {
+  const { t } = useT();
   const [activeTier, setActiveTier] = useState('all');
   const [selectedImage, setSelectedImage] = useState(null);
 
@@ -58,7 +59,7 @@ export default function Gallery({ gallery, onClose }) {
                   key={`${img.id}-${idx}`}
                   onClick={() => setSelectedImage(img)}
                 >
-                  <img src={img.path} alt={img.title ?? getLang() === 'fr' ? 'Image débloquée' : 'Image unlocked'} loading="lazy" />
+                  <img src={img.path} alt={img.title ?? t('_image_d_bloqu_e')} loading="lazy" />
                   <span className="gallery-item-tier">{TIER_LABELS[img.tier] ?? img.tier}</span>
                   {img.title && (
                     <div className="gallery-item-info">

@@ -1,4 +1,4 @@
-import { translate as t, useT, getLang } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/IncomingDefiModal.jsx
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
@@ -20,6 +20,7 @@ async function checkPseudoAvailableForDefi(rematchId, pseudo) {
 }
 
 export default function IncomingDefiModal({ rematch, onLogin, onPlayFree }) {
+  const { t } = useT();
   const [step, setStep] = useState('choice'); // 'choice' | 'pseudo' // 'choice' | 'pseudo'
   const [pseudo, setPseudo] = useState('');
   const [error, setError] = useState(null);
@@ -70,7 +71,7 @@ export default function IncomingDefiModal({ rematch, onLogin, onPlayFree }) {
         <div className="incoming-defi-info">
           <span>🎮 {diff}</span>
           {isGroup && <span>{t('incoming_group')}</span>}
-          {hasPhoto && <span>{getLang() === 'fr' ? '📷 Photo cachée' : '📷 Hidden photo'}</span>}
+          {hasPhoto && <span>{t('_photo_cach_e')}</span>}
           {hintsLimit != null && <span>💡 Max {hintsLimit}</span>}
           <span>{t('incoming_rule_short')}</span>
         </div>

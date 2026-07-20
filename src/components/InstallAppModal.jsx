@@ -1,4 +1,4 @@
-import { translate as t, useT, getLang } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/InstallAppModal.jsx
 import './InstallAppModal.css';
 
@@ -10,18 +10,19 @@ function detectPlatform() {
 }
 
 export default function InstallAppModal({ onClose }) {
+  const { t } = useT();
 
   const { isIOS, isAndroid } = detectPlatform();
   return (
     <div className="install-overlay">
       <div className="install-panel">
         <div className="install-header">
-          <h2>{getLang() === 'fr' ? '📲 Installer Sudoku Art' : '📲 Install Sudoku Art'}</h2>
+          <h2>{t('_installer_sudoku_art')}</h2>
           <button className="install-close" onClick={onClose}>✕</button>
         </div>
 
         <p className="install-intro">
-          Ajoute lgetLang() === 'fr' ? 'appli sur ton écran d\'' : 'app on your home screen'accueil : elle s'ouvrira comme une
+          Ajoute ltrue /* fr fallback */ ? 'appli sur ton écran d\'' : 'app on your home screen'accueil : elle s'ouvrira comme une
           vraie application, en plein écran, sans passer par le navigateur.
         </p>
 
@@ -48,7 +49,7 @@ export default function InstallAppModal({ onClose }) {
           </p>
         )}
 
-        <button className="install-done-btn" onClick={onClose}>{getLang() === 'fr' ? 'Compris !' : 'Got it!'}</button>
+        <button className="install-done-btn" onClick={onClose}>{t('_compris')}</button>
       </div>
     </div>
   );

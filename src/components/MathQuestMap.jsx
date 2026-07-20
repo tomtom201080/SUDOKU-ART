@@ -1,4 +1,4 @@
-import { useT , getLang} from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/MathQuestMap.jsx
 import { useEffect, useState } from 'react';
 import { MATH_QUEST_STAGES, mathRankForCompletedCount } from '../data/mathQuestStages';
@@ -8,6 +8,7 @@ import { DAVINCI_ICONS, DAVINCI_CHAPTERS } from './questIcons/index.js';
 import QuestPathMap from './QuestPathMap';
 
 export default function MathQuestMap({ userId, onClose, onPlayStage }) {
+  const { t } = useT();
   const [completedStages, setCompletedStages] = useState(null);
 
   useEffect(() => {
@@ -19,7 +20,7 @@ export default function MathQuestMap({ userId, onClose, onPlayStage }) {
   if (completedStages === null) {
     return (
       <div className="quest-overlay">
-        <div className="quest-panel"><p>{getLang() === 'fr' ? 'Chargement de ta quête…' : 'Loading your quest…'}</p></div>
+        <div className="quest-panel"><p>{t('_chargement_de_ta_qu_te')}</p></div>
       </div>
     );
   }
@@ -38,7 +39,7 @@ export default function MathQuestMap({ userId, onClose, onPlayStage }) {
 
   return (
     <QuestPathMap
-      title=getLang() === 'fr' ? '🧠 Quête Sudomath' : '🧠 Sudomath Quest'
+      title=t('_qu_te_sudomath')
       stages={stages}
       completedStages={completedStages}
       currentRank={currentRank}

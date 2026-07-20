@@ -1,4 +1,4 @@
-import { translate as t, useT, getLang } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/KpiDashboard.jsx
 import { useEffect, useState } from 'react';
 import { fetchAllGameEvents } from '../lib/analytics';
@@ -13,6 +13,7 @@ const DIFFICULTY_LABELS = {
 };
 
 export default function KpiDashboard({ onClose }) {
+  const { t } = useT();
   const [kpis, setKpis] = useState(null);
   const [error, setError] = useState(null);
 
@@ -26,7 +27,7 @@ export default function KpiDashboard({ onClose }) {
     <div className="kpi-overlay" onClick={onClose}>
       <div className="kpi-panel" onClick={(e) => e.stopPropagation()}>
         <div className="kpi-header">
-          <h2>{getLang() === 'fr' ? '📊 Statistiques' : '📊 Statistics'}</h2>
+          <h2>{t('_statistiques')}</h2>
           <button className="kpi-close" onClick={onClose}>✕</button>
         </div>
 
@@ -101,7 +102,7 @@ export default function KpiDashboard({ onClose }) {
               </tbody>
             </table>
 
-            <h3 className="kpi-section-title">{getLang() === 'fr' ? '7 derniers jours' : 'Last 7 days'}</h3>
+            <h3 className="kpi-section-title">{t('_7_derniers_jours')}</h3>
             <table className="kpi-table">
               <thead>
                 <tr>

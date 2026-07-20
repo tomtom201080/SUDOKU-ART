@@ -33,7 +33,7 @@ import DeleteAccountModal from './components/DeleteAccountModal';
 import OnboardingModal from './components/OnboardingModal';
 import HomeProgress from './components/HomeProgress';
 import { getAdConsent } from './lib/adConsent';
-import { translate as t, useT, getLang } from './i18n/index.jsx';
+import { useT } from './i18n/index.jsx';
 import { useGame } from './hooks/useGame';
 import { useNetworkStatus } from './hooks/useNetworkStatus';
 import './components/LegalModal.css';
@@ -77,14 +77,14 @@ function formatTime(totalSeconds) {
 }
 
 export default function App() {
+  const { t } = useT();
   const { setLang } = useT();
 
   const DIFFICULTY_LABELS = {
     facile: t('diff_facile'),
     moyen: t('diff_moyen'),
     complique: t('diff_complique'),
-    enfer: t('diff_enfer'),
-  };
+    enfer: t('diff_enfer') };
   const [manifest, setManifest] = useState(null);
   const [manifestLoading, setManifestLoading] = useState(true);
   const [selectedCell, setSelectedCell] = useState(null);
@@ -195,7 +195,7 @@ export default function App() {
 
   // Si on vient de se connecter (ou de créer un compte) spécifiquement pour
   // envoyer un défi, on ouvre automatiquement le composeur juste après. Si la
-  // connexion a été faite depuis le bouton générique getLang() === "fr" ? "Se connecter" : "Sign in", on
+  // connexion a été faite depuis le bouton générique t('_se_connecter'), on
   // retombe normalement sur l'écran de choix de difficulté.
   useEffect(() => {
     if (session && showAuthScreen) {
@@ -219,8 +219,7 @@ export default function App() {
 
   const game = useGame(manifest, session?.user?.id ?? null, {
     onMaxErrorsReached: () => setShowMaxErrors(true),
-    username,
-  });
+    username });
 
   const [preloadedByTier, setPreloadedByTier] = useState({});
 
@@ -553,9 +552,9 @@ export default function App() {
   );
 
   const accountButton = session ? (
-    <button className="icon-btn" onClick={() => supabase.auth.signOut()} title={getLang() === "fr" ? "Déconnexion" : "Sign out"}>🚪</button>
+    <button className="icon-btn" onClick={() => supabase.auth.signOut()} title={t('_d_connexion')}>🚪</button>
   ) : (
-    <button className="icon-btn" onClick={() => setShowAuthScreen(true)} title={getLang() === "fr" ? "Se connecter" : "Sign in"}>👤</button>
+    <button className="icon-btn" onClick={() => setShowAuthScreen(true)} title={t('_se_connecter')}>👤</button>
   );
 
   const profileButton = session ? (
@@ -588,12 +587,12 @@ export default function App() {
           <div className="header-actions">
             {darkModeButton}
             <button className="icon-btn" onClick={() => setShowHelpModal(true)} title="Rules">❓</button>
-            <button className="icon-btn" onClick={() => setLang(getLang() === 'fr' ? 'en' : 'fr')} title="Language">
-              {getLang() === 'fr' ? '🇬🇧' : '🇫🇷'}
+            <button className="icon-btn" onClick={() => setLang(t('_en'))} title="Language">
+              {t('_')}
             </button>
             <button className="icon-btn" onClick={() => setShowInstallModal(true)} title="Install">📲</button>
             {session?.user?.email === 't.dabadie@gmail.com' && (
-              <button className="icon-btn" onClick={() => setShowKpiDashboard(true)} title={getLang() === "fr" ? "Statistiques" : "Statistics"}>📊</button>
+              <button className="icon-btn" onClick={() => setShowKpiDashboard(true)} title={t('_statistiques')}>📊</button>
             )}
             <button className="icon-btn" onClick={handleOpenGallery} title={t('gallery_title')}>🖼</button>
             {profileButton}
@@ -645,9 +644,9 @@ export default function App() {
               style={{ cursor: 'pointer' }}
             >
               🎯 Ton ami a fini le défi que tu lui as envoyé !{' '}
-              {winner === 'tie' && getLang() === 'fr' ? getLang() === 'fr' ? 'Égalité parfaite !' : 'Perfect tie!' : 'Perfect tie!'}
-              {winner === 'challenger' && getLang() === 'fr' ? 'Tu as gagné 🏆' : 'You won 🏆'}
-              {winner === 'recipient' && getLang() === "fr" ? "Il/elle a fait mieux que toi 😅" : "They did better this time 😅"}
+              {winner === 'tie' && true /* fr fallback */ ? t('_galit_parfaite') : 'Perfect tie!'}
+              {winner === 'challenger' && t('_tu_as_gagn')}
+              {winner === 'recipient' && t('_il_elle_a_fait_mieux_que_toi')}
               <button onClick={(e) => { e.stopPropagation(); handleDismissRematchNotification(r.id); }}>✕</button>
             </div>
           );
@@ -777,7 +776,7 @@ export default function App() {
           </span>
           <span className="stat-pill">❌ {game.errorCount} / {game.challengeMeta?.maxErrors ?? 3}</span>
           {darkModeButton}
-          <button className="icon-btn" onClick={game.toggleWatermark} title={getLang() === "fr" ? "Filigrane" : "Watermark"}>
+          <button className="icon-btn" onClick={game.toggleWatermark} title={t('_filigrane')}>
             {game.watermarkVisible ? '🙈' : '🙉'}
           </button>
           <button className="icon-btn" onClick={handleCloseGameEnd} title="Menu">↩</button>

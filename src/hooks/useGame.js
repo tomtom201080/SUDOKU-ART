@@ -242,8 +242,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
         challengerHasAccount: !!rematch.challenger_user_id,
         hintsLimit: rematch.hints_limit ?? null,
         groupMode: rematch.group_mode ?? false,
-        playerPseudo: playerPseudo ?? null,
-      });
+        playerPseudo: playerPseudo ?? null });
       setRematchOutcome(null);
 
       logGameStart({ difficulty: rematch.difficulty, userId, isCustomPhoto: !!photoUrl, isChallenge: true });
@@ -650,8 +649,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
             seconds: finalElapsed,
             hints: hintsUsed,
             userId: userId ?? null,
-            playerName: activeRematch.playerPseudo ?? username ?? 'Anonyme',
-          }).catch(() => null);
+            playerName: activeRematch.playerPseudo ?? username ?? 'Anonyme' }).catch(() => null);
         } else {
           // Mode perso 1v1
           submitRematchResult(activeRematch.id, {
@@ -667,8 +665,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
             challengerHints: activeRematch.challengerHints ?? 0,
             recipientErrors: errorCount,
             recipientSeconds: finalElapsed,
-            recipientHints: hintsUsed,
-          });
+            recipientHints: hintsUsed });
 
           setRematchOutcome({
             challengerName: activeRematch.challengerName,
