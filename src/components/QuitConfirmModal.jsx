@@ -1,5 +1,5 @@
 // src/components/QuitConfirmModal.jsx
-import { translate as t, useT } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 import './QuitConfirmModal.css';
 
 export default function QuitConfirmModal({ onContinue, onLogin, onQuit }) {

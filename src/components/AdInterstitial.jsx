@@ -1,4 +1,4 @@
-import { translate as t, useT } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/AdInterstitial.jsx
 // S'affiche avant une action "premium" (envoi de défi, grille avec photo).
 // Respecte le consentement : si l'utilisateur a refusé les pubs, on passe.

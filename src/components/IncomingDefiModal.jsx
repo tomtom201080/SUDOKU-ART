@@ -1,4 +1,4 @@
-import { useT, translate } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/IncomingDefiModal.jsx
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
@@ -71,7 +71,7 @@ export default function IncomingDefiModal({ rematch, onLogin, onPlayFree }) {
         <div className="incoming-defi-info">
           <span>🎮 {diff}</span>
           {isGroup && <span>{t('incoming_group')}</span>}
-          {hasPhoto && <span>{t('_photo_cach_e')}</span>}
+          {hasPhoto && <span>{t('incoming_hidden_photo')}</span>}
           {hintsLimit != null && <span>💡 Max {hintsLimit}</span>}
           <span>{t('incoming_rule_short')}</span>
         </div>
@@ -79,14 +79,14 @@ export default function IncomingDefiModal({ rematch, onLogin, onPlayFree }) {
         {step === 'choice' && (
           <>
             <p className="incoming-defi-note">
-              Connecte-toi pour que ton score soit rattaché à ton compte et visible par {challengerName}.
+              {t('incoming_login_desc', { name: challengerName })}
             </p>
             <div className="quit-actions">
               <button className="quit-btn-primary" onClick={onLogin}>
-                👤 Se connecter / S'inscrire
+                {t('quit_login')}
               </button>
               <button className="quit-btn-login" onClick={handlePlayFreeClick}>
-                🎮 Jouer en participation libre
+                {t('incoming_play_free_btn')}
               </button>
             </div>
           </>
@@ -114,10 +114,10 @@ export default function IncomingDefiModal({ rematch, onLogin, onPlayFree }) {
                 onClick={handleSubmitPseudo}
                 disabled={checking}
               >
-                {checking ? t('incoming_pseudo_checking') : translate('incoming_pseudo_btn')}
+                {checking ? t('incoming_pseudo_checking') : t('incoming_pseudo_btn')}
               </button>
               <button className="quit-btn-quit" onClick={() => setStep('choice')}>
-                ← Retour
+                {t('incoming_pseudo_back')}
               </button>
             </div>
           </>

@@ -14,7 +14,7 @@ export default function PaintingDetailModal({ image, onClose }) {
         <img
           className="win-reward-image painting-detail-image"
           src={image.path}
-          alt={image.title ?? t('_tableau_d_bloqu')}
+          alt={image.title ?? t('painting_unlocked_alt')}
         />
 
         {image.title && (
@@ -35,7 +35,7 @@ export default function PaintingDetailModal({ image, onClose }) {
               <p className="painting-fun-fact">💡 {image.funFact}</p>
             )}
             {image.observe && (
-              <p className="painting-observe">👀 À observer : {image.observe}</p>
+              <p className="painting-observe">{t('painting_observe')}{image.observe}</p>
             )}
           </div>
         )}

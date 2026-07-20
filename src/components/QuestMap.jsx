@@ -20,7 +20,7 @@ export default function QuestMap({ userId, onClose, onPlayStage }) {
   if (completedStages === null) {
     return (
       <div className="quest-overlay">
-        <div className="quest-panel"><p>{t('_chargement_de_ta_qu_te')}</p></div>
+        <div className="quest-panel"><p>{t('quest_loading')}</p></div>
       </div>
     );
   }
@@ -39,7 +39,7 @@ export default function QuestMap({ userId, onClose, onPlayStage }) {
 
   return (
     <QuestPathMap
-      title=t('_qu_te_sudokart')
+      title={t('quest_art_title')}
       stages={stages}
       completedStages={completedStages}
       currentRank={currentRank}

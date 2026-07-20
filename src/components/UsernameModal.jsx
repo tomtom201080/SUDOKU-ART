@@ -1,4 +1,4 @@
-import { translate as t, useT } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/UsernameModal.jsx
 import { useState } from 'react';
 import { validateUsername, checkUsernameAvailable, saveUsername } from '../lib/profiles';

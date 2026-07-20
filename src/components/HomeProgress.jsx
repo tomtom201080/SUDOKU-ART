@@ -1,4 +1,4 @@
-import { translate as t, useT } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/HomeProgress.jsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';

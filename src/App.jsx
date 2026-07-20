@@ -33,7 +33,7 @@ import DeleteAccountModal from './components/DeleteAccountModal';
 import OnboardingModal from './components/OnboardingModal';
 import HomeProgress from './components/HomeProgress';
 import { getAdConsent } from './lib/adConsent';
-import { useT, getLang } from './i18n/index.jsx';
+import { useT } from './i18n/index.jsx';
 import { useGame } from './hooks/useGame';
 import { useNetworkStatus } from './hooks/useNetworkStatus';
 import './components/LegalModal.css';
@@ -77,8 +77,8 @@ function formatTime(totalSeconds) {
 }
 
 export default function App() {
-  const { t } = useT();
-  const { setLang } = useT();
+  const { t, lang, setLang } = useT();
+  const toggleLanguage = () => setLang(lang === 'fr' ? 'en' : 'fr');
 
   const DIFFICULTY_LABELS = {
     facile: t('diff_facile'),
@@ -195,7 +195,7 @@ export default function App() {
 
   // Si on vient de se connecter (ou de créer un compte) spécifiquement pour
   // envoyer un défi, on ouvre automatiquement le composeur juste après. Si la
-  // connexion a été faite depuis le bouton générique t('_se_connecter'), on
+  // connexion a été faite depuis le bouton générique de connexion, on
   // retombe normalement sur l'écran de choix de difficulté.
   useEffect(() => {
     if (session && showAuthScreen) {
@@ -552,9 +552,9 @@ export default function App() {
   );
 
   const accountButton = session ? (
-    <button className="icon-btn" onClick={() => supabase.auth.signOut()} title={t('_d_connexion')}>🚪</button>
+    <button className="icon-btn" onClick={() => supabase.auth.signOut()} title={t('nav_logout_title')}>🚪</button>
   ) : (
-    <button className="icon-btn" onClick={() => setShowAuthScreen(true)} title={t('_se_connecter')}>👤</button>
+    <button className="icon-btn" onClick={() => setShowAuthScreen(true)} title={t('auth_signin')}>👤</button>
   );
 
   const profileButton = session ? (
@@ -586,13 +586,13 @@ export default function App() {
           <img src="/favicon.svg" alt="Sudoku Art" className="app-logo" />
           <div className="header-actions">
             {darkModeButton}
-            <button className="icon-btn" onClick={() => setShowHelpModal(true)} title="Rules">❓</button>
-            <button className="icon-btn" onClick={() => setLang(t('_en'))} title="Language">
-              {t('_')}
+            <button className="icon-btn" onClick={() => setShowHelpModal(true)} title={t('nav_rules_title')}>❓</button>
+            <button className="icon-btn" onClick={toggleLanguage} title="Language">
+              {lang === 'fr' ? '🇬🇧' : '🇫🇷'}
             </button>
-            <button className="icon-btn" onClick={() => setShowInstallModal(true)} title="Install">📲</button>
+            <button className="icon-btn" onClick={() => setShowInstallModal(true)} title={t('nav_install_title')}>📲</button>
             {session?.user?.email === 't.dabadie@gmail.com' && (
-              <button className="icon-btn" onClick={() => setShowKpiDashboard(true)} title={t('_statistiques')}>📊</button>
+              <button className="icon-btn" onClick={() => setShowKpiDashboard(true)} title={t('nav_stats_title')}>📊</button>
             )}
             <button className="icon-btn" onClick={handleOpenGallery} title={t('gallery_title')}>🖼</button>
             {profileButton}
@@ -611,21 +611,19 @@ export default function App() {
 
         {!isOnline && (
           <div className="challenge-already-opened-banner" style={{ background: 'rgba(180,80,0,0.12)' }}>
-            📵 Pas de connexion internet — les fonctionnalités réseau sont indisponibles.
+            {t('offline_banner')}
           </div>
         )}
 
         {challengeAlreadyOpened && (
           <div className="challenge-already-opened-banner">
-            📷 Le lien de défi que tu as ouvert a déjà été utilisé sur un autre
-            appareil — la photo n'est visible que là où il a été ouvert en premier.
+            {t('challenge_link_used_banner')}
             <button onClick={() => setChallengeAlreadyOpened(false)}>✕</button>
           </div>
         )}
         {rematchAlreadyStartedNotice && (
           <div className="challenge-already-opened-banner">
-            🚫 Tu as déjà commencé ce défi — impossible de relancer la grille
-            à zéro pour retenter ta chance.
+            {t('rematch_already_started_banner')}
             <button onClick={() => setRematchAlreadyStartedNotice(false)}>✕</button>
           </div>
         )}
@@ -643,10 +641,10 @@ export default function App() {
               onClick={() => setSelectedRematchNotification({ rematch: r, winner })}
               style={{ cursor: 'pointer' }}
             >
-              🎯 Ton ami a fini le défi que tu lui as envoyé !{' '}
-              {winner === 'tie' && getLang() === 'fr' ? t('_galit_parfaite') : 'Perfect tie!'}
-              {winner === 'challenger' && t('_tu_as_gagn')}
-              {winner === 'recipient' && t('_il_elle_a_fait_mieux_que_toi')}
+              {t('rematch_friend_finished')}{' '}
+              {winner === 'tie' && t('rematch_perfect_tie')}
+              {winner === 'challenger' && t('rematch_you_won')}
+              {winner === 'recipient' && t('rematch_recipient_better')}
               <button onClick={(e) => { e.stopPropagation(); handleDismissRematchNotification(r.id); }}>✕</button>
             </div>
           );
@@ -776,10 +774,10 @@ export default function App() {
           </span>
           <span className="stat-pill">❌ {game.errorCount} / {game.challengeMeta?.maxErrors ?? 3}</span>
           {darkModeButton}
-          <button className="icon-btn" onClick={game.toggleWatermark} title={t('_filigrane')}>
+          <button className="icon-btn" onClick={game.toggleWatermark} title={t('game_watermark_toggle')}>
             {game.watermarkVisible ? '🙈' : '🙉'}
           </button>
-          <button className="icon-btn" onClick={handleCloseGameEnd} title="Menu">↩</button>
+          <button className="icon-btn" onClick={handleCloseGameEnd} title={t('nav_menu_title')}>↩</button>
         </div>
       </header>
 
@@ -791,7 +789,7 @@ export default function App() {
         {game.imageIntensity > 0 && game.watermark && (
           <div className="intensity-control">
             <label htmlFor="image-intensity">
-              🖼 Intensité du filigrane
+              {t('game_intensity')}
             </label>
             <input
               id="image-intensity"

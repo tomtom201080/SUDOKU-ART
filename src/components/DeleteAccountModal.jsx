@@ -1,4 +1,4 @@
-import { translate as t, useT } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/DeleteAccountModal.jsx
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
@@ -54,7 +54,7 @@ export default function DeleteAccountModal({ onClose, onDeleted }) {
                 style={{ flex:1, padding:'10px', borderRadius:'10px', border:'none', background:'#D32F2F', color:'#fff', fontWeight:700, cursor:'pointer' }}
                 onClick={() => setStep(2)}
               >
-                Supprimer quand même
+                {t('del_confirm1')}
               </button>
             </div>
           </>
@@ -63,7 +63,7 @@ export default function DeleteAccountModal({ onClose, onDeleted }) {
         {step === 2 && (
           <>
             <p style={{ fontSize: '0.88rem', lineHeight: 1.5, marginBottom: 16 }}>
-              {t('del_final')} Cette action ne peut pas être annulée.
+              {t('del_final')} {t('del_final_note')}
             </p>
             {error && <p style={{ color: '#D32F2F', fontSize: '0.82rem' }}>{error}</p>}
             <div style={{ display: 'flex', gap: 8 }}>

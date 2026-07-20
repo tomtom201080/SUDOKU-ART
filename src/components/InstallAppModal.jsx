@@ -1,4 +1,4 @@
-import { useT, getLang } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/InstallAppModal.jsx
 import './InstallAppModal.css';
 
@@ -17,13 +17,12 @@ export default function InstallAppModal({ onClose }) {
     <div className="install-overlay">
       <div className="install-panel">
         <div className="install-header">
-          <h2>{t('_installer_sudoku_art')}</h2>
+          <h2>{t('install_modal_title')}</h2>
           <button className="install-close" onClick={onClose}>✕</button>
         </div>
 
         <p className="install-intro">
-          Ajoute lgetLang() === 'fr' ? 'appli sur ton écran d\'' : 'app on your home screen'accueil : elle s'ouvrira comme une
-          vraie application, en plein écran, sans passer par le navigateur.
+          {t('install_intro_text')}
         </p>
 
         {isIOS && (
@@ -44,12 +43,11 @@ export default function InstallAppModal({ onClose }) {
 
         {!isIOS && !isAndroid && (
           <p className="install-desktop-note">
-            Cette option est surtout utile sur téléphone. Sur ordinateur, tu
-            peux simplement garder cette page en favori.
+            {t('install_desktop_note')}
           </p>
         )}
 
-        <button className="install-done-btn" onClick={onClose}>{t('_compris')}</button>
+        <button className="install-done-btn" onClick={onClose}>{t('install_done_btn')}</button>
       </div>
     </div>
   );

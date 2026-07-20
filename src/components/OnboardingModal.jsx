@@ -1,6 +1,6 @@
 // src/components/OnboardingModal.jsx
 import { useState } from 'react';
-import { translate as t, useT } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 import './OnboardingModal.css';
 
 export default function OnboardingModal({ onClose }) {

@@ -1,6 +1,6 @@
 // src/components/MaxErrorsModal.jsx
 import { useEffect, useState } from 'react';
-import { translate as t, useT } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 import { getAdConsent } from '../lib/adConsent';
 import { loadAdsenseScript, getAdsenseClientId } from '../lib/adsense';
 import './MaxErrorsModal.css';
@@ -56,7 +56,7 @@ export default function MaxErrorsModal({ errorCount, maxErrors = 3, onContinue, 
         <h2 className="maxerr-title">{t('maxerr_granted')}</h2>
         <p className="maxerr-desc">{t('maxerr_granted_desc', { n: maxErrors - 1, max: maxErrors + 1 })}</p>
         <button className="maxerr-btn-continue" onClick={onContinue}>
-          ▶ Continuer la partie
+          {t('maxerr_continue_btn')}
         </button>
       </div>
     </div>
@@ -77,7 +77,7 @@ export default function MaxErrorsModal({ errorCount, maxErrors = 3, onContinue, 
             </button>
           ) : (
             <button className="maxerr-btn-ad" onClick={onContinue}>
-              ▶ Continuer quand même
+              {t('maxerr_continue')}
             </button>
           )}
           <button className="maxerr-btn-quit" onClick={onGameOver}>

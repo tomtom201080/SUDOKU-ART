@@ -17,7 +17,7 @@ export default function UpdatePasswordScreen({ onDone }) {
     setError('');
 
     if (password !== confirmPassword) {
-      setError(t('_les_deux_mots_de_passe_ne_corr'));
+      setError(t('upd_mismatch'));
       return;
     }
 
@@ -39,22 +39,22 @@ export default function UpdatePasswordScreen({ onDone }) {
         <img src="/favicon.svg" alt="Logo Sudoku Art" className="auth-logo" />
         <h1>{t('upd_title')}</h1>
         <p className="auth-tagline">
-          Choisis un nouveau mot de passe pour ton compte.
+          {t('upd_subtitle')}
         </p>
       </div>
 
       <div className="auth-card">
         {success ? (
           <>
-            <p className="auth-info">{t('_mot_de_passe_mis_jour')}</p>
+            <p className="auth-info">{t('upd_success')}</p>
             <button className="auth-submit-btn" onClick={onDone}>
-              Continuer vers le jeu
+              {t('upd_continue_btn')}
             </button>
           </>
         ) : (
           <form onSubmit={handleSubmit} className="auth-form">
             <label>
-              Nouveau mot de passe
+              {t('upd_new_password_label')}
               <input
                 type="password"
                 value={password}
@@ -66,7 +66,7 @@ export default function UpdatePasswordScreen({ onDone }) {
             </label>
 
             <label>
-              Confirme le mot de passe
+              {t('upd_confirm_password_label')}
               <input
                 type="password"
                 value={confirmPassword}
@@ -80,7 +80,7 @@ export default function UpdatePasswordScreen({ onDone }) {
             {error && <p className="auth-error">{error}</p>}
 
             <button type="submit" className="auth-submit-btn" disabled={loading}>
-              {loading ? 'Un instant…' : t('_mettre_jour_le_mot_de_passe')}
+              {loading ? t('common_one_moment') : t('upd_btn')}
             </button>
           </form>
         )}

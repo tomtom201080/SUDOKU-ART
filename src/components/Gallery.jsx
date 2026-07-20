@@ -38,7 +38,7 @@ export default function Gallery({ gallery, onClose }) {
                 className={activeTier === 'all' ? 'active' : ''}
                 onClick={() => setActiveTier('all')}
               >
-                Tout
+                {t('gallery_all')}
               </button>
               {tiers.map(tier => (
                 <button
@@ -59,7 +59,7 @@ export default function Gallery({ gallery, onClose }) {
                   key={`${img.id}-${idx}`}
                   onClick={() => setSelectedImage(img)}
                 >
-                  <img src={img.path} alt={img.title ?? t('_image_d_bloqu_e')} loading="lazy" />
+                  <img src={img.path} alt={img.title ?? t('gallery_image_unlocked_alt')} loading="lazy" />
                   <span className="gallery-item-tier">{TIER_LABELS[img.tier] ?? img.tier}</span>
                   {img.title && (
                     <div className="gallery-item-info">

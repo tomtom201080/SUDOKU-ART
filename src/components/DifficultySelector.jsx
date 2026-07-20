@@ -1,17 +1,15 @@
 // src/components/DifficultySelector.jsx
 import { useRef, useState } from 'react';
-import { translate as t, useT } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 import './DifficultySelector.css';
-
-// DIFF_OPTIONS défini dans chaque composant via translate()
 
 function DifficultyScreen({ title, customImage, onSelectDifficulty, onBack }) {
   const { t } = useT();
   const opts = [
-    { id: 'facile',    label: translate('diff_facile'), icon: '😌' },
-    { id: 'moyen',     label: translate('diff_moyen'),  icon: '🙂' },
-    { id: 'complique', label: translate('diff_complique'), icon: '😬' },
-    { id: 'enfer',     label: translate('diff_enfer'),  icon: '🔥' },
+    { id: 'facile',    label: t('diff_facile'), icon: '😌' },
+    { id: 'moyen',     label: t('diff_moyen'),  icon: '🙂' },
+    { id: 'complique', label: t('diff_complique'), icon: '😬' },
+    { id: 'enfer',     label: t('diff_enfer'),  icon: '🔥' },
   ];
   return (
     <div className="ds-sub">
