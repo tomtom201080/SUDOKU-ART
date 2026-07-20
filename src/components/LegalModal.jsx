@@ -3,6 +3,7 @@ import { useT, getLang } from '../i18n/index.jsx';
 import './LegalModal.css';
 
 export function TermsModal({ onClose }) {
+  const { t } = useT();
   return (
     <div className="legal-overlay" onClick={onClose}>
       <div className="legal-panel" onClick={e => e.stopPropagation()}>
@@ -60,6 +61,7 @@ export function TermsModal({ onClose }) {
 }
 
 export function PrivacyModal({ onClose, onConsentChange }) {
+  const { t } = useT();
   return (
     <div className="legal-overlay" onClick={onClose}>
       <div className="legal-panel" onClick={e => e.stopPropagation()}>

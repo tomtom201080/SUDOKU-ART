@@ -10,6 +10,7 @@ import './AdInterstitial.css';
 const WAIT_SECONDS = 5;
 
 export default function AdInterstitial({ onContinue, onClose }) {
+  const { t } = useT();
 
   const [countdown, setCountdown] = useState(WAIT_SECONDS);
   const intervalRef = useRef(null);  const consent = getAdConsent();

@@ -5,6 +5,7 @@ import { validateUsername, checkUsernameAvailable, saveUsername } from '../lib/p
 import './UsernameModal.css';
 
 export default function UsernameModal({ userId, onDone }) {
+  const { t } = useT();
   const [value, setValue] = useState('');
   const [error, setError] = useState(null);
   const [checking, setChecking] = useState(false);

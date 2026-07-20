@@ -8,6 +8,7 @@ import './MaxErrorsModal.css';
 const AD_WAIT = 5;
 
 export default function MaxErrorsModal({ errorCount, maxErrors = 3, onContinue, onGameOver }) {
+  const { t } = useT();
   const [phase, setPhase] = useState('ask'); // 'ask' | 'ad' | 'done'
   const [countdown, setCountdown] = useState(AD_WAIT);
   const consent = getAdConsent();

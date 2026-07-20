@@ -6,6 +6,7 @@ import { getUnlockedIds } from '../utils/storage';
 import './HomeProgress.css';
 
 export default function HomeProgress({ userId }) {
+  const { t } = useT();
   const [stats, setStats] = useState(null);
 
   useEffect(() => {

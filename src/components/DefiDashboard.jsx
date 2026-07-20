@@ -20,6 +20,7 @@ function fmtDate(iso) {
 
 // ─── Classement mode groupe ───────────────────────────────────────
 function GroupLeaderboard({ rematch, onClose }) {
+  const { t } = useT();
   const [results, setResults] = useState(null);
   const diffLabel = (d) => ({ facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') })[d] ?? d;
 
@@ -84,6 +85,7 @@ function GroupLeaderboard({ rematch, onClose }) {
 
 // ─── Résultat mode perso (1v1) ────────────────────────────────────
 function PersonalResult({ r, isSent }) {
+  const { t } = useT();
   const w = determineRematchWinner({
     challengerErrors: r.challenger_result_errors,
     challengerSeconds: r.challenger_result_seconds,
@@ -103,6 +105,7 @@ function PersonalResult({ r, isSent }) {
 
 // ─── Ligne de défi ───────────────────────────────────────────────
 function RematchRow({ r, isSent, onHide, onExpand }) {
+  const { t } = useT();
   const opponent = isSent
     ? (r.challenger_name ? t('dd_sent_by', { name: r.challenger_name }) : t('dd_sent_label'))
     : (r.challenger_name || t('defi_a_friend'));

@@ -6,6 +6,7 @@ import './DifficultySelector.css';
 // DIFF_OPTIONS défini dans chaque composant via translate()
 
 function DifficultyScreen({ title, customImage, onSelectDifficulty, onBack }) {
+  const { t } = useT();
   const opts = [
     { id: 'facile',    label: translate('diff_facile'), icon: '😌' },
     { id: 'moyen',     label: translate('diff_moyen'),  icon: '🙂' },
@@ -30,6 +31,7 @@ function DifficultyScreen({ title, customImage, onSelectDifficulty, onBack }) {
 }
 
 function PhotoScreen({ onSelectDifficulty, onSendChallenge, onBack }) {
+  const { t } = useT();
   const [customImage, setCustomImage] = useState(null);
   const [mode, setMode] = useState(null);
   const fileInputRef = useRef(null);
@@ -83,6 +85,7 @@ function PhotoScreen({ onSelectDifficulty, onSendChallenge, onBack }) {
 }
 
 function HomeScreen({ onPick, onOpenDefi }) {
+  const { t } = useT();
   return (
     <div className="ds-home">
       <div className="ds-logo-block">
@@ -116,6 +119,7 @@ function HomeScreen({ onPick, onOpenDefi }) {
 }
 
 export default function DifficultySelector({ onSelect, onRequestSendChallenge, onOpenDefi }) {
+  const { t } = useT();
   const [screen, setScreen] = useState('home');
 
   if (screen === 'paintings') return (

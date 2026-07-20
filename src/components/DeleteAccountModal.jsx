@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabaseClient';
 import './LegalModal.css';
 
 export default function DeleteAccountModal({ onClose, onDeleted }) {
+  const { t } = useT();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
