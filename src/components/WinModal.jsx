@@ -1,4 +1,4 @@
-import { useT, getLang, translate } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 import { calcAdjustedScore, formatAdjustedScore } from '../lib/rematches';
 // src/components/WinModal.jsx
 import { useState } from 'react';
@@ -23,14 +23,9 @@ export default function WinModal({
   onReplay,
   onClose,
   onRequestRematch }) {
-  const { t } = useT();
-  const LEGACY_DIFFICULTY_LABELS = {
-    facile: t('diff_facile'),
-    moyen: t('diff_moyen'),
-    complique: t('diff_complique'),
-    enfer: t('diff_enfer'),
-  };
-  const diffLabel = (d) => translate(d === 'facile' ? 'diff_facile' : d === 'moyen' ? 'diff_moyen' : d === 'complique' ? 'diff_complique' : 'diff_enfer');
+  const { t, lang } = useT();
+  const DIFFICULTY_KEYS = { facile: 'diff_facile', moyen: 'diff_moyen', complique: 'diff_complique', enfer: 'diff_enfer' };
+  const diffLabel = (d) => (DIFFICULTY_KEYS[d] ? t(DIFFICULTY_KEYS[d]) : d);
   const [showSaveNotice, setShowSaveNotice] = useState(false);
   const [resultSent, setResultSent] = useState(false);
   const [rematchResultSent, setRematchResultSent] = useState(false);
@@ -57,8 +52,8 @@ export default function WinModal({
     const diff = diffLabel(difficulty) ?? difficulty ?? '';
     const title = rewardImage?.title;
     const time = formatTime(elapsedSeconds);
-    const errors = errorCount === 0 ? t('_aucune_erreur') : getLang() === 'fr' ? `${errorCount} erreur${errorCount > 1 ? 's' : ''}` : `${errorCount} error${errorCount > 1 ? 's' : ''}`;
-    const painting = title ? getLang() === 'fr' ? `J'ai dévoilé "${title}" sur Sudoku Art ! 🎨\n` : `I revealed "${title}" on Sudoku Art! 🎨\n` : '';
+    const errors = errorCount === 0 ? t('win_no_error') : t('win_share_errors_count', { n: errorCount, s: errorCount > 1 ? 's' : '' });
+    const painting = title ? t('win_share_intro_painting', { title }) : '';
     return t('win_share_text', { painting, diff, time, errors });
   };
 
@@ -91,23 +86,24 @@ export default function WinModal({
   const handleSendResult = async () => {
     const difficultyLabel = diffLabel(difficulty) ?? difficulty;
     const message =
-      getLang() === 'fr' ? `🎉 J'ai réussi le défi Sudoku Art que tu m'as envoyé !\n` : `🎉 I completed the Sudoku Art challenge you sent me!\n` +
+      t('win_result_share_intro') +
       t('win_result_msg', { diff: difficultyLabel, errors: errorCount, time: formatTime(elapsedSeconds) });
-    await shareText(message() === 'fr' ? 'Résultat du défi Sudoku Art' : 'Sudoku Art Challenge Result');
+    await shareText(message, t('fail_share_title'));
     setResultSent(true);
   };
 
   const handleSendRematchResult = async () => {
     const name = rematchOutcome.challengerName ? `${rematchOutcome.challengerName}, ` : '';
     const verdict =
-      rematchOutcome.winner === 'recipient' ? getLang() === 'fr' ? 'J\'ai gagné ! 🏆' : 'I won! 🏆' :
-      rematchOutcome.winner === 'challenger' ? t('_tu_as_gagn_cette_fois') :
-      t('_galit_parfaite');
+      rematchOutcome.winner === 'recipient' ? t('win_rematch_verdict_recipient') :
+      rematchOutcome.winner === 'challenger' ? t('rematch_won_this_time') :
+      t('rematch_perfect_tie');
     const message =
-      getLang() === 'fr' ? `${name}voici le résultat de notre défi sur la même grille :\n` : `${name}here's the result of our challenge on the same grid:\n` +
-      `${t('rrd_me')}: ${rematchOutcome.challengerErrors}e ${formatTime(rematchOutcome.challengerSeconds)}\n${t('rrd_friend')}: ${rematchOutcome.recipientErrors}e ${formatTime(rematchOutcome.recipientSeconds)}\n` +
+      t('win_rematch_share_intro', { name }) +
+      t('rrd_me_line', { label: t('rrd_me'), errors: rematchOutcome.challengerErrors, time: formatTime(rematchOutcome.challengerSeconds) }) +
+      t('rrd_me_line', { label: t('rrd_friend'), errors: rematchOutcome.recipientErrors, time: formatTime(rematchOutcome.recipientSeconds) }) +
       verdict;
-    await shareText(message() === 'fr' ? 'Résultat du défi Sudoku Art' : 'Sudoku Art Challenge Result');
+    await shareText(message, t('fail_share_title'));
     setRematchResultSent(true);
   };
 
@@ -163,7 +159,7 @@ export default function WinModal({
         {isCustomGame ? (
           <>
             <p className="win-reward-label">{t('win_photo_revealed')}</p>
-            <img className="win-reward-image" src={photoUrl} alt={t('_photo_personnelle_d_voil_e')} />
+            <img className="win-reward-image" src={photoUrl} alt={t('win_personal_photo_alt')} />
 
             {isChallengeGame ? (
               <p className="win-challenge-note">
@@ -182,7 +178,7 @@ export default function WinModal({
           </>
         ) : rewardImage ? (
           <>
-            <img className="win-reward-image" src={rewardImage.path} alt={rewardImage.title ?? t('_tableau_d_bloqu')} />
+            <img className="win-reward-image" src={rewardImage.path} alt={rewardImage.title ?? t('painting_unlocked_alt')} />
 
             {rewardImage.title && (
               <div className="painting-info">
@@ -209,7 +205,7 @@ export default function WinModal({
           </>
         ) : (
           <p className="win-score">
-            ⏱ {formatTime(elapsedSeconds)} — ❌ {errorCount} erreur{errorCount !== 1 ? 's' : ''}
+            {t('win_score', { time: formatTime(elapsedSeconds), errors: errorCount, s: errorCount !== 1 ? 's' : '' })}
           </p>
         )}
 
@@ -236,8 +232,7 @@ export default function WinModal({
           <div className="save-notice-panel">
             <h3>{t('win_save_title')}</h3>
             <p>
-              Cette photo sera supprimée d'ici un mois. Si tu veux la garder,
-              enregistre-la maintenant sur ton téléphone ou ton ordinateur.
+              {t('win_save_notice_body')}
             </p>
             <div className="save-notice-actions">
               <button className="win-btn-primary" onClick={confirmSave}>{t('win_save_now')}</button>

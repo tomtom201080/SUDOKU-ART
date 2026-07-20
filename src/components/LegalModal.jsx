@@ -1,4 +1,4 @@
-import { useT, getLang } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/LegalModal.jsx
 import './LegalModal.css';
 
@@ -11,47 +11,47 @@ export function TermsModal({ onClose }) {
           <h2>{t('legal_terms_title')}</h2>
           <button className="legal-close" onClick={onClose}>✕</button>
         </div>
-        <p className="legal-date">{t('_en_vigueur_depuis_le_1er_juill')}</p>
+        <p className="legal-date">{t('legal_terms_date')}</p>
 
         <section>
-          <h3>{t('_1_pr_sentation_du_service')}</h3>
-          <p>{t('_sudoku_art_est_une_application')} au Sudoku en révélant progressivement des œuvres d'art ou des photos personnelles. Le service est édité à titre personnel par Thomas Dabadie, domicilié en France.</p>
+          <h3>{t('legal_terms_s1_title')}</h3>
+          <p>{t('legal_terms_s1_body')}</p>
         </section>
 
         <section>
-          <h3>{t('_2_acc_s_au_service')}</h3>
-          <p>{getLang() === 'fr' ? 'L\'accès à Sudoku Art est libre et gratuit.' : 'Access to Sudoku Art is free.'} (défis entre amis, progression sauvegardée, galerie multi-appareils) nécessitent la création d'un compte. L'inscription est ouverte à toute personne âgée de 13 ans ou plus.</p>
+          <h3>{t('legal_terms_s2_title')}</h3>
+          <p>{t('legal_terms_s2_body')}</p>
         </section>
 
         <section>
-          <h3>{t('_3_contenu_utilisateur_et_phot')}</h3>
-          <p>{t('_vous_pouvez_uploader_des_photo')} pour les utiliser comme fond de grille dans un défi envoyé à un ami. En utilisant cette fonctionnalité, vous certifiez :</p>
+          <h3>{t('legal_terms_s3_title')}</h3>
+          <p>{t('legal_terms_s3_intro')}</p>
           <ul>
-            <li>{getLang() === 'fr' ? 'Être l\'auteur ou titulaire des droits sur la photo' : 'Owning the rights to the photo you upload'}</li>
-            <li>{t('_que_la_photo_ne_contient_pas_d')}</li>
-            <li>{t('_avoir_obtenu_le_consentement_d')} si elles sont identifiables</li>
+            <li>{t('legal_terms_s3_item1')}</li>
+            <li>{t('legal_terms_s3_item2')}</li>
+            <li>{t('legal_terms_s3_item3')}</li>
           </ul>
-          <p>{t('_les_photos_de_d_fis_sont_autom')}. L'éditeur se réserve le droit de supprimer tout contenu inapproprié sans préavis.</p>
+          <p>{t('legal_terms_s3_outro')}</p>
         </section>
 
         <section>
-          <h3>{t('_4_propri_t_intellectuelle')}</h3>
-          <p>{getLang() === 'fr' ? "Les œuvres présentées sont du domaine public (Wikimedia Commons). Le code et design appartiennent à l'éditeur." : 'Artworks are public domain reproductions from Wikimedia Commons. Code and design belong to the publisher.'}</p>
+          <h3>{t('legal_terms_s4_title')}</h3>
+          <p>{t('legal_terms_s4_body')}</p>
         </section>
 
         <section>
-          <h3>{t('_5_responsabilit')}</h3>
-          <p>{getLang() === 'fr' ? "L'application est fournie 'en l'état'. L'éditeur n'est pas responsable des interruptions ou pertes de données." : "The app is provided 'as is'. The publisher is not liable for interruptions or data loss."}</p>
+          <h3>{t('legal_terms_s5_title')}</h3>
+          <p>{t('legal_terms_s5_body')}</p>
         </section>
 
         <section>
-          <h3>{t('_6_modification_des_cgu')}</h3>
-          <p>{t('_ces_cgu_peuvent_tre_modifi_es')}. Les utilisateurs connectés en seront informés par email. La poursuite de l'utilisation après modification vaut acceptation des nouvelles conditions.</p>
+          <h3>{t('legal_terms_s6_title')}</h3>
+          <p>{t('legal_terms_s6_body')}</p>
         </section>
 
         <section>
-          <h3>{t('_7_droit_applicable')}</h3>
-          <p>{t('_ces_cgu_sont_soumises_au_droit')}</p>
+          <h3>{t('legal_terms_s7_title')}</h3>
+          <p>{t('legal_terms_s7_body')}</p>
         </section>
 
         <button className="legal-close-btn" onClick={onClose}>{t('legal_close')}</button>
@@ -69,55 +69,55 @@ export function PrivacyModal({ onClose, onConsentChange }) {
           <h2>{t('legal_privacy_title')}</h2>
           <button className="legal-close" onClick={onClose}>✕</button>
         </div>
-        <p className="legal-date">{t('_conforme_rgpd_mise_jour_le')}</p>
+        <p className="legal-date">{t('legal_privacy_date')}</p>
 
         <section>
-          <h3>{t('_responsable_du_traitement')}</h3>
-          <p>{getLang() === 'fr' ? 'Thomas Dabadie — contact via le formulaire de l\'application' : 'Thomas Dabadie — contact via the in-app form'}.</p>
+          <h3>{t('legal_privacy_controller_title')}</h3>
+          <p>{t('legal_privacy_controller_body')}</p>
         </section>
 
         <section>
-          <h3>{t('_donn_es_collect_es_et_finalit')}</h3>
+          <h3>{t('legal_privacy_data_title')}</h3>
           <table className="legal-table">
             <thead>
-              <tr><th>{t('_donn_e')}</th><th>{t('_finalit')}</th><th>{t('_dur_e')}</th></tr>
+              <tr><th>{t('legal_privacy_col_data')}</th><th>{t('legal_privacy_col_purpose')}</th><th>{t('legal_privacy_col_duration')}</th></tr>
             </thead>
             <tbody>
-              <tr><td>Adresse email</td><td>{t('_authentification_envoi_de_d_f')}</td><td>{getLang() === 'fr' ? 'Jusqu\'à suppression du compte' : 'Until account deletion'}</td></tr>
-              <tr><td>Photos uploadées</td><td>{t('_fond_de_grille_dans_les_d_fis')}</td><td>7 jours automatiquement</td></tr>
-              <tr><td>Progression de jeu</td><td>{t('_sauvegarde_multi_appareils_ga')}</td><td>{getLang() === 'fr' ? 'Jusqu\'à suppression du compte' : 'Until account deletion'}</td></tr>
-              <tr><td>Statistiques anonymes</td><td>{t('_am_lioration_du_service')}</td><td>24 mois glissants</td></tr>
-              <tr><td>Cookies de consentement</td><td>{t('_m_moriser_votre_choix_publicit')}</td><td>13 mois</td></tr>
+              <tr><td>{t('legal_privacy_row_email_label')}</td><td>{t('legal_privacy_row_email_purpose')}</td><td>{t('legal_privacy_row_email_duration')}</td></tr>
+              <tr><td>{t('legal_privacy_row_photos_label')}</td><td>{t('legal_privacy_row_photos_purpose')}</td><td>{t('legal_privacy_row_photos_duration')}</td></tr>
+              <tr><td>{t('legal_privacy_row_progress_label')}</td><td>{t('legal_privacy_row_progress_purpose')}</td><td>{t('legal_privacy_row_email_duration')}</td></tr>
+              <tr><td>{t('legal_privacy_row_stats_label')}</td><td>{t('legal_privacy_row_stats_purpose')}</td><td>{t('legal_privacy_row_stats_duration')}</td></tr>
+              <tr><td>{t('legal_privacy_row_cookies_label')}</td><td>{t('legal_privacy_row_cookies_purpose')}</td><td>{t('legal_privacy_row_cookies_duration')}</td></tr>
             </tbody>
           </table>
         </section>
 
         <section>
-          <h3>{t('_publicit_et_cookies_tiers')}</h3>
-          <p>{getLang() === 'fr' ? 'Si vous l\'acceptez, Google AdSense peut déposer des cookies pour personnaliser les annonces.' : 'If you accept, Google AdSense may place cookies to personalise ads.'} pour personnaliser les publicités. Vous pouvez modifier votre choix à tout moment ci-dessous.</p>
+          <h3>{t('legal_privacy_ads_title')}</h3>
+          <p>{t('legal_privacy_ads_body')}</p>
         </section>
 
         <section>
-          <h3>{t('_vos_droits_rgpd')}</h3>
-          <p>{getLang() === 'fr' ? 'Vous disposez d\'un droit d\'accès, de rectification et d\'effacement de vos données.' : 'You have the right to access, correct and delete your data.'}, de portabilité et d'opposition. Pour exercer ces droits ou supprimer votre compte, rendez-vous dans Paramètres → Supprimer mon compte. Pour toute réclamation : CNIL — cnil.fr.</p>
+          <h3>{t('legal_privacy_rights_title')}</h3>
+          <p>{t('legal_privacy_rights_body')}</p>
         </section>
 
         <section>
-          <h3>{t('_sous_traitants')}</h3>
-          <p>{t('_supabase_bdd_usa_eu_verce')}</p>
+          <h3>{t('legal_privacy_subprocessors_title')}</h3>
+          <p>{t('legal_privacy_subprocessors_body')}</p>
         </section>
 
         {onConsentChange && (
           <div className="legal-consent-actions">
-            <p className="legal-consent-title">{t('_changer_mon_choix_publicitaire')}</p>
+            <p className="legal-consent-title">{t('legal_privacy_change_consent_title')}</p>
             <div className="legal-consent-btns">
-              <button className="legal-consent-reject" onClick={() => { onConsentChange('rejected'); onClose(); }}>{t('_refuser_la_pub_personnalis_e')}</button>
+              <button className="legal-consent-reject" onClick={() => { onConsentChange('rejected'); onClose(); }}>{t('legal_consent_reject')}</button>
               <button className="legal-consent-accept" onClick={() => { onConsentChange('accepted'); onClose(); }}>{t('legal_consent_accept')}</button>
             </div>
           </div>
         )}
 
-        <button className="legal-close-btn" onClick={onClose}>{t('_fermer')}</button>
+        <button className="legal-close-btn" onClick={onClose}>{t('legal_privacy_close')}</button>
       </div>
     </div>
   );

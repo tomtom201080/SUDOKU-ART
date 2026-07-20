@@ -1,4 +1,4 @@
-import { useT, translate } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 // src/components/KpiDashboard.jsx
 import { useEffect, useState } from 'react';
 import { fetchAllGameEvents } from '../lib/analytics';
@@ -19,14 +19,14 @@ export default function KpiDashboard({ onClose }) {
   useEffect(() => {
     fetchAllGameEvents()
       .then(events => setKpis(computeKpis(events)))
-      .catch(err => setError(err.message || translate('auth_error')));
+      .catch(err => setError(err.message || t('auth_error')));
   }, []);
 
   return (
     <div className="kpi-overlay" onClick={onClose}>
       <div className="kpi-panel" onClick={(e) => e.stopPropagation()}>
         <div className="kpi-header">
-          <h2>{t('_statistiques')}</h2>
+          <h2>{t('nav_stats_title')}</h2>
           <button className="kpi-close" onClick={onClose}>✕</button>
         </div>
 
@@ -63,11 +63,11 @@ export default function KpiDashboard({ onClose }) {
               </div>
               <div className="kpi-card">
                 <span className="kpi-value">{kpis.avgErrors}</span>
-                <span className="kpi-label">{translate('kpi_avg_errors')}</span>
+                <span className="kpi-label">{t('kpi_avg_errors')}</span>
               </div>
               <div className="kpi-card">
                 <span className="kpi-value">{kpis.avgTime}</span>
-                <span className="kpi-label">{translate('kpi_avg_time')}</span>
+                <span className="kpi-label">{t('kpi_avg_time')}</span>
               </div>
               <div className="kpi-card">
                 <span className="kpi-value">{kpis.customPhotoGames}</span>
@@ -101,7 +101,7 @@ export default function KpiDashboard({ onClose }) {
               </tbody>
             </table>
 
-            <h3 className="kpi-section-title">{t('_7_derniers_jours')}</h3>
+            <h3 className="kpi-section-title">{t('kpi_last_7_days')}</h3>
             <table className="kpi-table">
               <thead>
                 <tr>

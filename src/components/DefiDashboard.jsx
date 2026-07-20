@@ -1,5 +1,5 @@
 // src/components/DefiDashboard.jsx
-import { useT, getLang } from '../i18n/index.jsx';
+import { useT } from '../i18n/index.jsx';
 import { useEffect, useState } from 'react';
 import {
   fetchSentRematches, fetchReceivedRematches,
@@ -23,6 +23,7 @@ function GroupLeaderboard({ rematch, onClose }) {
   const { t } = useT();
   const [results, setResults] = useState(null);
   const diffLabel = (d) => ({ facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') })[d] ?? d;
+  const hintsSuffix = rematch.hints_limit != null ? t('dd_hints_limit_suffix', { n: rematch.hints_limit, s: rematch.hints_limit > 1 ? 's' : '' }) : '';
 
   useEffect(() => {
     fetchGroupResults(rematch.id).then(data => {
@@ -50,12 +51,11 @@ function GroupLeaderboard({ rematch, onClose }) {
     <div className="group-leaderboard-overlay" onClick={onClose}>
       <div className="group-leaderboard-panel" onClick={e => e.stopPropagation()}>
         <div className="group-leaderboard-header">
-          <h3>{t('_classement')}</h3>
+          <h3>{t('dd_leaderboard_title')}</h3>
           <button onClick={onClose}>✕</button>
         </div>
         <p className="group-leaderboard-meta">
-          {diffLabel(rematch.difficulty) ?? rematch.difficulty} · {fmtDate(rematch.created_at)}
-          {rematch.hints_limit != null && getLang() === 'fr' ? ` · Max ${rematch.hints_limit} indice${rematch.hints_limit > 1 ? 's' : ''}` : ` · Max ${rematch.hints_limit} hint${rematch.hints_limit > 1 ? 's' : ''}`}
+          {diffLabel(rematch.difficulty) ?? rematch.difficulty} · {fmtDate(rematch.created_at)}{hintsSuffix}
         </p>
 
         {results === null && <p className="defi-dash-empty">{t('defi_loading')}</p>}
@@ -106,6 +106,7 @@ function PersonalResult({ r, isSent }) {
 // ─── Ligne de défi ───────────────────────────────────────────────
 function RematchRow({ r, isSent, onHide, onExpand }) {
   const { t } = useT();
+  const diffLabel = (d) => ({ facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') })[d] ?? d;
   const opponent = isSent
     ? (r.challenger_name ? t('dd_sent_by', { name: r.challenger_name }) : t('dd_sent_label'))
     : (r.challenger_name || t('defi_a_friend'));
