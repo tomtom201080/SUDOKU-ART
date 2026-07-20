@@ -1,4 +1,4 @@
-import { useT, getLang } from '../i18n/index.jsx';
+import { useT, getLang, translate } from '../i18n/index.jsx';
 // src/components/AuthScreen.jsx
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
@@ -6,10 +6,9 @@ import { isMobileDevice } from '../utils/device';
 import './AuthScreen.css';
 
 const APP_URL = typeof window !== 'undefined' ? window.location.origin : '';
-const SHARE_TEXT = t('_sudoku_art___un_sudoku_o__une');
-
 export default function AuthScreen({ onCancel }) {
   const { t } = useT();
+  const SHARE_TEXT = translate('_sudoku_art___un_sudoku_o__une');
   const [mode, setMode] = useState('signin'); // 'signin' | 'signup' | 'forgot'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

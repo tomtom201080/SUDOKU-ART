@@ -5,15 +5,14 @@ import { fetchAllGameEvents } from '../lib/analytics';
 import { computeKpis } from '../utils/kpiStats';
 import './KpiDashboard.css';
 
-const DIFFICULTY_LABELS = {
-  facile: translate('diff_facile'),
-  moyen: translate('diff_moyen'),
-  complique: translate('diff_complique'),
-  enfer: translate('diff_enfer')
-};
-
 export default function KpiDashboard({ onClose }) {
   const { t } = useT();
+  const DIFFICULTY_LABELS = {
+    facile: t('diff_facile'),
+    moyen: t('diff_moyen'),
+    complique: t('diff_complique'),
+    enfer: t('diff_enfer'),
+  };
   const [kpis, setKpis] = useState(null);
   const [error, setError] = useState(null);
 

@@ -5,12 +5,6 @@ import { useState } from 'react';
 import { isMobileDevice, shareText } from '../utils/device';
 import './WinModal.css';
 
-// DIFFICULTY_LABELS dynamique via App.jsx
-const LEGACY_DIFFICULTY_LABELS = {
-  moyen: translate('diff_moyen'),
-  complique: translate('diff_complique'),
-  enfer: translate('diff_enfer')
-};
 
 function formatTime(totalSeconds) {
   const minutes = Math.floor(totalSeconds / 60);
@@ -30,6 +24,12 @@ export default function WinModal({
   onClose,
   onRequestRematch }) {
   const { t } = useT();
+  const LEGACY_DIFFICULTY_LABELS = {
+    facile: t('diff_facile'),
+    moyen: t('diff_moyen'),
+    complique: t('diff_complique'),
+    enfer: t('diff_enfer'),
+  };
   const diffLabel = (d) => translate(d === 'facile' ? 'diff_facile' : d === 'moyen' ? 'diff_moyen' : d === 'complique' ? 'diff_complique' : 'diff_enfer');
   const [showSaveNotice, setShowSaveNotice] = useState(false);
   const [resultSent, setResultSent] = useState(false);

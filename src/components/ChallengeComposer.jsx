@@ -6,11 +6,6 @@ import { createChallenge, buildChallengeLink } from '../lib/challenges';
 import { isMobileDevice } from '../utils/device';
 import './ChallengeComposer.css';
 
-const DIFFICULTY_OPTIONS = [
-  { value: 'auto', label: t('_automatique_au_hasard') },
-  // dynamique
-];
-
 const ERROR_OPTIONS = [
   { value: 1, label: '1' },
   { value: 3, label: '3' },
