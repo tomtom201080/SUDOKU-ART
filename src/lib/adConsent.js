@@ -1,18 +1,18 @@
 // src/lib/adConsent.js
-const CONSENT_KEY = 'sudoku-devoile:adConsent'; // 'accepted' | 'rejected'
+// Compatibilité : ce module gouvernait seul le consentement pub avant
+// l'introduction du consentement catégorisé (src/lib/consent.js). Il ne
+// stocke plus rien lui-même — il relaie la catégorie "advertising", pour
+// que tous les appelants existants (App.jsx, AdSlot, LegalModal) continuent
+// de fonctionner sans modification.
+import { getConsent, setConsent } from './consent';
 
 export function getAdConsent() {
-  try {
-    return localStorage.getItem(CONSENT_KEY);
-  } catch {
-    return null;
-  }
+  const { advertising } = getConsent();
+  if (advertising === true) return 'accepted';
+  if (advertising === false) return 'rejected';
+  return null;
 }
 
 export function setAdConsent(value) {
-  try {
-    localStorage.setItem(CONSENT_KEY, value);
-  } catch {
-    // stockage indisponible : le bandeau réapparaîtra, tant pis
-  }
+  setConsent({ advertising: value === 'accepted' });
 }
