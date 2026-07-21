@@ -3,14 +3,19 @@ import { useRef, useState } from 'react';
 import { useT } from '../i18n/index.jsx';
 import { generateSudoku } from '../sudoku/generator';
 import { uploadSharedPhoto } from '../lib/sharedPhoto';
-import { createRematch, buildRematchLink } from '../lib/rematches';
+import { createRematch, regenerateRematch, buildRematchLink } from '../lib/rematches';
 import { isMobileDevice } from '../utils/device';
 import './ChallengeComposer.css';
 import './DefiComposer.css';
 
 
 
-export default function DefiComposer({ onClose, onStartGame, userId, userEmail, defaultImageUrl = null }) {
+// regenerateFrom : un défi existant (ligne "rematches") à recréer sous un
+// nouveau lien — même grille, même difficulté, même limite d'indices et
+// même score déjà enregistré du challenger. L'ancien défi n'est jamais
+// modifié : handleSend crée toujours une TOUTE NOUVELLE ligne. Seuls le
+// mode (perso/groupe) et l'image restent modifiables dans ce cas.
+export default function DefiComposer({ onClose, onStartGame, userId, userEmail, defaultImageUrl = null, regenerateFrom = null }) {
   const { t } = useT();
   const DIFFICULTY_OPTIONS = [
     { id: 'facile',    label: t('diff_facile'), icon: '😌' },
@@ -20,9 +25,9 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
   ];
   const DIFFICULTY_KEYS = { facile: 'diff_facile', moyen: 'diff_moyen', complique: 'diff_complique', enfer: 'diff_enfer' };
   const [step, setStep]             = useState('config');
-  const [difficulty, setDifficulty] = useState(null);
-  const [hintsLimit, setHintsLimit] = useState(null);
-  const [groupMode, setGroupMode]   = useState(false); // false = perso, true = groupe
+  const [difficulty, setDifficulty] = useState(regenerateFrom?.difficulty ?? null);
+  const [hintsLimit, setHintsLimit] = useState(regenerateFrom?.hints_limit ?? null);
+  const [groupMode, setGroupMode]   = useState(regenerateFrom?.group_mode ?? false); // false = perso, true = groupe
   const [photoFile, setPhotoFile]   = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [imageChoice, setImageChoice] = useState(defaultImageUrl ? 'keep' : 'none'); // 'keep' | 'new' | 'none'
@@ -62,7 +67,12 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
     setStep('sending');
     setError(null);
     try {
-      const puzzleData = generateSudoku(difficulty);
+      const puzzleData = regenerateFrom
+        ? {
+            puzzle: typeof regenerateFrom.puzzle === 'string' ? JSON.parse(regenerateFrom.puzzle) : regenerateFrom.puzzle,
+            solution: typeof regenerateFrom.solution === 'string' ? JSON.parse(regenerateFrom.solution) : regenerateFrom.solution
+          }
+        : generateSudoku(difficulty);
       let photoPath = null;
       if (imageChoice === 'new' && photoFile) {
         photoPath = await uploadSharedPhoto(photoFile);
@@ -74,20 +84,25 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
       }
       const photoUrl = imageChoice === 'new' ? photoPreview : (imageChoice === 'keep' ? defaultImageUrl : null);
       const classicMode = imageChoice === 'none';
-
-      const rematch = await createRematch({
-        puzzle:           puzzleData.puzzle,
-        solution:         puzzleData.solution,
-        difficulty,
-        photoPath,
+      const senderIdentity = {
         challengerName:   userEmail ?? (challengerName.trim() || 'Un ami'),
-        challengerUserId: userId ?? null,
-        challengerErrors: 0,
-        challengerSeconds:0,
-        challengerHints:  0,
-        hintsLimit,
-        groupMode,
-        classicMode });
+        challengerUserId: userId ?? null
+      };
+
+      const rematch = regenerateFrom
+        ? await regenerateRematch(regenerateFrom, { ...senderIdentity, photoPath, groupMode, classicMode })
+        : await createRematch({
+            puzzle:           puzzleData.puzzle,
+            solution:         puzzleData.solution,
+            difficulty,
+            photoPath,
+            ...senderIdentity,
+            challengerErrors: 0,
+            challengerSeconds: 0,
+            challengerHints:  0,
+            hintsLimit,
+            groupMode,
+            classicMode });
 
       const link      = buildRematchLink(rematch.id);
       const diffLabel = DIFFICULTY_KEYS[difficulty] ? t(DIFFICULTY_KEYS[difficulty]) : difficulty;
@@ -144,7 +159,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
     <div className="challenge-overlay">
       <div className="challenge-panel">
         <div className="challenge-header">
-          <h2>{t('defi_title')}</h2>
+          <h2>{regenerateFrom ? t('defi_resend_title') : t('defi_title')}</h2>
           <button className="challenge-close" onClick={onClose}>✕</button>
         </div>
 
@@ -188,34 +203,46 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
               </button>
             </div>
 
-            {/* Difficulté */}
+            {/* Difficulté : verrouillée en mode "renvoyer" (même grille) */}
             <p className="challenge-step-title">{t('defi_step2_label')}</p>
-            <div className="defi-difficulty-grid">
-              {DIFFICULTY_OPTIONS.map(opt => (
-                <button
-                  key={opt.id}
-                  className={`defi-diff-btn ${difficulty === opt.id ? 'is-selected' : ''}`}
-                  onClick={() => setDifficulty(opt.id)}
-                >
-                  <span>{opt.icon}</span>
-                  <span>{opt.label}</span>
-                </button>
-              ))}
-            </div>
+            {regenerateFrom ? (
+              <p className="defi-locked-value">
+                {DIFFICULTY_OPTIONS.find(o => o.id === difficulty)?.icon} {DIFFICULTY_OPTIONS.find(o => o.id === difficulty)?.label}
+              </p>
+            ) : (
+              <div className="defi-difficulty-grid">
+                {DIFFICULTY_OPTIONS.map(opt => (
+                  <button
+                    key={opt.id}
+                    className={`defi-diff-btn ${difficulty === opt.id ? 'is-selected' : ''}`}
+                    onClick={() => setDifficulty(opt.id)}
+                  >
+                    <span>{opt.icon}</span>
+                    <span>{opt.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
 
-            {/* Limite d'indices */}
+            {/* Limite d'indices : verrouillée en mode "renvoyer" */}
             <p className="challenge-step-title">{t('defi_hint_limit_label')}</p>
-            <div className="defi-hints-row">
-              {[null, 1, 2, 3].map(v => (
-                <button
-                  key={String(v)}
-                  className={`defi-hint-limit-btn ${hintsLimit === v ? 'is-selected' : ''}`}
-                  onClick={() => setHintsLimit(v)}
-                >
-                  {v == null ? t('defi_hint_unlimited') : t('defi_hint_count', { v, s: v > 1 ? 's' : '' })}
-                </button>
-              ))}
-            </div>
+            {regenerateFrom ? (
+              <p className="defi-locked-value">
+                {hintsLimit == null ? t('defi_hint_unlimited') : t('defi_hint_count', { v: hintsLimit, s: hintsLimit > 1 ? 's' : '' })}
+              </p>
+            ) : (
+              <div className="defi-hints-row">
+                {[null, 1, 2, 3].map(v => (
+                  <button
+                    key={String(v)}
+                    className={`defi-hint-limit-btn ${hintsLimit === v ? 'is-selected' : ''}`}
+                    onClick={() => setHintsLimit(v)}
+                  >
+                    {v == null ? t('defi_hint_unlimited') : t('defi_hint_count', { v, s: v > 1 ? 's' : '' })}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Règle de scoring */}
             <div className="defi-scoring-rule">

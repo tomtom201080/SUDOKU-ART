@@ -111,6 +111,7 @@ export default {
 
   // ── Défi composer ─────────────────────────────────────────────
   defi_title: '🎯 Créer un défi',
+  defi_resend_title: '🔄 Renvoyer ce défi',
   defi_step1: '1. Choisis la difficulté',
   defi_step2: '2. Ajouter une photo (optionnel)',
   defi_step3: '3. Ton prénom (pour le résultat)',
@@ -550,6 +551,7 @@ export default {
   dd_sender_label: 'Toi (expéditeur)',
   dd_scoring: '⏱ +2 min par erreur · 💡 +2 min par indice',
   dd_delete_title: 'Supprimer',
+  dd_resend_title: 'Renvoyer ce défi',
 
   // ── HelpModal ─────────────────────────────────────────────────
   help_rules_title: '❓ Règles & comment jouer',

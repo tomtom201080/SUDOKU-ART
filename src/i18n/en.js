@@ -111,6 +111,7 @@ export default {
 
   // ── Challenge composer ────────────────────────────────────────
   defi_title: '🎯 Create a challenge',
+  defi_resend_title: '🔄 Resend this challenge',
   defi_step1: '1. Choose difficulty',
   defi_step2: '2. Add a photo (optional)',
   defi_step3: '3. Your name (for the result)',
@@ -550,6 +551,7 @@ export default {
   dd_sender_label: 'You (sender)',
   dd_scoring: '⏱ +2 min per error · 💡 +2 min per hint',
   dd_delete_title: 'Delete',
+  dd_resend_title: 'Resend this challenge',
 
   // ── HelpModal ─────────────────────────────────────────────────
   help_rules_title: '❓ Rules & how to play',

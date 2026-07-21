@@ -123,6 +123,7 @@ export default function App() {
   const [showRematchComposer, setShowRematchComposer] = useState(false);
   const [showDefiComposer, setShowDefiComposer] = useState(false);
   const [showDefiDashboard, setShowDefiDashboard] = useState(false);
+  const [regenerateSource, setRegenerateSource] = useState(null); // défi existant à renvoyer, le cas échéant
   // Interstitielle pub : quelle action est en attente après la pub
   const [pendingAdAction, setPendingAdAction] = useState(null); // null | 'challenge' | 'rematch'
   // QUEST_DISABLED: const [showQuestMap, setShowQuestMap] = useState(false);
@@ -468,9 +469,23 @@ export default function App() {
     }
   };
 
+  // Appelé depuis "Mes défis envoyés" : rouvre DefiComposer pré-rempli avec
+  // la grille/difficulté/indices du défi existant, pour le renvoyer sous un
+  // nouveau lien (l'ancien défi reste intact dans l'historique).
+  const handleRegenerateDefi = (rematch) => {
+    setShowDefiDashboard(false);
+    setRegenerateSource(rematch);
+    if (adConsent === 'accepted') {
+      setPendingAdAction('defi');
+    } else {
+      setShowDefiComposer(true);
+    }
+  };
+
   // Appelé par DefiComposer quand la grille est prête à jouer
   const handleDefiStartGame = ({ rematch, puzzleData, photoUrl }) => {
     setShowDefiComposer(false);
+    setRegenerateSource(null);
     setLastCustomImage(photoUrl ?? null);
     setIsClassicMode(!!rematch.classic_mode);
     setLastChallengeMeta(null);
@@ -673,46 +688,52 @@ export default function App() {
           <AdSlot slot="1234567890" />
         )}
 
-        {!isOnline && (
-          <div className="challenge-already-opened-banner" style={{ background: 'rgba(180,80,0,0.12)' }}>
-            {t('offline_banner')}
-          </div>
-        )}
-
-        {challengeAlreadyOpened && (
-          <div className="challenge-already-opened-banner">
-            {t('challenge_link_used_banner')}
-            <button onClick={() => setChallengeAlreadyOpened(false)}>✕</button>
-          </div>
-        )}
-        {rematchAlreadyStartedNotice && (
-          <div className="challenge-already-opened-banner">
-            {t('rematch_already_started_banner')}
-            <button onClick={() => setRematchAlreadyStartedNotice(false)}>✕</button>
-          </div>
-        )}
-        {rematchNotifications.map(r => {
-          const winner = determineRematchWinner({
-            challengerErrors: r.challenger_result_errors,
-            challengerSeconds: r.challenger_result_seconds,
-            recipientErrors: r.recipient_result_errors,
-            recipientSeconds: r.recipient_result_seconds
-          });
-          return (
-            <div
-              className="challenge-already-opened-banner"
-              key={r.id}
-              onClick={() => setSelectedRematchNotification({ rematch: r, winner })}
-              style={{ cursor: 'pointer' }}
-            >
-              {t('rematch_friend_finished')}{' '}
-              {winner === 'tie' && t('rematch_perfect_tie')}
-              {winner === 'challenger' && t('rematch_you_won')}
-              {winner === 'recipient' && t('rematch_recipient_better')}
-              <button onClick={(e) => { e.stopPropagation(); handleDismissRematchNotification(r.id); }}>✕</button>
+        {/* Empilées dans un conteneur dédié : ces bannières partagent la même
+            position fixe en bas d'écran et se chevaucheraient sinon si
+            plusieurs sont vraies en même temps (ex : plusieurs défis
+            terminés à notifier). */}
+        <div className="banner-stack">
+          {!isOnline && (
+            <div className="challenge-already-opened-banner" style={{ background: 'rgba(180,80,0,0.12)' }}>
+              {t('offline_banner')}
             </div>
-          );
-        })}
+          )}
+
+          {challengeAlreadyOpened && (
+            <div className="challenge-already-opened-banner">
+              {t('challenge_link_used_banner')}
+              <button onClick={() => setChallengeAlreadyOpened(false)}>✕</button>
+            </div>
+          )}
+          {rematchAlreadyStartedNotice && (
+            <div className="challenge-already-opened-banner">
+              {t('rematch_already_started_banner')}
+              <button onClick={() => setRematchAlreadyStartedNotice(false)}>✕</button>
+            </div>
+          )}
+          {rematchNotifications.map(r => {
+            const winner = determineRematchWinner({
+              challengerErrors: r.challenger_result_errors,
+              challengerSeconds: r.challenger_result_seconds,
+              recipientErrors: r.recipient_result_errors,
+              recipientSeconds: r.recipient_result_seconds
+            });
+            return (
+              <div
+                className="challenge-already-opened-banner"
+                key={r.id}
+                onClick={() => setSelectedRematchNotification({ rematch: r, winner })}
+                style={{ cursor: 'pointer' }}
+              >
+                {t('rematch_friend_finished')}{' '}
+                {winner === 'tie' && t('rematch_perfect_tie')}
+                {winner === 'challenger' && t('rematch_you_won')}
+                {winner === 'recipient' && t('rematch_recipient_better')}
+                <button onClick={(e) => { e.stopPropagation(); handleDismissRematchNotification(r.id); }}>✕</button>
+              </div>
+            );
+          })}
+        </div>
 
         {selectedRematchNotification && (
           <RematchResultDetail
@@ -784,11 +805,16 @@ export default function App() {
         {showDefiComposer && (
           <ErrorBoundary>
             <DefiComposer
-              onClose={() => setShowDefiComposer(false)}
+              onClose={() => { setShowDefiComposer(false); setRegenerateSource(null); }}
               onStartGame={handleDefiStartGame}
               userId={session?.user?.id ?? null}
               userEmail={username ?? session?.user?.email ?? null}
-              defaultImageUrl={lastCustomImage}
+              defaultImageUrl={
+                regenerateSource
+                  ? (regenerateSource.photo_path ? getSharedPhotoPublicUrl(regenerateSource.photo_path) : null)
+                  : lastCustomImage
+              }
+              regenerateFrom={regenerateSource}
             />
           </ErrorBoundary>
         )}
@@ -801,6 +827,7 @@ export default function App() {
                 setShowDefiDashboard(false);
                 setPendingAdAction('defi');
               }}
+              onRegenerateDefi={handleRegenerateDefi}
             />
           </ErrorBoundary>
         )}

@@ -74,6 +74,32 @@ export async function createRematch({
   return data;
 }
 
+// Recrée un défi à partir d'un défi existant (même grille, même
+// difficulté, même limite d'indices, même score du challenger déjà
+// enregistré) sous la forme d'une TOUTE NOUVELLE ligne — l'ancien défi
+// n'est jamais modifié ni supprimé, il reste intact dans l'historique.
+// Permet de changer le mode (perso/groupe) et l'image par rapport à
+// l'original.
+export async function regenerateRematch(original, { groupMode, classicMode, photoPath, challengerName, challengerUserId }) {
+  const puzzle   = typeof original.puzzle   === 'string' ? JSON.parse(original.puzzle)   : original.puzzle;
+  const solution = typeof original.solution === 'string' ? JSON.parse(original.solution) : original.solution;
+
+  return createRematch({
+    puzzle,
+    solution,
+    difficulty: original.difficulty,
+    photoPath,
+    challengerName,
+    challengerUserId,
+    challengerErrors: original.challenger_result_errors ?? 0,
+    challengerSeconds: original.challenger_result_seconds ?? 0,
+    challengerHints: original.challenger_result_hints ?? 0,
+    hintsLimit: original.hints_limit ?? null,
+    groupMode,
+    classicMode
+  });
+}
+
 export function buildRematchLink(rematchId) {
   const url = new URL(window.location.origin + window.location.pathname);
   url.searchParams.set('rematch', rematchId);

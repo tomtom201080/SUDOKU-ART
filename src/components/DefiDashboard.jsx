@@ -6,6 +6,7 @@ import {
   determineRematchWinner, calcAdjustedScore, formatAdjustedScore,
   fetchGroupResults, hideRematch, getHiddenRematchIds
 } from '../lib/rematches';
+import RematchResultDetail from './RematchResultDetail';
 import './DefiDashboard.css';
 
 // DIFF_LABELS dynamiques via useT()
@@ -104,12 +105,9 @@ function PersonalResult({ r, isSent }) {
 }
 
 // ─── Ligne de défi ───────────────────────────────────────────────
-function RematchRow({ r, isSent, onHide, onExpand }) {
+function RematchRow({ r, isSent, onHide, onExpand, onRegenerate }) {
   const { t } = useT();
   const diffLabel = (d) => ({ facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') })[d] ?? d;
-  const opponent = isSent
-    ? (r.challenger_name ? t('dd_sent_by', { name: r.challenger_name }) : t('dd_sent_label'))
-    : (r.challenger_name || t('defi_a_friend'));
 
   const isGroup    = !!r.group_mode;
   const hasPlayed  = r.completed || (isGroup && r.challenger_result_seconds > 0);
@@ -129,6 +127,13 @@ function RematchRow({ r, isSent, onHide, onExpand }) {
         {!hasPlayed && <span className="defi-row-waiting">{t('defi_waiting')}</span>}
         {hasPlayed && !isGroup && <PersonalResult r={r} isSent={isSent} />}
         {hasPlayed && isGroup && <span className="defi-badge defi-badge-pending">{t('dd_group_badge')}</span>}
+        {isSent && onRegenerate && (
+          <button
+            className="defi-row-resend"
+            onClick={e => { e.stopPropagation(); onRegenerate(r); }}
+            title={t('dd_resend_title')}
+          >🔄</button>
+        )}
         <button
           className="defi-row-delete"
           onClick={e => { e.stopPropagation(); onHide(r.id); }}
@@ -140,13 +145,13 @@ function RematchRow({ r, isSent, onHide, onExpand }) {
 }
 
 // ─── Dashboard principal ─────────────────────────────────────────
-export default function DefiDashboard({ userId, onClose, onCreateDefi }) {
+export default function DefiDashboard({ userId, onClose, onCreateDefi, onRegenerateDefi }) {
   const { t } = useT();
   const [tab, setTab]         = useState('sent');
   const [sent, setSent]       = useState(null);
   const [received, setReceived] = useState(null);
   const [hidden, setHidden]   = useState(() => getHiddenRematchIds(userId));
-  const [expanded, setExpanded] = useState(null); // rematch affiché en détail
+  const [expanded, setExpanded] = useState(null); // { rematch, isSent } affiché en détail
 
   useEffect(() => {
     fetchSentRematches(userId).then(setSent);
@@ -192,15 +197,30 @@ export default function DefiDashboard({ userId, onClose, onCreateDefi }) {
             <RematchRow
               key={r.id} r={r} isSent={isSent}
               onHide={handleHide}
-              onExpand={setExpanded}
+              onExpand={(rematch) => setExpanded({ rematch, isSent })}
+              onRegenerate={onRegenerateDefi}
             />
           ))}
         </div>
       </div>
 
-      {expanded && (
-        <GroupLeaderboard rematch={expanded} onClose={() => setExpanded(null)} />
-      )}
+      {expanded && (expanded.rematch.group_mode ? (
+        <GroupLeaderboard rematch={expanded.rematch} onClose={() => setExpanded(null)} />
+      ) : (
+        <RematchResultDetail
+          rematch={expanded.rematch}
+          isSent={expanded.isSent}
+          winner={determineRematchWinner({
+            challengerErrors: expanded.rematch.challenger_result_errors,
+            challengerSeconds: expanded.rematch.challenger_result_seconds,
+            challengerHints: expanded.rematch.challenger_result_hints ?? 0,
+            recipientErrors: expanded.rematch.recipient_result_errors,
+            recipientSeconds: expanded.rematch.recipient_result_seconds,
+            recipientHints: expanded.rematch.recipient_result_hints ?? 0
+          })}
+          onClose={() => setExpanded(null)}
+        />
+      ))}
     </div>
   );
 }

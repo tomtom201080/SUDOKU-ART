@@ -184,6 +184,23 @@ body.dark .defi-badge-tie    { background: #1a2e3e; color: #90caf9; }
   background: rgba(211, 47, 47, 0.1);
 }
 
+.defi-row-resend {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 2px 4px;
+  border-radius: 6px;
+  transition: opacity 0.15s;
+  line-height: 1;
+}
+
+.defi-row-resend:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
 /* ─── Classement groupe ─── */
 .group-leaderboard-overlay {
   position: fixed;

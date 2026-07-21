@@ -87,6 +87,17 @@
   background: color-mix(in srgb, var(--accent) 10%, var(--card-bg));
 }
 
+.defi-locked-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-color);
+  background: var(--bg-color);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 9px 12px;
+  margin: 0 0 8px;
+}
+
 .defi-scoring-rule {
   background: var(--bg-color);
   border: 1px solid var(--card-border);
