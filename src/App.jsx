@@ -509,6 +509,18 @@ export default function App() {
   // QUEST_DISABLED: handleRequestQuest, handlePlayQuestStage, handleRequestMathQuest
 
   const handleSelectCell = (row, col) => {
+    // Indice "choisir une case" en attente : ce tap désigne la case à
+    // révéler plutôt que de sélectionner normalement une case à remplir.
+    if (pickingHintCell) {
+      const isGiven = game.puzzleData?.givenMask?.[row]?.[col];
+      const isEmpty = game.userGrid?.[row]?.[col] === 0;
+      if (!isGiven && isEmpty) {
+        handleRevealHint(row, col, game.puzzleData.solution[row][col]);
+      }
+      // Case déjà remplie ou donnée au départ : tap ignoré, on reste en
+      // attente d'une case vide valide.
+      return;
+    }
     setSelectedCell({ row, col });
     const value = game.userGrid ? game.userGrid[row][col] : 0;
     setHighlightValue(value);
@@ -572,13 +584,16 @@ export default function App() {
   };
 
   const [hintRevealCell, setHintRevealCell] = useState(null); // { row, col, value }
+  const [hintMode, setHintMode] = useState(null); // null | 'random' | 'pick'
+  const [pickingHintCell, setPickingHintCell] = useState(false); // true = en attente d'un tap sur la grille
 
   const handleRevealHint = (row, col, value) => {
-    // Forcer le mode normal (pas notes) avant de poser le chiffre
-    if (game.notesMode) game.toggleNotesMode();
-    // Placer le chiffre — setCellValue nettoie déjà les notes de la case
-    // et des cases voisines (ligne/colonne/carré) si la valeur est correcte
-    game.setCellValue(row, col, value);
+    // forceValue: true pose directement la vraie valeur, sans dépendre de
+    // notesMode (voir le commentaire dans useGame.js — un toggle de
+    // notesMode juste avant cet appel ne suffit pas, React l'applique de
+    // façon asynchrone). setCellValue nettoie déjà les notes de la case et
+    // des cases voisines si la valeur est correcte.
+    game.setCellValue(row, col, value, { forceValue: true });
     game.setHintsUsed(h => h + 1);
     trackHintUsed({
       hintNumber: game.hintsUsed + 1,
@@ -588,13 +603,20 @@ export default function App() {
     });
     updateGameSessionSnapshot({ hintCount: game.hintsUsed + 1, lastActionType: 'hint' });
     setShowHint(false);
+    setPickingHintCell(false);
+    setHintMode(null);
     // Déclencher l'animation étoiles sur cette case
     setHintRevealCell({ row, col, value });
     setTimeout(() => setHintRevealCell(null), 2200);
   };
 
-  const handleOpenHint = () => setShowHint(true);
-  const handleCloseHint = () => setShowHint(false);
+  const handleOpenHintRandom = () => { setHintMode('random'); setShowHint(true); };
+  const handleOpenHintPick = () => { setHintMode('pick'); setShowHint(true); };
+  // Appelé par HintModal une fois la pub (mode "pick") passée : on ferme la
+  // barre d'indice et on attend un tap sur une case vide de la grille.
+  const handleReadyToPickCell = () => { setShowHint(false); setPickingHintCell(true); };
+  const handleCancelPickCell = () => { setPickingHintCell(false); setHintMode(null); };
+  const handleCloseHint = () => { setShowHint(false); setHintMode(null); };
 
   // Un clic en dehors de la grille (et du pavé numérique) désélectionne la
   // case en cours : ça désactive le surlignage et fait réapparaître l'image
@@ -921,6 +943,7 @@ export default function App() {
           hintHighlightZones={hintRevealCell ? [{ color: 'answer', cells: [{ row: hintRevealCell.row, col: hintRevealCell.col }] }] : []}
           hintTargetCell={hintRevealCell ?? null}
           hintRevealCell={hintRevealCell}
+          pickingHintCell={pickingHintCell}
           onSelectCell={handleSelectCell}
         />
 
@@ -932,7 +955,8 @@ export default function App() {
           onToggleNotes={game.toggleNotesMode}
           onUndo={game.undo}
           canUndo={game.canUndo}
-          onHint={handleOpenHint}
+          onHint={handleOpenHintRandom}
+          onHintPick={handleOpenHintPick}
           hintsDisabled={
             game.challengeMeta?.hints_limit != null &&
             game.hintsUsed >= game.challengeMeta.hints_limit
@@ -943,13 +967,24 @@ export default function App() {
 
       {showHint && (
         <HintModal
+          mode={hintMode}
           userGrid={game.userGrid}
           puzzleSolution={game.puzzleData?.solution}
           onRevealHint={handleRevealHint}
+          onReadyToPick={handleReadyToPickCell}
           onClose={handleCloseHint}
           hintsUsed={game.hintsUsed}
           maxHints={game.challengeMeta?.maxHints ?? null}
         />
+      )}
+
+      {pickingHintCell && (
+        <div className="hint-bar">
+          <div className="hint-bar-header">
+            <span className="hint-step-label">🎯 {t('hint_pick_instruction')}</span>
+            <button className="hint-btn-close" onClick={handleCancelPickCell}>✕</button>
+          </div>
+        </div>
       )}
 
       {game.showWinModal && (

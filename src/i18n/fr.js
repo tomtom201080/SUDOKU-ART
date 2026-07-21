@@ -36,6 +36,7 @@ export default {
   game_notes: '✏️ Notes',
   game_undo: '↩️ Annuler',
   game_hint: '💡 Indice',
+  game_hint_pick: '🎯 Choisir',
   game_watermark_toggle: 'Filigrane',
 
   // ── Victoire ──────────────────────────────────────────────────
@@ -566,6 +567,7 @@ export default {
 
   // ── HintModal ─────────────────────────────────────────────────
   hint_question: 'Quel chiffre veux-tu découvrir ?',
+  hint_pick_instruction: 'Touche une case vide de la grille pour la découvrir',
 
   // ── HomeProgress ──────────────────────────────────────────────
   progress_games_won: 'Parties\ngagnées',

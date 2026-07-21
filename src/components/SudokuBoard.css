@@ -207,6 +207,19 @@ body.dark .note-digit {
   z-index: 2;
 }
 
+/* Indice "choisir une case" : cases vides éligibles mises en évidence
+   pendant qu'on attend le tap du joueur. */
+.sudoku-cell.is-pickable {
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+  animation: pickable-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pickable-pulse {
+  0%, 100% { background-color: transparent; }
+  50% { background-color: color-mix(in srgb, var(--accent) 14%, transparent); }
+}
+
 body.dark .sudoku-cell.hint-zone-row {
   background-color: rgba(33, 150, 243, 0.35) !important;
 }

@@ -8,10 +8,15 @@ import './HintModal.css';
 
 const AD_WAIT = 5;
 
+// mode: 'random' (choisir un chiffre, l'app pioche une case au hasard) ou
+// 'pick' (l'utilisateur désigne lui-même la case sur la grille — la
+// sélection se fait alors hors de ce composant, via onReadyToPick).
 export default function HintModal({
+  mode = 'random',
   userGrid,
   puzzleSolution,
   onRevealHint,   // (row, col, value) → place le chiffre + animation
+  onReadyToPick,  // appelé une fois la pub passée, en mode 'pick'
   onClose,
   hintsUsed = 0,
   maxHints = null
@@ -24,17 +29,28 @@ export default function HintModal({
   const showAd = consent === 'accepted' && hasAdsense;
 
   useEffect(() => {
-    if (!showAd) { setPhase('pick'); return; }
+    if (!showAd) {
+      // Pas de pub à montrer (refusée ou non configurée) : on passe
+      // directement à la suite, sans jamais bloquer l'indice.
+      if (mode === 'pick') onReadyToPick?.();
+      else setPhase('pick');
+      return;
+    }
     loadAdsenseScript();
     try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
     const iv = setInterval(() => {
       setCountdown(c => {
-        if (c <= 1) { clearInterval(iv); setPhase('pick'); return 0; }
+        if (c <= 1) {
+          clearInterval(iv);
+          if (mode === 'pick') onReadyToPick?.();
+          else setPhase('pick');
+          return 0;
+        }
         return c - 1;
       });
     }, 1000);
     return () => clearInterval(iv);
-  }, [showAd]);
+  }, [showAd, mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Calcule quels chiffres ont encore des cases vides
   const availableDigits = useCallback(() => {

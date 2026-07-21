@@ -493,7 +493,12 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     };
   }, [difficulty, manifest, userId, watermark]);
 
-  const setCellValue = useCallback((row, col, value) => {
+  // forceValue : bypass le mode notes pour poser directement la vraie
+  // valeur, quel que soit l'état de notesMode au moment de l'appel. Utilisé
+  // par les indices (App.jsx) : notesMode est un état React, donc son
+  // toggle est asynchrone — l'appeler juste avant setCellValue ne suffit
+  // pas à garantir que la bonne branche sera prise dans le même tick.
+  const setCellValue = useCallback((row, col, value, { forceValue = false } = {}) => {
     if (!puzzleData || !userGrid) return;
     if (isFailed) return; // défi déjà perdu, plus aucune saisie possible
     if (puzzleData.givenMask[row][col]) return; // case fixe, non modifiable
@@ -516,7 +521,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     ]);
 
     // --- Mode notes : on bascule un chiffre candidat dans la case ---
-    if (notesMode) {
+    if (notesMode && !forceValue) {
       if (userGrid[row][col] !== 0) return; // pas de notes sur une case déjà remplie
       setNotesGrid(prev => {
         const next = cloneNotes(prev);

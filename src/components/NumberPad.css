@@ -14,7 +14,7 @@
 
 .number-pad-actions {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 6px;
 }
 
@@ -51,9 +51,10 @@
 .number-pad-erase,
 .number-pad-notes,
 .number-pad-undo,
-.number-pad-hint {
+.number-pad-hint,
+.number-pad-hint-pick {
   background: #EFE6D3;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   padding: 6px 2px;
   white-space: nowrap;
 }
@@ -67,6 +68,7 @@
 body.dark .number-pad-erase,
 body.dark .number-pad-notes,
 body.dark .number-pad-undo,
-body.dark .number-pad-hint {
+body.dark .number-pad-hint,
+body.dark .number-pad-hint-pick {
   background: #2C3340;
 }

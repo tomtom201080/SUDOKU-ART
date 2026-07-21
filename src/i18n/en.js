@@ -36,6 +36,7 @@ export default {
   game_notes: '✏️ Notes',
   game_undo: '↩️ Undo',
   game_hint: '💡 Hint',
+  game_hint_pick: '🎯 Pick a cell',
   game_watermark_toggle: 'Watermark',
 
   // ── Win ───────────────────────────────────────────────────────
@@ -566,6 +567,7 @@ export default {
 
   // ── HintModal ─────────────────────────────────────────────────
   hint_question: 'Which digit do you want to reveal?',
+  hint_pick_instruction: 'Tap an empty cell in the grid to reveal it',
 
   // ── HomeProgress ──────────────────────────────────────────────
   progress_games_won: 'Games\nwon',

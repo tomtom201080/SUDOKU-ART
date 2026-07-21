@@ -34,6 +34,7 @@ const SudokuBoard = forwardRef(function SudokuBoard({
   hintHighlightZones,
   hintTargetCell,
   hintRevealCell,
+  pickingHintCell,
   onSelectCell
 }, ref) {
   if (!puzzleData || !userGrid) return null;
@@ -94,6 +95,7 @@ const SudokuBoard = forwardRef(function SudokuBoard({
               hintTargetCell?.row === row && hintTargetCell?.col === col;
             const isHintRevealed =
               hintRevealCell?.row === row && hintRevealCell?.col === col;
+            const isPickable = pickingHintCell && !isGiven && value === 0;
 
             const thickRight = col === 2 || col === 5;
             const thickBottom = row === 2 || row === 5;
@@ -127,6 +129,7 @@ const SudokuBoard = forwardRef(function SudokuBoard({
                   hintZoneColor ? `hint-zone-${hintZoneColor}` : '',
                   isHintTarget ? 'hint-target' : '',
                   isHintRevealed ? 'hint-revealed' : '',
+                  isPickable ? 'is-pickable' : '',
                   thickRight ? 'thick-right' : '',
                   thickBottom ? 'thick-bottom' : ''
                 ].join(' ').trim()}
