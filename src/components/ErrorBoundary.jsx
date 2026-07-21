@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { trackGameError, normalizeErrorCode, firstComponentFromStack } from '../lib/tracking';
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -7,6 +8,15 @@ export default class ErrorBoundary extends Component {
   }
   static getDerivedStateFromError(error) {
     return { error };
+  }
+  componentDidCatch(error, errorInfo) {
+    trackGameError({
+      errorType: 'react_render_crash',
+      errorLocation: firstComponentFromStack(errorInfo?.componentStack),
+      errorCode: normalizeErrorCode(error),
+      fatal: true,
+      gameInProgress: this.props.gameInProgress ?? false
+    });
   }
   render() {
     if (this.state.error) {

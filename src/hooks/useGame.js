@@ -922,6 +922,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     errorCount,
     hintsUsed,
     setHintsUsed,
+    moveCount: history.length,
     triggerFail: () => {
       setIsFailed(true);
       logGameFail({ difficulty, userId, errorCount, elapsedSeconds, isChallenge: false });

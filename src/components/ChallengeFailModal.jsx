@@ -1,7 +1,8 @@
 import { useT } from '../i18n/index.jsx';
 // src/components/ChallengeFailModal.jsx
 import { useState } from 'react';
-import { shareText } from '../utils/device';
+import { isMobileDevice, shareText } from '../utils/device';
+import { trackShareClicked } from '../lib/tracking';
 import './WinModal.css';
 
 const DIFFICULTY_KEYS = { facile: 'diff_facile', moyen: 'diff_moyen', complique: 'diff_complique', enfer: 'diff_enfer' };
@@ -24,6 +25,13 @@ export default function ChallengeFailModal({
   const [resultSent, setResultSent] = useState(false);
 
   const handleSendResult = async () => {
+    trackShareClicked({
+      shareMethod: (isMobileDevice() && navigator.share) ? 'native_share' : 'whatsapp',
+      difficulty,
+      contentType: challengeMeta?.id ? 'artwork' : 'classic',
+      puzzleId: challengeMeta?.id ?? null,
+      completionTimeSeconds: elapsedSeconds
+    });
     const difficultyLabel = DIFFICULTY_KEYS[difficulty] ? t(DIFFICULTY_KEYS[difficulty]) : difficulty;
     const message = t('fail_result_share_lost', { diff: difficultyLabel, errors: errorCount, time: formatTime(elapsedSeconds) });
     await shareText(message, t('fail_share_title'));

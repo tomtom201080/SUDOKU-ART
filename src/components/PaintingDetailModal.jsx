@@ -1,10 +1,17 @@
 import { useT } from '../i18n/index.jsx';
 // src/components/PaintingDetailModal.jsx
+import { useEffect } from 'react';
+import { trackArtworkDetailsOpened } from '../lib/tracking';
 import '../components/WinModal.css';
 import './PaintingDetailModal.css';
 
 export default function PaintingDetailModal({ image, onClose }) {
   const { t } = useT();
+
+  useEffect(() => {
+    if (image) trackArtworkDetailsOpened({ puzzleId: null, artworkId: image.id ?? null, difficulty: null });
+  }, [image]);
+
   if (!image) return null;
   return (
     <div className="painting-detail-overlay" onClick={onClose}>

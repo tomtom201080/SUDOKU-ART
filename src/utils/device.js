@@ -10,6 +10,21 @@ export function isMobileDevice() {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
+// Catégorise document.referrer en quelques familles larges, sans jamais
+// renvoyer l'URL complète (peut contenir des paramètres de tracking tiers).
+export function classifyReferrer(referrer) {
+  if (!referrer) return 'direct';
+  try {
+    const host = new URL(referrer).hostname.replace(/^www\./, '');
+    if (/google\.|bing\.|duckduckgo\.|yahoo\./.test(host)) return 'search';
+    if (/facebook\.|instagram\.|twitter\.|x\.com|tiktok\.|linkedin\.|whatsapp\.|t\.me/.test(host)) return 'social';
+    if (host === window.location.hostname) return 'internal';
+    return 'other';
+  } catch {
+    return 'other';
+  }
+}
+
 // Partage un texte simple : partage natif sur mobile, WhatsApp Web sur
 // ordinateur (voir isMobileDevice plus haut pour le pourquoi).
 export async function shareText(text, title = 'Sudoku Art') {

@@ -26,16 +26,21 @@ import InstallAppModal from './components/InstallAppModal';
 import HelpModal from './components/HelpModal';
 import KpiDashboard from './components/KpiDashboard';
 import AdSlot from './components/AdSlot';
-import AdConsentBanner from './components/AdConsentBanner';
+import ConsentBanner from './components/ConsentBanner';
 import AdInterstitial from './components/AdInterstitial';
 import { TermsModal, PrivacyModal } from './components/LegalModal';
 import DeleteAccountModal from './components/DeleteAccountModal';
 import OnboardingModal from './components/OnboardingModal';
 import HomeProgress from './components/HomeProgress';
-import { getAdConsent } from './lib/adConsent';
+import FeedbackModal from './components/FeedbackModal';
+import { getAdConsent, setAdConsent } from './lib/adConsent';
+import { hasDecided as hasConsentDecided } from './lib/consent';
 import { useT } from './i18n/index.jsx';
 import { useGame } from './hooks/useGame';
+import { useGameAnalytics } from './hooks/useGameAnalytics';
 import { useNetworkStatus } from './hooks/useNetworkStatus';
+import { isMobileDevice, classifyReferrer } from './utils/device';
+import { trackHomeViewed, trackGameSelected, trackHintUsed, trackNewGameClicked, updateGameSessionSnapshot } from './lib/tracking';
 import './components/LegalModal.css';
 import { loadManifest, pickImageForTier, TIERS_BY_DIFFICULTY } from './data/imageLibrary';
 import { getMergedUnseenIds } from './lib/seenPaintings';
@@ -221,6 +226,40 @@ export default function App() {
     onMaxErrorsReached: () => setShowMaxErrors(true),
     username });
 
+  // classic = sudoku sans image, personal_image = photo perso (donnée
+  // sensible : jamais de puzzle_id transmis pour ce type, voir lib/tracking).
+  const contentType = isClassicMode ? 'classic' : (game.watermark?.isCustom ? 'personal_image' : 'artwork');
+  const gameAnalytics = useGameAnalytics(game, {
+    language: lang,
+    contentType,
+    puzzleId: game.watermark?.id ?? null,
+    isCustomGame: !!game.watermark?.isCustom
+  });
+
+  useEffect(() => {
+    document.body.classList.toggle('game-in-progress', !!game.difficulty);
+  }, [game.difficulty]);
+
+  // "Accueil vu" : à chaque fois que l'écran d'accueil redevient réellement
+  // visible (premier chargement, ou retour après une partie) — pas à
+  // chaque re-rendu tant qu'on y reste.
+  const homeViewedShownRef = useRef(false);
+  useEffect(() => {
+    const isHomeVisible = !sessionLoading && !manifestLoading && !isPasswordRecovery && !showAuthScreen && !game.difficulty;
+    if (isHomeVisible && !homeViewedShownRef.current) {
+      homeViewedShownRef.current = true;
+      trackHomeViewed({
+        language: lang,
+        deviceType: isMobileDevice() ? 'mobile' : 'desktop',
+        referrerType: classifyReferrer(document.referrer)
+      });
+    }
+    if (!isHomeVisible) homeViewedShownRef.current = false;
+  }, [sessionLoading, manifestLoading, isPasswordRecovery, showAuthScreen, game.difficulty, lang]);
+
+  const [consentDecided, setConsentDecided] = useState(() => hasConsentDecided());
+  const [showFeedback, setShowFeedback] = useState(false);
+
   const [preloadedByTier, setPreloadedByTier] = useState({});
 
   // Dès que l'écran d'accueil est affiché (premier chargement, ou retour au
@@ -259,6 +298,12 @@ export default function App() {
 
   const handleSelectDifficulty = (difficultyId, customImageUrl) => {
     const isClassic = customImageUrl === 'classic';
+    trackGameSelected({
+      difficulty: difficultyId,
+      contentType: isClassic ? 'classic' : (customImageUrl ? 'personal_image' : 'artwork'),
+      puzzleId: null, // pas encore généré à ce stade — voir game_started
+      language: lang
+    });
     setIsClassicMode(isClassic);
     setLastCustomImage(isClassic ? null : (customImageUrl || null));
     setLastChallengeMeta(null);
@@ -456,6 +501,11 @@ export default function App() {
   };
 
   const handleReplay = () => {
+    trackNewGameClicked({
+      previousProgressPercent: Math.floor(game.revealProgress * 100),
+      previousCompleted: game.isComplete,
+      previousDifficulty: game.difficulty
+    });
     game.startNewGame(game.difficulty, lastCustomImage, lastChallengeMeta, game.nextWatermark);
     setSelectedCell(null);
     setHighlightValue(0);
@@ -481,6 +531,7 @@ export default function App() {
     }
     // Si connecté : progression sauvegardée, on peut quitter directement
     if (session) {
+      gameAnalytics.reportPendingAbandonReason('return_home');
       game.resetToMenu();
       return;
     }
@@ -490,11 +541,13 @@ export default function App() {
 
   const handleQuitConfirmed = () => {
     setShowQuitConfirm(false);
+    gameAnalytics.reportPendingAbandonReason('return_home');
     game.resetToMenu();
   };
 
   const handleQuitAndLogin = () => {
     setShowQuitConfirm(false);
+    gameAnalytics.reportPendingAbandonReason('return_home');
     game.resetToMenu();
     setShowAuthScreen(true);
   };
@@ -508,6 +561,13 @@ export default function App() {
     // et des cases voisines (ligne/colonne/carré) si la valeur est correcte
     game.setCellValue(row, col, value);
     game.setHintsUsed(h => h + 1);
+    trackHintUsed({
+      hintNumber: game.hintsUsed + 1,
+      elapsedSeconds: game.elapsedSeconds,
+      difficulty: game.difficulty,
+      progressPercent: Math.floor(game.revealProgress * 100)
+    });
+    updateGameSessionSnapshot({ hintCount: game.hintsUsed + 1, lastActionType: 'hint' });
     setShowHint(false);
     // Déclencher l'animation étoiles sur cette case
     setHintRevealCell({ row, col, value });
@@ -675,7 +735,7 @@ export default function App() {
         {showPrivacyPolicy && (
           <PrivacyModal
             onClose={() => setShowPrivacyPolicy(false)}
-            onConsentChange={(value) => setAdConsentState(value)}
+            onConsentChange={(value) => { setAdConsent(value); setAdConsentState(value); }}
           />
         )}
         {showDeleteAccount && (
@@ -684,16 +744,25 @@ export default function App() {
             onDeleted={() => { setShowDeleteAccount(false); }}
           />
         )}
-        {adConsent === null && (
-          <AdConsentBanner
-            onChoice={(value) => setAdConsentState(value)}
+        {!consentDecided && !showOnboarding && (
+          <ConsentBanner
+            onDecided={() => { setConsentDecided(true); setAdConsentState(getAdConsent()); }}
             onShowPrivacy={() => setShowPrivacyPolicy(true)}
+          />
+        )}
+        {showFeedback && (
+          <FeedbackModal
+            onClose={() => setShowFeedback(false)}
+            feedbackContext="home_footer"
+            page="home"
           />
         )}
         <div className="home-footer">
           <button className="privacy-footer-link" onClick={() => setShowTerms(true)}>{t('footer_cgu')}</button>
           <span className="privacy-footer-sep">·</span>
           <button className="privacy-footer-link" onClick={() => setShowPrivacyPolicy(true)}>{t('footer_privacy')}</button>
+          <span className="privacy-footer-sep">·</span>
+          <button className="privacy-footer-link" onClick={() => setShowFeedback(true)}>{t('feedback_link')}</button>
           {session && (
             <>
               <span className="privacy-footer-sep">·</span>

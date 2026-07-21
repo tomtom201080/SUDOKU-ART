@@ -3,6 +3,7 @@ import { calcAdjustedScore, formatAdjustedScore } from '../lib/rematches';
 // src/components/WinModal.jsx
 import { useState } from 'react';
 import { isMobileDevice, shareText } from '../utils/device';
+import { trackShareClicked, trackShareCompleted } from '../lib/tracking';
 import './WinModal.css';
 
 
@@ -33,12 +34,15 @@ export default function WinModal({
   const isCustomGame = watermark?.isCustom;
   const photoUrl = isCustomGame ? watermark.path : null;
   const isChallengeGame = !!challengeMeta?.id;
+  const contentType = isCustomGame ? 'personal_image' : (rewardImage ? 'artwork' : 'classic');
+  const puzzleId = rewardImage?.id ?? watermark?.id ?? null;
 
   const handleSaveClick = () => {
     setShowSaveNotice(true);
   };
 
   const confirmSave = () => {
+    trackShareClicked({ shareMethod: 'download_image', difficulty, contentType, puzzleId, completionTimeSeconds: elapsedSeconds });
     const link = document.createElement('a');
     link.href = photoUrl;
     link.download = 'sudoku-devoile-photo.jpg';
@@ -58,6 +62,14 @@ export default function WinModal({
   };
 
   const handleShare = async () => {
+    const canNativeShare = isMobileDevice() && !!navigator.share;
+    trackShareClicked({
+      shareMethod: canNativeShare ? 'native_share' : 'whatsapp',
+      difficulty,
+      contentType,
+      puzzleId,
+      completionTimeSeconds: elapsedSeconds
+    });
     const text = shareAchievementText();
     const rewardUrl = rewardImage?.path ?? photoUrl;
 
@@ -69,11 +81,13 @@ export default function WinModal({
           const file = new File([blob], 'sudoku-art.jpg', { type: blob.type || 'image/jpeg' });
           if (navigator.canShare?.({ files: [file] })) {
             await navigator.share({ files: [file], title: 'Sudoku Art', text });
+            trackShareCompleted({ shareMethod: 'native_share', puzzleId });
             return;
           }
         }
         if (navigator.share) {
           await navigator.share({ title: 'Sudoku Art', url: 'https://sudoku-art.vercel.app', text });
+          trackShareCompleted({ shareMethod: 'native_share', puzzleId });
           return;
         }
       } catch {
@@ -84,6 +98,10 @@ export default function WinModal({
   };
 
   const handleSendResult = async () => {
+    trackShareClicked({
+      shareMethod: (isMobileDevice() && navigator.share) ? 'native_share' : 'whatsapp',
+      difficulty, contentType, puzzleId, completionTimeSeconds: elapsedSeconds
+    });
     const difficultyLabel = diffLabel(difficulty) ?? difficulty;
     const message =
       t('win_result_share_intro') +
@@ -93,6 +111,10 @@ export default function WinModal({
   };
 
   const handleSendRematchResult = async () => {
+    trackShareClicked({
+      shareMethod: (isMobileDevice() && navigator.share) ? 'native_share' : 'whatsapp',
+      difficulty, contentType, puzzleId, completionTimeSeconds: elapsedSeconds
+    });
     const name = rematchOutcome.challengerName ? `${rematchOutcome.challengerName}, ` : '';
     const verdict =
       rematchOutcome.winner === 'recipient' ? t('win_rematch_verdict_recipient') :
