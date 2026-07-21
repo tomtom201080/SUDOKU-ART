@@ -261,6 +261,46 @@ export async function fetchGroupResults(rematchId) {
   return data ?? [];
 }
 
+// Fusionne le résultat du challenger (stocké sur la ligne `rematches`, il a
+// joué en créant le défi) avec les résultats des autres participants
+// (`rematch_results`), triés par score ajusté croissant (meilleur en
+// premier). Logique partagée entre le classement de "Mes défis envoyés" et
+// celui affiché en fin de partie.
+export function mergeAndSortGroupResults(rematch, results) {
+  const rows = [...results];
+  if (rematch.challenger_result_seconds > 0) {
+    rows.unshift({
+      id: 'challenger',
+      player_name: rematch.challenger_name || null,
+      player_user_id: rematch.challenger_user_id ?? null,
+      errors: rematch.challenger_result_errors ?? 0,
+      seconds: rematch.challenger_result_seconds ?? 0,
+      hints: rematch.challenger_result_hints ?? 0,
+      isChallenger: true
+    });
+  }
+  return rows.sort((a, b) =>
+    calcAdjustedScore({ seconds: a.seconds, errors: a.errors, hints: a.hints ?? 0 }) -
+    calcAdjustedScore({ seconds: b.seconds, errors: b.errors, hints: b.hints ?? 0 })
+  );
+}
+
+// Rattache au compte qui vient de se connecter/s'inscrire le résultat qu'il
+// a joué en "candidat libre" (sans compte) sur ce défi de groupe. Le pseudo
+// est déjà garanti unique par défi (voir checkPseudoAvailableForDefi dans
+// IncomingDefiModal), donc rematch_id + player_name identifie sans ambiguïté
+// LA ligne à rattacher — pas besoin de jeton d'appareil supplémentaire. Le
+// filtre player_user_id IS NULL protège contre un double-rattachement.
+export async function claimGroupResult(rematchId, { playerName, userId }) {
+  const { error } = await supabase
+    .from('rematch_results')
+    .update({ player_user_id: userId })
+    .eq('rematch_id', rematchId)
+    .eq('player_name', playerName)
+    .is('player_user_id', null);
+  if (error) throw error;
+}
+
 // Supprime un défi de la vue de l'utilisateur (soft delete via un champ hidden)
 // On ne supprime pas vraiment la row car l'autre joueur en a peut-être besoin.
 export async function hideRematch(rematchId, userId) {

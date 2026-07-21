@@ -554,6 +554,14 @@ export default {
   dd_delete_title: 'Delete',
   dd_resend_title: 'Resend this challenge',
 
+  // ── Group leaderboard (end-of-challenge screen) ─────────────────
+  group_results_title: '🏆 Challenge leaderboard',
+  group_results_me: 'You',
+  group_waiting_first: '🎉 Nice, you\'re the first to finish! Come back later to see the leaderboard.',
+  group_claim_title: 'Sign in to keep your result',
+  group_claim_desc: 'Create an account or sign in to keep your score and see the other participants\' results next time.',
+  group_claim_btn: 'Sign in / Create an account',
+
   // ── HelpModal ─────────────────────────────────────────────────
   help_rules_title: '❓ Rules & how to play',
   help_center_cell: 'The centre cell is revealed from the start',

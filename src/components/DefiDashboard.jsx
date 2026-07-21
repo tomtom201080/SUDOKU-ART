@@ -3,18 +3,15 @@ import { useT } from '../i18n/index.jsx';
 import { useEffect, useState } from 'react';
 import {
   fetchSentRematches, fetchReceivedRematches,
-  determineRematchWinner, calcAdjustedScore, formatAdjustedScore,
+  determineRematchWinner,
   fetchGroupResults, hideRematch, getHiddenRematchIds
 } from '../lib/rematches';
 import RematchResultDetail from './RematchResultDetail';
+import GroupResultsList from './GroupResultsList';
 import './DefiDashboard.css';
 
 // DIFF_LABELS dynamiques via useT()
 
-function fmt(s) {
-  if (s == null) return '—';
-  return `${String(Math.floor(s / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
-}
 function fmtDate(iso) {
   return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
 }
@@ -27,25 +24,7 @@ function GroupLeaderboard({ rematch, onClose }) {
   const hintsSuffix = rematch.hints_limit != null ? t('dd_hints_limit_suffix', { n: rematch.hints_limit, s: rematch.hints_limit > 1 ? 's' : '' }) : '';
 
   useEffect(() => {
-    fetchGroupResults(rematch.id).then(data => {
-      // Ajouter l'expéditeur (challenger) s'il a joué
-      const rows = [...data];
-      if (rematch.challenger_result_seconds > 0) {
-        rows.unshift({
-          id: 'challenger',
-          player_name: rematch.challenger_name || t('dd_sender_label'),
-          errors: rematch.challenger_result_errors ?? 0,
-          seconds: rematch.challenger_result_seconds ?? 0,
-          hints: rematch.challenger_result_hints ?? 0,
-          isChallenger: true });
-      }
-      // Trier par score ajusté
-      rows.sort((a, b) =>
-        calcAdjustedScore({ seconds: a.seconds, errors: a.errors, hints: a.hints ?? 0 }) -
-        calcAdjustedScore({ seconds: b.seconds, errors: b.errors, hints: b.hints ?? 0 })
-      );
-      setResults(rows);
-    });
+    fetchGroupResults(rematch.id).then(setResults);
   }, [rematch.id]);
 
   return (
@@ -59,24 +38,7 @@ function GroupLeaderboard({ rematch, onClose }) {
           {diffLabel(rematch.difficulty) ?? rematch.difficulty} · {fmtDate(rematch.created_at)}{hintsSuffix}
         </p>
 
-        {results === null && <p className="defi-dash-empty">{t('defi_loading')}</p>}
-        {results?.length === 0 && <p className="defi-dash-empty">{t('dd_no_results')}</p>}
-        {results?.map((r, i) => {
-          const score = calcAdjustedScore({ seconds: r.seconds, errors: r.errors, hints: r.hints ?? 0 });
-          const medals = ['🥇', '🥈', '🥉'];
-          return (
-            <div key={r.id} className={`group-result-row ${r.isChallenger ? 'is-challenger' : ''}`}>
-              <span className="group-rank">{medals[i] ?? `${i+1}.`}</span>
-              <span className="group-name">{r.player_name}</span>
-              <div className="group-stats">
-                <span>❌ {r.errors}</span>
-                <span>💡 {r.hints ?? 0}</span>
-                <span>⏱ {fmt(r.seconds)}</span>
-                <span className="group-score">🏁 {formatAdjustedScore(score)}</span>
-              </div>
-            </div>
-          );
-        })}
+        <GroupResultsList rematch={rematch} results={results} />
 
         <p className="rematch-scoring-note">{t('dd_scoring')}</p>
       </div>

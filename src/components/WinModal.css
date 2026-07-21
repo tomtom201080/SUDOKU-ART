@@ -180,6 +180,31 @@
   font-weight: 600;
 }
 
+.group-claim-box {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px dashed var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  text-align: center;
+}
+
+.group-claim-title {
+  font-weight: 700;
+  margin: 0 0 4px;
+  font-size: 0.9rem;
+}
+
+.group-claim-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0 0 10px;
+}
+
+.group-claim-box .win-btn-primary {
+  width: 100%;
+}
+
 .math-answer-form {
   display: flex;
   gap: 8px;

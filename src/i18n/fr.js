@@ -554,6 +554,14 @@ export default {
   dd_delete_title: 'Supprimer',
   dd_resend_title: 'Renvoyer ce défi',
 
+  // ── Classement de groupe (écran de fin de défi) ────────────────
+  group_results_title: '🏆 Classement du défi',
+  group_results_me: 'Toi',
+  group_waiting_first: '🎉 Bravo, tu es le premier à terminer ! Reviens plus tard pour voir le classement.',
+  group_claim_title: 'Connecte-toi pour garder ton résultat',
+  group_claim_desc: 'Crée un compte ou connecte-toi pour conserver ton score et voir le classement des autres participants la prochaine fois.',
+  group_claim_btn: 'Se connecter / Créer un compte',
+
   // ── HelpModal ─────────────────────────────────────────────────
   help_rules_title: '❓ Règles & comment jouer',
   help_center_cell: 'La case tout au centre est visible dès le départ',

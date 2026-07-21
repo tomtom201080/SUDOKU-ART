@@ -63,7 +63,8 @@ import {
   markRematchNotified,
   determineRematchWinner,
   hasRematchAlreadyStarted,
-  markRematchAsStarted
+  markRematchAsStarted,
+  claimGroupResult
 } from './lib/rematches';
 
 const DARK_MODE_KEY = 'sudoku-devoile:darkMode';
@@ -212,6 +213,16 @@ export default function App() {
         setAuthIntent(null);
         setIsClassicMode(!!rematch.classic_mode);
         game.startRematchGame(rematch, photoUrl);
+      } else if (authIntent === 'claim_group_result' && game.activeRematch?.groupMode && game.activeRematch.playerPseudo) {
+        // Rattache au compte qui vient de se connecter le résultat joué en
+        // candidat libre juste avant — la partie WinModal reste affichée
+        // (game.showWinModal n'est pas touché) et refetch le classement au
+        // remontage de son composant.
+        claimGroupResult(game.activeRematch.id, {
+          playerName: game.activeRematch.playerPseudo,
+          userId: session.user.id
+        }).catch(() => null);
+        setAuthIntent(null);
       } else {
         setAuthIntent(null);
       }
@@ -503,6 +514,14 @@ export default function App() {
 
   const handleLoginThenPlayPendingRematch = () => {
     setAuthIntent('pending_rematch');
+    setShowAuthScreen(true);
+  };
+
+  // Appelé depuis WinModal : un candidat libre non connecté veut se
+  // connecter/créer un compte pour rattacher le résultat qu'il vient de
+  // jouer en défi de groupe.
+  const handleLoginToClaimGroupResult = () => {
+    setAuthIntent('claim_group_result');
     setShowAuthScreen(true);
   };
 
@@ -994,12 +1013,15 @@ export default function App() {
           watermark={isClassicMode ? null : game.watermark}
           challengeMeta={game.challengeMeta}
           rematchOutcome={game.rematchOutcome}
+          activeRematch={game.activeRematch}
+          userId={session?.user?.id ?? null}
           errorCount={game.errorCount}
           elapsedSeconds={game.elapsedSeconds}
           result="won"
           onReplay={handleReplay}
           onClose={game.dismissWinModal}
           onRequestRematch={handleRequestRematchWithAd}
+          onLoginToClaim={handleLoginToClaimGroupResult}
         />
       )}
 

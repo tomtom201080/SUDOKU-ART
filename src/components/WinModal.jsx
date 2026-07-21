@@ -1,9 +1,10 @@
 import { useT } from '../i18n/index.jsx';
-import { calcAdjustedScore, formatAdjustedScore } from '../lib/rematches';
+import { calcAdjustedScore, formatAdjustedScore, fetchRematch, fetchGroupResults } from '../lib/rematches';
 // src/components/WinModal.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { isMobileDevice, shareText } from '../utils/device';
 import { trackShareClicked, trackShareCompleted } from '../lib/tracking';
+import GroupResultsList from './GroupResultsList';
 import './WinModal.css';
 
 
@@ -19,17 +20,46 @@ export default function WinModal({
   watermark,
   challengeMeta,
   rematchOutcome,
+  activeRematch,
+  userId,
   errorCount,
   elapsedSeconds,
   onReplay,
   onClose,
-  onRequestRematch }) {
+  onRequestRematch,
+  onLoginToClaim }) {
   const { t, lang } = useT();
   const DIFFICULTY_KEYS = { facile: 'diff_facile', moyen: 'diff_moyen', complique: 'diff_complique', enfer: 'diff_enfer' };
   const diffLabel = (d) => (DIFFICULTY_KEYS[d] ? t(DIFFICULTY_KEYS[d]) : d);
   const [showSaveNotice, setShowSaveNotice] = useState(false);
   const [resultSent, setResultSent] = useState(false);
   const [rematchResultSent, setRematchResultSent] = useState(false);
+  const [groupRematch, setGroupRematch] = useState(null);
+  const [groupResults, setGroupResults] = useState(null);
+
+  const isGroupRematch = !!activeRematch?.groupMode;
+  // "Candidat libre" non connecté : le seul chemin vers un défi de groupe
+  // sans session est celui du pseudo (IncomingDefiModal → onPlayFree), donc
+  // playerPseudo est systématiquement renseigné dans ce cas précis.
+  const isFreeAgentNotSignedIn = isGroupRematch && !userId && activeRematch.playerPseudo != null;
+
+  useEffect(() => {
+    if (!isGroupRematch) return;
+    let cancelled = false;
+    setGroupRematch(null);
+    setGroupResults(null);
+    Promise.all([fetchRematch(activeRematch.id), fetchGroupResults(activeRematch.id)]).then(([rematch, results]) => {
+      if (cancelled) return;
+      setGroupRematch(rematch);
+      setGroupResults(results);
+    });
+    return () => { cancelled = true; };
+  }, [isGroupRematch, activeRematch?.id]);
+
+  const isMyGroupResult = (r) => {
+    if (userId) return r.player_user_id === userId;
+    return activeRematch?.playerPseudo != null && r.player_name === activeRematch.playerPseudo && r.player_user_id == null;
+  };
 
   const isCustomGame = watermark?.isCustom;
   const photoUrl = isCustomGame ? watermark.path : null;
@@ -174,6 +204,22 @@ export default function WinModal({
               <button className="win-btn-secondary win-send-result-btn" onClick={handleSendRematchResult}>
                 {rematchResultSent ? t('win_rematch_sent') : t('win_rematch_send')}
               </button>
+            )}
+          </div>
+        )}
+
+        {isGroupRematch && (
+          <div className="rematch-outcome">
+            <p className="rematch-outcome-title">{t('group_results_title')}</p>
+            <GroupResultsList rematch={groupRematch} results={groupResults} isMe={isMyGroupResult} />
+            <p className="rematch-scoring-note">{t('dd_scoring')}</p>
+
+            {isFreeAgentNotSignedIn && (
+              <div className="group-claim-box">
+                <p className="group-claim-title">{t('group_claim_title')}</p>
+                <p className="group-claim-desc">{t('group_claim_desc')}</p>
+                <button className="win-btn-primary" onClick={onLoginToClaim}>{t('group_claim_btn')}</button>
+              </div>
             )}
           </div>
         )}

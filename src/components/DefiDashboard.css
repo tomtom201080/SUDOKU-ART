@@ -256,6 +256,12 @@ body.dark .defi-badge-tie    { background: #1a2e3e; color: #90caf9; }
   background: color-mix(in srgb, var(--accent) 6%, var(--card-bg));
 }
 
+.group-result-row.is-me {
+  border-color: var(--accent);
+  border-width: 2px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
 .group-rank { font-size: 1.1rem; flex-shrink: 0; }
 
 .group-name {
