@@ -7,6 +7,7 @@ import { markChallengeCompleted, deleteChallenge } from '../lib/challenges';
 import { markPaintingSeen, getMergedUnseenIds } from '../lib/seenPaintings';
 import { logGameStart, logGameComplete, logGameFail } from '../lib/analytics';
 import { submitRematchResult, submitGroupResult, determineRematchWinner } from '../lib/rematches';
+import { trackGameError, normalizeErrorCode } from '../lib/tracking';
 
 function cloneGrid(grid) {
   return grid.map(row => [...row]);
@@ -664,7 +665,13 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
             seconds: finalElapsed,
             hints: hintsUsed,
             userId: userId ?? null,
-            playerName: activeRematch.playerPseudo ?? username ?? 'Anonyme' }).catch(() => null);
+            playerName: activeRematch.playerPseudo ?? username ?? 'Anonyme' }).catch(err => {
+              // Ne jamais bloquer l'écran de victoire sur cette écriture,
+              // mais ne plus l'avaler en silence non plus (un rejet RLS ici
+              // laisserait croire à tort que la partie a été enregistrée).
+              console.error('submitGroupResult failed:', err);
+              trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.submitGroupResult', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
+            });
         } else {
           // Mode perso 1v1
           submitRematchResult(activeRematch.id, {
@@ -672,7 +679,10 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
             seconds: finalElapsed,
             hints: hintsUsed,
             userId
-          }).catch(() => null);
+          }).catch(err => {
+            console.error('submitRematchResult failed:', err);
+            trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.submitRematchResult', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
+          });
 
           const winner = determineRematchWinner({
             challengerErrors: activeRematch.challengerErrors,

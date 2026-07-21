@@ -72,7 +72,13 @@ function RematchRow({ r, isSent, onHide, onExpand, onRegenerate }) {
   const diffLabel = (d) => ({ facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') })[d] ?? d;
 
   const isGroup    = !!r.group_mode;
-  const hasPlayed  = r.completed || (isGroup && r.challenger_result_seconds > 0);
+  // En mode groupe, le classement (rematch_results) peut contenir des
+  // résultats même quand challenger_result_seconds est resté à 0 (défi créé
+  // sans avoir joué au préalable, cas normal du bouton "Défi" de l'accueil).
+  // Impossible de savoir sans requête séparée si quelqu'un a déjà joué, donc
+  // on laisse toujours la ligne cliquable en mode groupe : le classement
+  // affiche lui-même proprement "personne n'a encore joué" le cas échéant.
+  const hasPlayed  = isGroup || r.completed;
 
   return (
     <div className="defi-row" onClick={() => hasPlayed && onExpand(r)} style={{ cursor: hasPlayed ? 'pointer' : 'default' }}>
@@ -88,7 +94,7 @@ function RematchRow({ r, isSent, onHide, onExpand, onRegenerate }) {
       <div className="defi-row-right">
         {!hasPlayed && <span className="defi-row-waiting">{t('defi_waiting')}</span>}
         {hasPlayed && !isGroup && <PersonalResult r={r} isSent={isSent} />}
-        {hasPlayed && isGroup && <span className="defi-badge defi-badge-pending">{t('dd_group_badge')}</span>}
+        {isGroup && <span className="defi-badge defi-badge-pending">{t('dd_group_badge')}</span>}
         {isSent && onRegenerate && (
           <button
             className="defi-row-resend"

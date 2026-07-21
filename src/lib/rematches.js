@@ -236,13 +236,38 @@ export async function fetchReceivedRematches(userId) {
   return data ?? [];
 }
 
-// En mode groupe : soumet le résultat du joueur dans rematch_results
+// En mode groupe : soumet le résultat du joueur dans rematch_results.
+// Un participant CONNECTÉ (l'expéditeur qui rejoue son propre lien, ou un
+// ami invité) ne doit avoir qu'UNE seule entrée par défi : une nouvelle
+// tentative remplace la précédente, même règle "la dernière tentative
+// écrase" que submitRematchResult en mode perso. Un candidat libre non
+// connecté (userId absent) reste géré par pseudo, sans changement.
 export async function submitGroupResult(rematchId, { errors, seconds, hints = 0, userId, playerName }) {
+  const name = playerName ?? 'Anonyme';
+
+  if (userId) {
+    const { data: existing } = await supabase
+      .from('rematch_results')
+      .select('id')
+      .eq('rematch_id', rematchId)
+      .eq('player_user_id', userId)
+      .maybeSingle();
+
+    if (existing) {
+      const { error } = await supabase
+        .from('rematch_results')
+        .update({ player_name: name, errors, seconds, hints })
+        .eq('id', existing.id);
+      if (error) throw error;
+      return;
+    }
+  }
+
   const { error } = await supabase
     .from('rematch_results')
     .insert({
       rematch_id:    rematchId,
-      player_name:   playerName ?? 'Anonyme',
+      player_name:   name,
       player_user_id: userId ?? null,
       errors,
       seconds,
