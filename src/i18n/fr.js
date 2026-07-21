@@ -345,6 +345,7 @@ export default {
   defi_hint_count: '{v} indice{s}',
   defi_scoring_hint: '⏱ Score = temps réel +2 min par erreur ou indice. Le plus bas gagne.',
   defi_send_failed: 'L\'envoi a échoué. Réessaie.',
+  defi_play_now_btn: '▶ Jouer maintenant',
   defi_share_intro: '🎯 {name} te défie sur Sudoku Art !\n',
   defi_share_body: 'Résous cette grille{photoNote} — qui finira avec le meilleur score ?{groupNote}\n',
   defi_share_photo_note: ' et découvre ma photo cachée',

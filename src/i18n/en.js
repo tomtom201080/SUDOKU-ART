@@ -345,6 +345,7 @@ export default {
   defi_hint_count: '{v} hint{s}',
   defi_scoring_hint: '⏱ Score = real time +2 min per error or hint. Lowest wins.',
   defi_send_failed: 'Send failed. Try again.',
+  defi_play_now_btn: '▶ Play now',
   defi_share_intro: '🎯 {name} challenges you on Sudoku Art!\n',
   defi_share_body: 'Solve this grid{photoNote} — who will get the best score?{groupNote}\n',
   defi_share_photo_note: ' and discover my hidden photo',

@@ -26,7 +26,24 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
   const [photoPreview, setPhotoPreview] = useState(null);
   const [challengerName, setChallengerName] = useState('');
   const [error, setError]           = useState(null);
+  const [shareLink, setShareLink]   = useState(null);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [pendingGameStart, setPendingGameStart] = useState(null);
   const fileInputRef = useRef(null);
+
+  const handleCopyLink = async () => {
+    if (!shareLink) return;
+    try {
+      await navigator.clipboard.writeText(shareLink);
+      setLinkCopied(true);
+    } catch {
+      // presse-papiers indisponible : le lien reste visible à l'écran
+    }
+  };
+
+  const handleContinueToGame = () => {
+    if (pendingGameStart) onStartGame(pendingGameStart);
+  };
 
   const handlePickPhoto = () => fileInputRef.current?.click();
   const handleFileChange = (e) => {
@@ -78,15 +95,28 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
         t('defi_share_body', { photoNote: photoPath ? t('defi_share_photo_note') : '', groupNote: groupTxt }) +
         `${link}${regleTxt}${photoGroupWarning}`;
 
+      // navigator.share()/window.open() arrivent ici après deux await réseau
+      // (upload photo + création du défi) : le navigateur ne considère plus
+      // cet appel comme directement issu du clic utilisateur, donc le
+      // partage natif ou la popup WhatsApp peuvent être bloqués
+      // silencieusement (NotAllowedError, popup blocker qui renvoie null).
+      // On tente quand même le partage natif, mais on affiche toujours un
+      // lien de secours copiable en dessous, sans jamais rediriger
+      // automatiquement — l'utilisateur garde la main pour partager avant
+      // de lancer sa propre partie.
       if (isMobileDevice() && navigator.share) {
-        try { await navigator.share({ title: t('defi_title'), text: message }); }
-        catch {}
+        try {
+          await navigator.share({ title: t('defi_title'), text: message });
+        } catch {
+          // partage annulé ou bloqué : le lien de secours ci-dessous prend le relais
+        }
       } else {
         window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
       }
 
+      setShareLink(link);
+      setPendingGameStart({ rematch, puzzleData, photoUrl });
       setStep('done');
-      setTimeout(() => onStartGame({ rematch, puzzleData, photoUrl }), 1200);
 
     } catch (err) {
       console.error(err);
@@ -106,6 +136,17 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
         {step === 'done' && (
           <div className="defi-done">
             <p className="challenge-success">{t('defi_done')}</p>
+            {shareLink && (
+              <div className="challenge-link-fallback">
+                <p>{t('cc_whatsapp_fallback')}</p>
+                <button className="challenge-copy-btn" onClick={handleCopyLink}>
+                  {linkCopied ? t('cc_link_copied') : t('cc_copy_link_btn')}
+                </button>
+              </div>
+            )}
+            <button className="challenge-btn-primary" onClick={handleContinueToGame}>
+              {t('defi_play_now_btn')}
+            </button>
           </div>
         )}
 
