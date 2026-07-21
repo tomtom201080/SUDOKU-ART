@@ -49,7 +49,7 @@ export async function createRematch({
   puzzle, solution, difficulty, photoPath,
   challengerName, challengerUserId,
   challengerErrors, challengerSeconds, challengerHints = 0,
-  hintsLimit = null, groupMode = false
+  hintsLimit = null, groupMode = false, classicMode = false
 }) {
   const { data, error } = await supabase
     .from('rematches')
@@ -64,7 +64,8 @@ export async function createRematch({
       challenger_result_seconds: challengerSeconds,
       challenger_result_hints: challengerHints,
       hints_limit: hintsLimit ?? null,
-      group_mode: groupMode
+      group_mode: groupMode,
+      classic_mode: classicMode
     })
     .select()
     .single();

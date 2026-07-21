@@ -209,6 +209,7 @@ export default function App() {
         const { rematch, photoUrl } = pendingRematch;
         setPendingRematch(null);
         setAuthIntent(null);
+        setIsClassicMode(!!rematch.classic_mode);
         game.startRematchGame(rematch, photoUrl);
       } else {
         setAuthIntent(null);
@@ -378,6 +379,7 @@ export default function App() {
         // Mode groupe : pas de claim token, tout le monde peut jouer
         if (rematch.group_mode) {
           if (session) {
+            setIsClassicMode(!!rematch.classic_mode);
             game.startRematchGame(rematch, photoUrl);
           } else {
             setPendingRematch({ rematch, photoUrl });
@@ -402,6 +404,7 @@ export default function App() {
         // Si l'utilisateur est déjà connecté → lancer directement (son compte sera lié)
         // Sinon → proposer de se connecter ou jouer en libre
         if (session) {
+          setIsClassicMode(!!rematch.classic_mode);
           game.startRematchGame(rematch, photoUrl);
         } else {
           setPendingRematch({ rematch, photoUrl });
@@ -469,7 +472,7 @@ export default function App() {
   const handleDefiStartGame = ({ rematch, puzzleData, photoUrl }) => {
     setShowDefiComposer(false);
     setLastCustomImage(photoUrl ?? null);
-    setIsClassicMode(false);
+    setIsClassicMode(!!rematch.classic_mode);
     setLastChallengeMeta(null);
     // On passe puzzleData local pour éviter tout pb de parsing depuis Supabase
     game.startRematchGame(rematch, photoUrl, puzzleData);
@@ -479,6 +482,7 @@ export default function App() {
     if (!pendingRematch) return;
     const { rematch, photoUrl } = pendingRematch;
     setPendingRematch(null);
+    setIsClassicMode(!!rematch.classic_mode);
     game.startRematchGame(rematch, photoUrl, null, pseudo);
   };
 
@@ -784,6 +788,7 @@ export default function App() {
               onStartGame={handleDefiStartGame}
               userId={session?.user?.id ?? null}
               userEmail={username ?? session?.user?.email ?? null}
+              defaultImageUrl={lastCustomImage}
             />
           </ErrorBoundary>
         )}
@@ -941,9 +946,11 @@ export default function App() {
           puzzleData={game.puzzleData}
           difficulty={game.difficulty}
           errorCount={game.errorCount}
+          hintsUsed={game.hintsUsed}
           elapsedSeconds={game.elapsedSeconds}
           userId={session?.user?.id ?? null}
           userEmail={username ?? session?.user?.email ?? null}
+          defaultImageUrl={game.watermark?.isCustom ? game.watermark.path : null}
           onClose={() => setShowRematchComposer(false)}
         />
       )}

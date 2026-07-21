@@ -267,7 +267,7 @@ export default {
   rematch_you_won: 'Tu as gagné 🏆',
   rematch_recipient_better: 'Il/Elle a fait mieux que toi',
   rematch_friend_finished: '🎯 Ton ami a fini le défi que tu lui as envoyé !',
-  rematch_share_text: '🧩 Je te défie sur LA MÊME grille de Sudoku Art !\nMon résultat : {errors} erreur{s}, {min}m {sec}s.\n{link}',
+  rematch_share_text: '🧩 Je te défie sur LA MÊME grille de Sudoku Art !\n🎯 Niveau : {diff}\nMon résultat : {errors} erreur{s}, {hints} indice{hs}, {min}m {sec}s.\n{link}',
   rematch_photo_share_warning: '\n⚠️ Ce lien donne accès à une photo (supprimée dans {days} j).',
 
   // ── App général ────────────────────────────────────────────────
@@ -347,8 +347,12 @@ export default {
   defi_send_failed: 'L\'envoi a échoué. Réessaie.',
   defi_play_now_btn: '▶ Jouer maintenant',
   defi_share_intro: '🎯 {name} te défie sur Sudoku Art !\n',
+  defi_share_diff_line: '🎯 Niveau : {diff}\n',
   defi_share_body: 'Résous cette grille{photoNote} — qui finira avec le meilleur score ?{groupNote}\n',
   defi_share_photo_note: ' et découvre ma photo cachée',
+  share_image_keep: 'Garder la photo',
+  share_image_new: 'Nouvelle photo',
+  share_image_none: 'Sans image',
   defi_share_pick_photo_btn: '📷 Choisir une photo',
 
   // ── DefiDashboard ─────────────────────────────────────────────

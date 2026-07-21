@@ -104,6 +104,13 @@
   margin-bottom: 4px;
 }
 
+.defi-mode-toggle-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
 .defi-mode-btn {
   display: flex;
   flex-direction: column;

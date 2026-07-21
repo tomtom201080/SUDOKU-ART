@@ -267,7 +267,7 @@ export default {
   rematch_you_won: 'You won 🏆',
   rematch_recipient_better: 'They did better than you',
   rematch_friend_finished: '🎯 Your friend finished the challenge you sent them!',
-  rematch_share_text: '🧩 I challenge you on THE SAME Sudoku Art grid!\nMy result: {errors} error{s}, {min}m {sec}s.\n{link}',
+  rematch_share_text: '🧩 I challenge you on THE SAME Sudoku Art grid!\n🎯 Level: {diff}\nMy result: {errors} error{s}, {hints} hint{hs}, {min}m {sec}s.\n{link}',
   rematch_photo_share_warning: '\n⚠️ This link gives access to a photo (deleted in {days} days).',
 
   // ── App general ────────────────────────────────────────────────
@@ -347,8 +347,12 @@ export default {
   defi_send_failed: 'Send failed. Try again.',
   defi_play_now_btn: '▶ Play now',
   defi_share_intro: '🎯 {name} challenges you on Sudoku Art!\n',
+  defi_share_diff_line: '🎯 Level: {diff}\n',
   defi_share_body: 'Solve this grid{photoNote} — who will get the best score?{groupNote}\n',
   defi_share_photo_note: ' and discover my hidden photo',
+  share_image_keep: 'Keep photo',
+  share_image_new: 'New photo',
+  share_image_none: 'No image',
   defi_share_pick_photo_btn: '📷 Choose a photo',
 
   // ── DefiDashboard ─────────────────────────────────────────────

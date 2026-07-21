@@ -217,6 +217,16 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
       setUserGrid(buildInitialUserGrid(puzzle));
       setWatermark(image);
       setWatermarkVisible(true);
+      // Défi envoyé en mode "sudoku classique" (aucune image, ni photo perso
+      // ni œuvre d'art) : on réutilise le même mécanisme que le mode
+      // classique solo (imageIntensity à 0), sans toucher au tirage
+      // automatique d'image de repli qui reste inoffensif tant qu'il n'est
+      // pas affiché. On modifie uniquement l'état de CETTE partie, sans
+      // écraser la préférence d'intensité globale de l'utilisateur (au
+      // contraire de setImageIntensity(), qui la persiste en localStorage).
+      if (rematch.classic_mode) {
+        setImageIntensityState(0);
+      }
       setIsComplete(false);
       setShowWinModal(false);
       if (winRevealTimeoutRef.current) { clearTimeout(winRevealTimeoutRef.current); winRevealTimeoutRef.current = null; }

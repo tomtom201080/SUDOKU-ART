@@ -10,7 +10,7 @@ import './DefiComposer.css';
 
 
 
-export default function DefiComposer({ onClose, onStartGame, userId, userEmail }) {
+export default function DefiComposer({ onClose, onStartGame, userId, userEmail, defaultImageUrl = null }) {
   const { t } = useT();
   const DIFFICULTY_OPTIONS = [
     { id: 'facile',    label: t('diff_facile'), icon: '😌' },
@@ -18,12 +18,14 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
     { id: 'complique', label: t('diff_complique'), icon: '😬' },
     { id: 'enfer',     label: t('diff_enfer'),  icon: '🔥' },
   ];
+  const DIFFICULTY_KEYS = { facile: 'diff_facile', moyen: 'diff_moyen', complique: 'diff_complique', enfer: 'diff_enfer' };
   const [step, setStep]             = useState('config');
   const [difficulty, setDifficulty] = useState(null);
   const [hintsLimit, setHintsLimit] = useState(null);
   const [groupMode, setGroupMode]   = useState(false); // false = perso, true = groupe
   const [photoFile, setPhotoFile]   = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [imageChoice, setImageChoice] = useState(defaultImageUrl ? 'keep' : 'none'); // 'keep' | 'new' | 'none'
   const [challengerName, setChallengerName] = useState('');
   const [error, setError]           = useState(null);
   const [shareLink, setShareLink]   = useState(null);
@@ -52,6 +54,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
     if (photoPreview) URL.revokeObjectURL(photoPreview);
     setPhotoFile(file);
     setPhotoPreview(URL.createObjectURL(file));
+    setImageChoice('new');
   };
 
   const handleSend = async () => {
@@ -60,8 +63,17 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
     setError(null);
     try {
       const puzzleData = generateSudoku(difficulty);
-      const photoPath  = photoFile ? await uploadSharedPhoto(photoFile) : null;
-      const photoUrl   = photoPreview ?? null;
+      let photoPath = null;
+      if (imageChoice === 'new' && photoFile) {
+        photoPath = await uploadSharedPhoto(photoFile);
+      } else if (imageChoice === 'keep' && defaultImageUrl) {
+        const response = await fetch(defaultImageUrl);
+        const blob = await response.blob();
+        const file = new File([blob], 'photo-defi.jpg', { type: blob.type || 'image/jpeg' });
+        photoPath = await uploadSharedPhoto(file);
+      }
+      const photoUrl = imageChoice === 'new' ? photoPreview : (imageChoice === 'keep' ? defaultImageUrl : null);
+      const classicMode = imageChoice === 'none';
 
       const rematch = await createRematch({
         puzzle:           puzzleData.puzzle,
@@ -74,9 +86,11 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
         challengerSeconds:0,
         challengerHints:  0,
         hintsLimit,
-        groupMode });
+        groupMode,
+        classicMode });
 
       const link      = buildRematchLink(rematch.id);
+      const diffLabel = DIFFICULTY_KEYS[difficulty] ? t(DIFFICULTY_KEYS[difficulty]) : difficulty;
       const limiteTxt = hintsLimit != null ? `\n💡 Max ${t('defi_hint_count', { v: hintsLimit, s: hintsLimit > 1 ? 's' : '' })}` : '';
       const regleTxt  = `${t('defi_rule_msg')}${limiteTxt}`;
 
@@ -92,6 +106,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
       const senderName = userEmail ?? (challengerName.trim() || t('defi_a_friend'));
       const message =
         t('defi_share_intro', { name: senderName }) +
+        t('defi_share_diff_line', { diff: diffLabel }) +
         t('defi_share_body', { photoNote: photoPath ? t('defi_share_photo_note') : '', groupNote: groupTxt }) +
         `${link}${regleTxt}${photoGroupWarning}`;
 
@@ -207,23 +222,47 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail }
               {t('defi_scoring_hint')}
             </div>
 
-            {/* Photo optionnelle */}
+            {/* Choix de l'image : garder / nouvelle / aucune */}
             <p className="challenge-step-title">{t('defi_step4_label')}</p>
-            {photoPreview ? (
+            <div className="defi-mode-toggle-3">
+              <button
+                className={`defi-mode-btn ${imageChoice === 'keep' ? 'is-selected' : ''}`}
+                onClick={() => setImageChoice('keep')}
+                disabled={!defaultImageUrl}
+              >
+                <span className="defi-mode-icon">🖼️</span>
+                <span className="defi-mode-label">{t('share_image_keep')}</span>
+              </button>
+              <button
+                className={`defi-mode-btn ${imageChoice === 'new' ? 'is-selected' : ''}`}
+                onClick={() => { setImageChoice('new'); handlePickPhoto(); }}
+              >
+                <span className="defi-mode-icon">📷</span>
+                <span className="defi-mode-label">{t('share_image_new')}</span>
+              </button>
+              <button
+                className={`defi-mode-btn ${imageChoice === 'none' ? 'is-selected' : ''}`}
+                onClick={() => setImageChoice('none')}
+              >
+                <span className="defi-mode-icon">🔢</span>
+                <span className="defi-mode-label">{t('share_image_none')}</span>
+              </button>
+            </div>
+            {imageChoice === 'keep' && defaultImageUrl && (
+              <div className="defi-photo-row">
+                <img className="defi-photo-thumb" src={defaultImageUrl} alt={t('cc_photo_selected_alt')} />
+              </div>
+            )}
+            {imageChoice === 'new' && photoPreview && (
               <div className="defi-photo-row">
                 <img className="defi-photo-thumb" src={photoPreview} alt={t('cc_photo_selected_alt')} />
                 <button className="challenge-link-btn" onClick={handlePickPhoto}>{t('defi_photo_change')}</button>
-                <button className="challenge-link-btn" onClick={() => { URL.revokeObjectURL(photoPreview); setPhotoFile(null); setPhotoPreview(null); }}>{t('defi_photo_remove')}</button>
               </div>
-            ) : (
-              <button className="challenge-pick-btn" onClick={handlePickPhoto}>
-                {t('defi_share_pick_photo_btn')}
-              </button>
             )}
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
 
             {/* Avertissement photo en mode groupe */}
-            {groupMode && photoPreview && (
+            {groupMode && imageChoice !== 'none' && (photoPreview || (imageChoice === 'keep' && defaultImageUrl)) && (
               <div className="defi-group-photo-warning">
                 {t('defi_group_photo_warning')}
               </div>
