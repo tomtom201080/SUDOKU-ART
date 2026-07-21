@@ -5,19 +5,22 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run check:i18n && vite build",
+    "build": "npm run check:i18n && vite build && node scripts/prerender-seo.mjs",
     "preview": "vite preview",
     "check:i18n": "node scripts/check-i18n.mjs",
+    "prerender:seo": "node scripts/prerender-seo.mjs",
     "test": "vitest run"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.18.1"
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.2",
     "@vitejs/plugin-react": "^4.3.1",
+    "esbuild": "^0.28.1",
     "jsdom": "^29.1.1",
     "vite": "^5.4.1",
     "vite-plugin-pwa": "^0.20.5",

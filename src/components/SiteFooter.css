@@ -1,0 +1,40 @@
+/* src/components/SiteFooter.css */
+.site-footer {
+  margin-top: 48px;
+  padding: 24px 16px calc(24px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.site-footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 16px;
+  max-width: 640px;
+}
+
+.site-footer-link {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  text-decoration: none;
+}
+
+.site-footer-link:hover,
+.site-footer-link:focus-visible {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.site-footer-legal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.site-footer-legal .privacy-footer-link {
+  font-size: 0.75rem;
+}

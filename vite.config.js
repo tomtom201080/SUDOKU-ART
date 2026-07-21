@@ -21,7 +21,15 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png}'],
         skipWaiting: true,
-        clientsClaim: true
+        clientsClaim: true,
+        // Les pages SEO (scripts/prerender-seo.mjs) sont de vrais fichiers
+        // HTML statiques distincts, chacun avec ses propres balises meta.
+        // Sans cette exclusion, le service worker redirigerait toute
+        // navigation vers ces routes vers le index.html mis en cache (repli
+        // SPA par défaut), qui n'a pas les bonnes metas ni le bon contenu.
+        navigateFallbackDenylist: [
+          /^\/(comment-ca-marche|creer-un-defi-sudoku|sudoku-gratuit|sudoku-facile|sudoku-difficile|sudoku-expert|sudoku-image-cachee|sudoku-art)(\/.*)?$/
+        ]
       }
     })
   ],

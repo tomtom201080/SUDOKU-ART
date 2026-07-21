@@ -161,6 +161,13 @@ export default function App() {
   const [rematchNotifications, setRematchNotifications] = useState([]);
   const [selectedRematchNotification, setSelectedRematchNotification] = useState(null);
 
+  // Pont depuis les pages SEO (src/seo/pages.jsx) : leurs boutons "Jouer"
+  // sont de vrais liens vers "/?jouer=<difficulté|defi>", lus une seule fois
+  // au montage puis retirés de l'URL — même principe que les défis reçus
+  // par lien ci-dessus.
+  const [pendingPlayIntent] = useState(() => new URLSearchParams(window.location.search).get('jouer'));
+  const [pendingPlayIntentHandled, setPendingPlayIntentHandled] = useState(false);
+
   useEffect(() => {
     supabase.auth.getSession()
       .then(({ data }) => {
@@ -479,6 +486,25 @@ export default function App() {
       setShowDefiComposer(true);
     }
   };
+
+  // Bouton "Jouer" / "Créer mon défi" venant d'une page SEO (?jouer=...) :
+  // lance directement l'action correspondante au premier chargement, une
+  // seule fois, puis nettoie l'URL — même schéma que les défis reçus par
+  // lien plus haut.
+  useEffect(() => {
+    if (!pendingPlayIntent || pendingPlayIntentHandled || manifestLoading) return;
+    setPendingPlayIntentHandled(true);
+
+    const url = new URL(window.location.href);
+    url.searchParams.delete('jouer');
+    window.history.replaceState({}, '', url.toString());
+
+    if (pendingPlayIntent === 'defi') {
+      handleOpenDefi();
+    } else if (['facile', 'moyen', 'complique', 'enfer'].includes(pendingPlayIntent)) {
+      handleSelectDifficulty(pendingPlayIntent, 'classic');
+    }
+  }, [pendingPlayIntent, pendingPlayIntentHandled, manifestLoading]);
 
   // Appelé depuis "Mes défis envoyés" : rouvre DefiComposer pré-rempli avec
   // la grille/difficulté/indices du défi existant, pour le renvoyer sous un

@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
 
+# Liens privés à usage unique (défis envoyés à un ami/groupe) : contiennent
+# potentiellement des photos personnelles, ne doivent jamais être indexés.
+Disallow: /*?defi=*
+Disallow: /*?rematch=*
+
 Sitemap: https://sudoku-art.vercel.app/sitemap.xml
