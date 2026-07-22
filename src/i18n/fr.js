@@ -317,6 +317,7 @@ export default {
   cc_step1: '1. Choisis la photo à dévoiler',
   cc_step2: '2. Niveau de difficulté',
   cc_step4: '4. Temps à respecter',
+  cc_step5: '5. Limite d\'indices',
   cc_link_copied: '✅ Lien copié !',
   cc_success_msg: 'Défi envoyé ! Il sera valable {days} jours.',
   cc_whatsapp_fallback: 'Le sélecteur WhatsApp ne s\'est pas ouvert ? Copie le lien :',
@@ -367,6 +368,12 @@ export default {
   dd_won: 'Gagné 🏆',
   dd_tie: 'Égalité 🤝',
   dd_lost: 'Perdu',
+
+  // ── MemoriesDashboard ─────────────────────────────────────────
+  mem_dash_title: '📷 Mes Memories envoyées',
+  mem_dash_login_required: 'Connecte-toi pour voir l\'historique de tes Memories envoyées.',
+  mem_dash_empty: 'Tu n\'as pas encore envoyé de Memories.',
+  mem_delete_confirm: 'Supprimer ce défi et sa photo définitivement ? Le destinataire perdra l\'accès à la grille.',
 
   // ── DeleteAccountModal ────────────────────────────────────────
   del_title: 'Supprimer mon compte',

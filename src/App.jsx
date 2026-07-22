@@ -160,6 +160,9 @@ export default function App() {
   const [incomingChallengeHandled, setIncomingChallengeHandled] = useState(false);
   const [challengeAlreadyOpened, setChallengeAlreadyOpened] = useState(false);
   const [rematchAlreadyStartedNotice, setRematchAlreadyStartedNotice] = useState(false);
+  // Le chargement d'un lien de défi/rematch reçu a échoué (réseau, etc.) —
+  // sans ça l'utilisateur atterrissait sur l'accueil sans aucune explication.
+  const [incomingLinkFailed, setIncomingLinkFailed] = useState(false);
 
   // Défi "même grille" reçu par lien.
   const [incomingRematchId] = useState(() => readRematchIdFromUrl());
@@ -357,6 +360,7 @@ export default function App() {
       id: challenge.id,
       maxErrors: challenge.max_errors,
       timeLimitMinutes: challenge.time_limit_minutes,
+      hintsLimit: challenge.hints_limit ?? null,
       photoPath: challenge.photo_path,
       senderEmail: challenge.sender_email
     };
@@ -391,7 +395,7 @@ export default function App() {
         // son compte (purement informatif, pas une condition pour jouer).
         if (session) claimChallenge(incomingChallengeId).catch(() => null);
       })
-      .catch(() => null);
+      .catch(() => setIncomingLinkFailed(true));
   }, [incomingChallengeId, incomingChallengeHandled, manifestLoading, session, handlePlayChallenge]);
 
   // Dès qu'un lien de défi "même grille" est ouvert, on charge exactement la
@@ -443,7 +447,7 @@ export default function App() {
           setPendingRematch({ rematch, photoUrl });
         }
       })
-      .catch(() => null);
+      .catch(() => setIncomingLinkFailed(true));
   }, [incomingRematchId, incomingRematchHandled, manifestLoading, game]);
 
   // Tant qu'on est connecté et sur l'écran d'accueil, on vérifie si des amis
@@ -590,7 +594,13 @@ export default function App() {
       previousCompleted: game.isComplete,
       previousDifficulty: game.difficulty
     });
-    game.startNewGame(game.difficulty, lastCustomImage, lastChallengeMeta, game.nextWatermark);
+    // Un défi d'ami est à usage unique (sa ligne est supprimée/marquée
+    // terminée côté serveur dès la fin de partie) : "Nouvelle partie" ne
+    // doit pas réappliquer son id/ses contraintes, sous peine de retenter
+    // de clore un défi déjà clos et de garder les limites de l'ancien défi.
+    const wasChallenge = !!game.challengeMeta?.id;
+    if (wasChallenge) setLastChallengeMeta(null);
+    game.startNewGame(game.difficulty, lastCustomImage, wasChallenge ? null : lastChallengeMeta, game.nextWatermark);
     setSelectedCell(null);
     setHighlightValue(0);
   };
@@ -809,6 +819,12 @@ export default function App() {
               <button onClick={() => setRematchAlreadyStartedNotice(false)}>✕</button>
             </div>
           )}
+          {incomingLinkFailed && (
+            <div className="challenge-already-opened-banner">
+              {t('defi_error')}
+              <button onClick={() => setIncomingLinkFailed(false)}>✕</button>
+            </div>
+          )}
           {rematchNotifications.map(r => {
             const winner = determineRematchWinner({
               challengerErrors: r.challenger_result_errors,
@@ -897,6 +913,7 @@ export default function App() {
         {showComposer && (
           <ChallengeComposer
             preloadedPhotoUrl={composerPreloadedPhoto}
+            userId={session?.user?.id ?? null}
             onClose={() => { setShowComposer(false); setComposerPreloadedPhoto(null); }}
           />
         )}
@@ -1036,11 +1053,11 @@ export default function App() {
           canUndo={game.canUndo}
           onHint={handleOpenHint}
           hintsDisabled={
-            game.activeRematch?.hintsLimit != null &&
-            game.hintsUsed >= game.activeRematch.hintsLimit
+            (game.activeRematch?.hintsLimit ?? game.challengeMeta?.hintsLimit) != null &&
+            game.hintsUsed >= (game.activeRematch?.hintsLimit ?? game.challengeMeta?.hintsLimit)
           }
           hintsUsed={game.hintsUsed}
-          hintsLimit={game.activeRematch?.hintsLimit ?? null}
+          hintsLimit={game.activeRematch?.hintsLimit ?? game.challengeMeta?.hintsLimit ?? null}
           completedDigits={game.completedDigits}
         />
       </div>
@@ -1053,7 +1070,7 @@ export default function App() {
           onReadyToPick={handleReadyToPickCell}
           onClose={handleCloseHint}
           hintsUsed={game.hintsUsed}
-          maxHints={game.activeRematch?.hintsLimit ?? null}
+          maxHints={game.activeRematch?.hintsLimit ?? game.challengeMeta?.hintsLimit ?? null}
         />
       )}
 

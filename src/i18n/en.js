@@ -317,6 +317,7 @@ export default {
   cc_step1: '1. Choose the photo to reveal',
   cc_step2: '2. Difficulty level',
   cc_step4: '4. Time limit',
+  cc_step5: '5. Hint limit',
   cc_link_copied: '✅ Link copied!',
   cc_success_msg: 'Challenge sent! It will be valid for {days} days.',
   cc_whatsapp_fallback: 'WhatsApp didn\'t open? Copy the link:',
@@ -367,6 +368,12 @@ export default {
   dd_won: 'Won 🏆',
   dd_tie: 'Tie 🤝',
   dd_lost: 'Lost',
+
+  // ── MemoriesDashboard ─────────────────────────────────────────
+  mem_dash_title: '📷 My sent Memories',
+  mem_dash_login_required: 'Sign in to see the history of your sent Memories.',
+  mem_dash_empty: 'You haven\'t sent any Memories yet.',
+  mem_delete_confirm: 'Permanently delete this challenge and its photo? The recipient will lose access to the grid.',
 
   // ── DeleteAccountModal ────────────────────────────────────────
   del_title: 'Delete my account',

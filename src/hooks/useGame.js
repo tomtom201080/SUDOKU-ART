@@ -137,7 +137,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
   const tempRevealTimeoutRef = useRef(null);
 
 
-  // challengeOptions (optionnel) : { id, maxErrors, timeLimitMinutes } quand
+  // challengeOptions (optionnel) : { id, maxErrors, timeLimitMinutes, hintsLimit } quand
   // la partie est un défi reçu d'un ami, avec des contraintes à respecter.
   // preloadedImage (optionnel) : image déjà choisie et mise en cache par le
   // navigateur en avance (sur l'écran d'accueil, ou pendant la partie
@@ -197,6 +197,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
             timeLimitSeconds: challengeOptions.timeLimitMinutes
               ? challengeOptions.timeLimitMinutes * 60
               : null,
+            hintsLimit: challengeOptions.hintsLimit ?? null,
             photoPath: challengeOptions.photoPath ?? null,
             senderEmail: challengeOptions.senderEmail ?? null
           }
@@ -1085,7 +1086,14 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     moveCount: history.length,
     triggerFail: () => {
       setIsFailed(true);
-      logGameFail({ difficulty, userId, errorCount, elapsedSeconds, isChallenge: false });
+      logGameFail({ difficulty, userId, errorCount, elapsedSeconds, isChallenge: !!challengeMeta?.id });
+      // Perdu par excès d'erreurs (pas par timeout) : sans ça, ni le timeout
+      // ci-dessus ni ce chemin ne supprimaient la photo/ligne du défi — voir
+      // l'équivalent dans l'effet du chronomètre plus haut.
+      if (challengeMeta?.id) {
+        markChallengeCompleted(challengeMeta.id, 'lost');
+        deleteChallenge(challengeMeta.id, challengeMeta.photoPath);
+      }
     },
     resetErrorCount: (n) => setErrorCount(n),
     elapsedSeconds,

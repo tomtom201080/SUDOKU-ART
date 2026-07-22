@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from 'react';
 import { uploadSharedPhoto, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
 import { createChallenge, buildChallengeLink } from '../lib/challenges';
 import { isMobileDevice } from '../utils/device';
+import MemoriesDashboard from './MemoriesDashboard';
 import './ChallengeComposer.css';
 
 const ERROR_OPTIONS = [
@@ -15,7 +16,7 @@ const ERROR_OPTIONS = [
 ];
 
 const TIME_OPTIONS = [
-  // dynamique2,
+  { value: null, label: null }, // Illimité — libellé traduit au rendu
   { value: 3, label: '3 min' },
   { value: 5, label: '5 min' },
   { value: 10, label: '10 min' },
@@ -23,8 +24,11 @@ const TIME_OPTIONS = [
   { value: 30, label: '30 min' }
 ];
 
-export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null }) {
+const HINT_LIMIT_OPTIONS = [null, 1, 2, 3];
+
+export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null, userId = null }) {
   const { t } = useT();
+  const [showHistory, setShowHistory] = useState(false);
   const DIFFICULTY_OPTIONS = [
     { value: 'facile', label: t('diff_facile') },
     { value: 'moyen', label: t('diff_moyen') },
@@ -46,7 +50,9 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
   }, [preloadedPhotoUrl]);
   const [difficultyMode, setDifficultyMode] = useState('auto');
   const [maxErrors, setMaxErrors] = useState(3);
-  const [timeLimitMinutes, setTimeLimitMinutes] = useState(null);  const [status, setStatus] = useState('idle'); // idle | sending | done | error
+  const [timeLimitMinutes, setTimeLimitMinutes] = useState(null);
+  const [hintsLimit, setHintsLimit] = useState(null);
+  const [status, setStatus] = useState('idle'); // idle | sending | done | error
   const [shareLink, setShareLink] = useState(null);
   const [linkCopied, setLinkCopied] = useState(false);
   const fileInputRef = useRef(null);
@@ -79,7 +85,8 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
         photoPath: path,
         difficultyMode,
         maxErrors,
-        timeLimitMinutes
+        timeLimitMinutes,
+        hintsLimit
       });
       const link = buildChallengeLink(challenge.id);
       setShareLink(link);
@@ -113,7 +120,10 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
       <div className="challenge-panel">
         <div className="challenge-header">
           <h2>{t('cc_title')}</h2>
-          <button className="challenge-close" onClick={onClose}>✕</button>
+          <div className="challenge-header-actions">
+            <button className="challenge-history-btn" onClick={() => setShowHistory(true)} title={t('mem_dash_title')}>🕘</button>
+            <button className="challenge-close" onClick={onClose}>✕</button>
+          </div>
         </div>
 
         {status === 'done' ? (
@@ -189,11 +199,26 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
               <div className="challenge-options">
                 {TIME_OPTIONS.map(opt => (
                   <button
-                    key={opt.label}
+                    key={String(opt.value)}
                     className={`challenge-option-btn ${timeLimitMinutes === opt.value ? 'is-active' : ''}`}
                     onClick={() => setTimeLimitMinutes(opt.value)}
                   >
-                    {opt.label}
+                    {opt.value == null ? t('cc_unlimited') : opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="challenge-step">
+              <p className="challenge-step-title">{t('cc_step5')}</p>
+              <div className="challenge-options">
+                {HINT_LIMIT_OPTIONS.map(v => (
+                  <button
+                    key={String(v)}
+                    className={`challenge-option-btn ${hintsLimit === v ? 'is-active' : ''}`}
+                    onClick={() => setHintsLimit(v)}
+                  >
+                    {v == null ? t('defi_hint_unlimited') : t('defi_hint_count', { v, s: v > 1 ? 's' : '' })}
                   </button>
                 ))}
               </div>
@@ -213,6 +238,10 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null })
           </>
         )}
       </div>
+
+      {showHistory && (
+        <MemoriesDashboard userId={userId} onClose={() => setShowHistory(false)} />
+      )}
     </div>
   );
 }

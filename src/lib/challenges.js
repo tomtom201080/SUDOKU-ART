@@ -50,7 +50,7 @@ export async function claimChallengeToken(challengeId) {
 // Crée un défi en base : photo déjà téléversée (photoPath), paramètres de
 // difficulté/erreurs/temps choisis par l'expéditeur. Retourne la ligne créée
 // (avec son id, utilisé pour construire le lien).
-export async function createChallenge({ photoPath, difficultyMode, maxErrors, timeLimitMinutes }) {
+export async function createChallenge({ photoPath, difficultyMode, maxErrors, timeLimitMinutes, hintsLimit = null }) {
   const { data: userData } = await supabase.auth.getUser();
   const senderEmail = userData?.user?.email ?? 'un ami';
 
@@ -58,10 +58,12 @@ export async function createChallenge({ photoPath, difficultyMode, maxErrors, ti
     .from('challenges')
     .insert({
       sender_email: senderEmail,
+      sender_user_id: userData?.user?.id ?? null,
       photo_path: photoPath,
       difficulty_mode: difficultyMode,
       max_errors: maxErrors,
-      time_limit_minutes: timeLimitMinutes
+      time_limit_minutes: timeLimitMinutes,
+      hints_limit: hintsLimit
     })
     .select()
     .single();
@@ -165,8 +167,26 @@ export async function markChallengeCompleted(challengeId, result) {
     .eq('id', challengeId);
 }
 
+// Récupère tous les défis "Memories" (photo) envoyés par cet utilisateur,
+// terminés ou non — alimente l'historique dans la vignette Memories.
+export async function fetchSentChallenges(userId) {
+  if (!userId) return [];
+  const { data, error } = await supabase
+    .from('challenges')
+    .select('*')
+    .eq('sender_user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  if (error) throw error;
+  return data ?? [];
+}
+
 // Une fois le défi terminé (réussi ou perdu), on supprime la photo du
 // stockage et la ligne en base : la grille ne peut pas être rejouée.
+// Également utilisée pour la suppression manuelle d'un défi pas encore joué
+// (ex. mauvaise photo envoyée par erreur) : le destinataire qui a encore le
+// lien perd alors l'accès à la grille, et la photo n'est plus accessible.
 export async function deleteChallenge(challengeId, photoPath) {
   if (photoPath) {
     await supabase.storage.from(BUCKET).remove([photoPath]);

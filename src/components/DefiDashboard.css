@@ -121,24 +121,6 @@
   gap: 4px;
 }
 
-.defi-row-scores {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
-}
-
-.defi-score-me {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.defi-score-them {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
 .defi-row-waiting {
   font-size: 0.75rem;
   color: var(--text-muted);
@@ -152,20 +134,7 @@
   border-radius: 8px;
 }
 
-.defi-badge-win    { background: #e8f5e9; color: #2e7d32; }
-.defi-badge-lose   { background: #fce4ec; color: #c62828; }
-.defi-badge-tie    { background: #e3f2fd; color: #1565c0; }
 .defi-badge-pending { background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-muted); }
-
-body.dark .defi-badge-win    { background: #1b3a1f; color: #81c784; }
-body.dark .defi-badge-lose   { background: #3e1c1c; color: #ef9a9a; }
-body.dark .defi-badge-tie    { background: #1a2e3e; color: #90caf9; }
-
-.defi-row-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
 
 .defi-row-delete {
   background: none;

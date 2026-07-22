@@ -317,6 +317,7 @@ export default {
   cc_step1: '1. Wähle das zu enthüllende Foto',
   cc_step2: '2. Schwierigkeitsgrad',
   cc_step4: '4. Einzuhaltende Zeit',
+  cc_step5: '5. Hinweis-Limit',
   cc_link_copied: '✅ Link kopiert!',
   cc_success_msg: 'Herausforderung gesendet! Sie ist {days} Tage gültig.',
   cc_whatsapp_fallback: 'Die WhatsApp-Auswahl hat sich nicht geöffnet? Kopiere den Link:',
@@ -367,6 +368,12 @@ export default {
   dd_won: 'Gewonnen 🏆',
   dd_tie: 'Unentschieden 🤝',
   dd_lost: 'Verloren',
+
+  // ── MemoriesDashboard ─────────────────────────────────────────
+  mem_dash_title: '📷 Meine gesendeten Memories',
+  mem_dash_login_required: 'Melde dich an, um den Verlauf deiner gesendeten Memories zu sehen.',
+  mem_dash_empty: 'Du hast noch keine Memories gesendet.',
+  mem_delete_confirm: 'Diese Herausforderung und ihr Foto endgültig löschen? Der Empfänger verliert dann den Zugriff auf das Raster.',
 
   // ── DeleteAccountModal ───────────────────────────────────────────
   del_title: 'Mein Konto löschen',

@@ -317,6 +317,7 @@ export default {
   cc_step1: '1. 选择待揭晓的照片',
   cc_step2: '2. 难度等级',
   cc_step4: '4. 需遵守的时间',
+  cc_step5: '5. 提示次数限制',
   cc_link_copied: '✅ 链接已复制！',
   cc_success_msg: '挑战已发送！有效期为 {days} 天。',
   cc_whatsapp_fallback: 'WhatsApp 分享窗口没有打开？复制此链接：',
@@ -367,6 +368,12 @@ export default {
   dd_won: '获胜 🏆',
   dd_tie: '平局 🤝',
   dd_lost: '失败',
+
+  // ── MemoriesDashboard ─────────────────────────────────────────
+  mem_dash_title: '📷 我发送的 Memories',
+  mem_dash_login_required: '登录后可查看你发送的 Memories 历史记录。',
+  mem_dash_empty: '你还没有发送过 Memories。',
+  mem_delete_confirm: '确定要永久删除这个挑战及其照片吗？对方将无法再访问该棋盘。',
 
   // ── DeleteAccountModal ────────────────────────────────────────
   del_title: '删除我的账号',

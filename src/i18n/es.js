@@ -317,6 +317,7 @@ export default {
   cc_step1: '1. Elige la foto por revelar',
   cc_step2: '2. Nivel de dificultad',
   cc_step4: '4. Tiempo a respetar',
+  cc_step5: '5. Límite de pistas',
   cc_link_copied: '✅ ¡Enlace copiado!',
   cc_success_msg: '¡Desafío enviado! Será válido {days} días.',
   cc_whatsapp_fallback: '¿El selector de WhatsApp no se ha abierto? Copia el enlace:',
@@ -367,6 +368,12 @@ export default {
   dd_won: 'Ganado 🏆',
   dd_tie: 'Empate 🤝',
   dd_lost: 'Perdido',
+
+  // ── MemoriesDashboard ─────────────────────────────────────────
+  mem_dash_title: '📷 Mis Memories enviadas',
+  mem_dash_login_required: 'Inicia sesión para ver el historial de tus Memories enviadas.',
+  mem_dash_empty: 'Todavía no has enviado ninguna Memory.',
+  mem_delete_confirm: '¿Eliminar este reto y su foto definitivamente? El destinatario perderá el acceso a la cuadrícula.',
 
   // ── DeleteAccountModal ───────────────────────────────────────────
   del_title: 'Eliminar mi cuenta',

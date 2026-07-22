@@ -31,7 +31,14 @@
   margin: 0;
 }
 
-.challenge-close {
+.challenge-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.challenge-close,
+.challenge-history-btn {
   background: none;
   border: none;
   color: var(--text-color);
