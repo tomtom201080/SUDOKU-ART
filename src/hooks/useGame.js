@@ -747,11 +747,61 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
         hdImg.src = watermark.path;
       }
     }
+    // Doit rester alignée avec le bloc équivalent de setCellValue ci-dessus :
+    // sans ça, un défi (perso ou groupe) "terminé" via ce bouton de test ne
+    // soumet jamais son résultat, ce qui a longtemps masqué silencieusement
+    // un vrai bug de soumission derrière un faux négatif de test.
+    if (activeRematch?.id) {
+      const isGroupMode = activeRematch.groupMode;
+
+      if (isGroupMode) {
+        submitGroupResult(activeRematch.id, {
+          errors: errorCount,
+          seconds: elapsedSeconds,
+          hints: hintsUsed,
+          userId: userId ?? null,
+          playerName: activeRematch.playerPseudo ?? username ?? 'Anonyme' }).catch(err => {
+            console.error('submitGroupResult failed:', err);
+            trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.solveGridForTesting.submitGroupResult', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
+          });
+      } else {
+        submitRematchResult(activeRematch.id, {
+          errors: errorCount,
+          seconds: elapsedSeconds,
+          hints: hintsUsed,
+          userId
+        }).catch(err => {
+          console.error('submitRematchResult failed:', err);
+          trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.solveGridForTesting.submitRematchResult', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
+        });
+
+        const winner = determineRematchWinner({
+          challengerErrors: activeRematch.challengerErrors,
+          challengerSeconds: activeRematch.challengerSeconds,
+          challengerHints: activeRematch.challengerHints ?? 0,
+          recipientErrors: errorCount,
+          recipientSeconds: elapsedSeconds,
+          recipientHints: hintsUsed });
+
+        setRematchOutcome({
+          challengerName: activeRematch.challengerName,
+          challengerErrors: activeRematch.challengerErrors,
+          challengerSeconds: activeRematch.challengerSeconds,
+          challengerHints: activeRematch.challengerHints ?? 0,
+          challengerHasAccount: activeRematch.challengerHasAccount,
+          recipientErrors: errorCount,
+          recipientSeconds: elapsedSeconds,
+          recipientHints: hintsUsed,
+          winner
+        });
+      }
+    }
+
     if (celebrateTimeoutRef.current) clearTimeout(celebrateTimeoutRef.current);
     celebrateTimeoutRef.current = setTimeout(() => setCelebrate([]), 3000);
     if (winRevealTimeoutRef.current) clearTimeout(winRevealTimeoutRef.current);
     winRevealTimeoutRef.current = setTimeout(() => setShowWinModal(true), 3000);
-  }, [puzzleData, difficulty, challengeMeta, watermark, userId]);
+  }, [puzzleData, difficulty, challengeMeta, watermark, userId, activeRematch, errorCount, elapsedSeconds, hintsUsed, username]);
 
   const undo = useCallback(() => {
     setHistory(prev => {
