@@ -12,6 +12,8 @@ const NumberPad = forwardRef(function NumberPad({
   canUndo,
   onHint,
   hintsDisabled,
+  hintsUsed = 0,
+  hintsLimit = null,
   completedDigits
 }, ref) {
   const { t } = useT();
@@ -65,7 +67,7 @@ const NumberPad = forwardRef(function NumberPad({
           disabled={disabled || hintsDisabled}
           title={hintsDisabled ? t('hint_limit_reached') : undefined}
         >
-          {t('game_hint')}{hintsDisabled ? ' 🚫' : ''}
+          {t('game_hint')} ({hintsUsed}{hintsLimit != null ? `/${hintsLimit}` : ''}){hintsDisabled ? ' 🚫' : ''}
         </button>
       </div>
     </div>

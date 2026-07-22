@@ -932,13 +932,12 @@ export default function App() {
             {DIFFICULTY_ICONS[game.difficulty] ?? '🎯'} {DIFFICULTY_LABELS[game.difficulty] ?? game.difficulty}
           </span>
           <span className="stat-pill">❌ {game.errorCount} / {game.challengeMeta?.maxErrors ?? 3}</span>
-          <span className="stat-pill">
-            💡 {game.hintsUsed}{game.activeRematch?.hintsLimit != null ? ` / ${game.activeRematch.hintsLimit}` : ''}
-          </span>
           {darkModeButton}
-          <button className="icon-btn" onClick={game.toggleWatermark} title={t('game_watermark_toggle')}>
-            {game.watermarkVisible ? '🙈' : '🙉'}
-          </button>
+          {!isClassicMode && game.watermark && (
+            <button className="icon-btn" onClick={game.toggleWatermark} title={t('game_watermark_toggle')}>
+              {game.watermarkVisible ? '🙈' : '🙉'}
+            </button>
+          )}
           <button className="icon-btn" onClick={handleCloseGameEnd} title={t('nav_menu_title')}>↩</button>
         </div>
       </header>
@@ -999,6 +998,8 @@ export default function App() {
             game.activeRematch?.hintsLimit != null &&
             game.hintsUsed >= game.activeRematch.hintsLimit
           }
+          hintsUsed={game.hintsUsed}
+          hintsLimit={game.activeRematch?.hintsLimit ?? null}
           completedDigits={game.completedDigits}
         />
       </div>
