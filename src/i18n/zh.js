@@ -370,9 +370,11 @@ export default {
   dd_lost: '失败',
 
   // ── MemoriesDashboard ─────────────────────────────────────────
-  mem_dash_title: '📷 我发送的 Memories',
-  mem_dash_login_required: '登录后可查看你发送的 Memories 历史记录。',
+  mem_dash_title: '📷 我的 Memories',
+  mem_dash_login_required: '登录后可查看你的 Memories 历史记录。',
   mem_dash_empty: '你还没有发送过 Memories。',
+  mem_empty_received: '你还没有收到过 Memories。',
+  mem_dash_create: '➕ 发送新的 Memory',
   mem_delete_confirm: '确定要永久删除这个挑战及其照片吗？对方将无法再访问该棋盘。',
 
   // ── DeleteAccountModal ────────────────────────────────────────

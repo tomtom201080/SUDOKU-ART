@@ -370,9 +370,11 @@ export default {
   dd_lost: 'Lost',
 
   // ── MemoriesDashboard ─────────────────────────────────────────
-  mem_dash_title: '📷 My sent Memories',
-  mem_dash_login_required: 'Sign in to see the history of your sent Memories.',
+  mem_dash_title: '📷 My Memories',
+  mem_dash_login_required: 'Sign in to see the history of your Memories.',
   mem_dash_empty: 'You haven\'t sent any Memories yet.',
+  mem_empty_received: 'You haven\'t received any Memories yet.',
+  mem_dash_create: '➕ Send a new Memory',
   mem_delete_confirm: 'Permanently delete this challenge and its photo? The recipient will lose access to the grid.',
 
   // ── DeleteAccountModal ────────────────────────────────────────

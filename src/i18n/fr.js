@@ -370,9 +370,11 @@ export default {
   dd_lost: 'Perdu',
 
   // ── MemoriesDashboard ─────────────────────────────────────────
-  mem_dash_title: '📷 Mes Memories envoyées',
-  mem_dash_login_required: 'Connecte-toi pour voir l\'historique de tes Memories envoyées.',
+  mem_dash_title: '📷 Mes Memories',
+  mem_dash_login_required: 'Connecte-toi pour voir l\'historique de tes Memories.',
   mem_dash_empty: 'Tu n\'as pas encore envoyé de Memories.',
+  mem_empty_received: 'Tu n\'as pas encore reçu de Memories.',
+  mem_dash_create: '➕ Envoyer une nouvelle Memory',
   mem_delete_confirm: 'Supprimer ce défi et sa photo définitivement ? Le destinataire perdra l\'accès à la grille.',
 
   // ── DeleteAccountModal ────────────────────────────────────────

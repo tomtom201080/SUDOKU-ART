@@ -160,15 +160,18 @@ export async function fetchPendingChallenges() {
   return data ?? [];
 }
 
+// Ne supprime plus la photo/ligne immédiatement : voir purgeExpiredChallenges
+// ci-dessous, qui s'en charge 7 jours après completed_at (le temps de
+// consulter le résultat dans le tableau Memories).
 export async function markChallengeCompleted(challengeId, result) {
   await supabase
     .from('challenges')
-    .update({ completed: true, result })
+    .update({ completed: true, result, completed_at: new Date().toISOString() })
     .eq('id', challengeId);
 }
 
 // Récupère tous les défis "Memories" (photo) envoyés par cet utilisateur,
-// terminés ou non — alimente l'historique dans la vignette Memories.
+// terminés ou non — alimente l'onglet "Envoyés" du tableau Memories.
 export async function fetchSentChallenges(userId) {
   if (!userId) return [];
   const { data, error } = await supabase
@@ -182,14 +185,50 @@ export async function fetchSentChallenges(userId) {
   return data ?? [];
 }
 
-// Une fois le défi terminé (réussi ou perdu), on supprime la photo du
-// stockage et la ligne en base : la grille ne peut pas être rejouée.
-// Également utilisée pour la suppression manuelle d'un défi pas encore joué
-// (ex. mauvaise photo envoyée par erreur) : le destinataire qui a encore le
-// lien perd alors l'accès à la grille, et la photo n'est plus accessible.
+// Récupère tous les défis "Memories" (photo) reçus par cet utilisateur
+// (rattachés via claimChallenge à l'ouverture du lien) — alimente l'onglet
+// "Reçus" du tableau Memories.
+export async function fetchReceivedChallenges(userId) {
+  if (!userId) return [];
+  const { data, error } = await supabase
+    .from('challenges')
+    .select('*')
+    .eq('claimed_by', userId)
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+// Supprime la photo du stockage et la ligne en base : la grille ne peut
+// plus être rejouée. Utilisée par purgeExpiredChallenges (nettoyage
+// automatique 7 jours après la fin) et pour la suppression manuelle d'un
+// défi depuis l'historique (y compris pas encore joué, ex. mauvaise photo
+// envoyée par erreur) : le destinataire qui a encore le lien perd alors
+// l'accès à la grille, et la photo n'est plus accessible.
 export async function deleteChallenge(challengeId, photoPath) {
   if (photoPath) {
     await supabase.storage.from(BUCKET).remove([photoPath]);
   }
   await supabase.from('challenges').delete().eq('id', challengeId);
+}
+
+// Nettoyage différé : un défi terminé depuis plus de 7 jours voit sa photo
+// et sa ligne supprimées (confidentialité), qu'il ait été envoyé ou reçu par
+// cet utilisateur. Appelée à chaque ouverture du tableau Memories plutôt que
+// par une tâche planifiée côté serveur — ce projet n'a pas d'infrastructure
+// de cron, et la fenêtre de 7 jours rend un léger retard sans conséquence.
+export async function purgeExpiredChallenges(userId) {
+  if (!userId) return;
+  const cutoffIso = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data } = await supabase
+    .from('challenges')
+    .select('id, photo_path')
+    .eq('completed', true)
+    .lt('completed_at', cutoffIso)
+    .or(`sender_user_id.eq.${userId},claimed_by.eq.${userId}`);
+
+  if (!data?.length) return;
+  await Promise.all(data.map(c => deleteChallenge(c.id, c.photo_path).catch(() => null)));
 }

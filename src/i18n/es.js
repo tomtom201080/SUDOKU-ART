@@ -370,9 +370,11 @@ export default {
   dd_lost: 'Perdido',
 
   // ── MemoriesDashboard ─────────────────────────────────────────
-  mem_dash_title: '📷 Mis Memories enviadas',
-  mem_dash_login_required: 'Inicia sesión para ver el historial de tus Memories enviadas.',
+  mem_dash_title: '📷 Mis Memories',
+  mem_dash_login_required: 'Inicia sesión para ver el historial de tus Memories.',
   mem_dash_empty: 'Todavía no has enviado ninguna Memory.',
+  mem_empty_received: 'Todavía no has recibido ninguna Memory.',
+  mem_dash_create: '➕ Enviar una nueva Memory',
   mem_delete_confirm: '¿Eliminar este reto y su foto definitivamente? El destinatario perderá el acceso a la cuadrícula.',
 
   // ── DeleteAccountModal ───────────────────────────────────────────

@@ -370,9 +370,11 @@ export default {
   dd_lost: 'Verloren',
 
   // ── MemoriesDashboard ─────────────────────────────────────────
-  mem_dash_title: '📷 Meine gesendeten Memories',
-  mem_dash_login_required: 'Melde dich an, um den Verlauf deiner gesendeten Memories zu sehen.',
+  mem_dash_title: '📷 Meine Memories',
+  mem_dash_login_required: 'Melde dich an, um den Verlauf deiner Memories zu sehen.',
   mem_dash_empty: 'Du hast noch keine Memories gesendet.',
+  mem_empty_received: 'Du hast noch keine Memories erhalten.',
+  mem_dash_create: '➕ Neue Memory senden',
   mem_delete_confirm: 'Diese Herausforderung und ihr Foto endgültig löschen? Der Empfänger verliert dann den Zugriff auf das Raster.',
 
   // ── DeleteAccountModal ───────────────────────────────────────────

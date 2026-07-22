@@ -12,6 +12,7 @@ import ChallengeComposer from './components/ChallengeComposer';
 import RematchComposer from './components/RematchComposer';
 import DefiComposer from './components/DefiComposer';
 import DefiDashboard from './components/DefiDashboard';
+import MemoriesDashboard from './components/MemoriesDashboard';
 import ErrorBoundary from './components/ErrorBoundary';
 import QuitConfirmModal from './components/QuitConfirmModal';
 import MaxErrorsModal from './components/MaxErrorsModal';
@@ -132,6 +133,7 @@ export default function App() {
   const [showRematchComposer, setShowRematchComposer] = useState(false);
   const [showDefiComposer, setShowDefiComposer] = useState(false);
   const [showDefiDashboard, setShowDefiDashboard] = useState(false);
+  const [showMemoriesDashboard, setShowMemoriesDashboard] = useState(false);
   const [regenerateSource, setRegenerateSource] = useState(null); // défi existant à renvoyer, le cas échéant
   // Interstitielle pub : quelle action est en attente après la pub
   const [pendingAdAction, setPendingAdAction] = useState(null); // null | 'challenge' | 'rematch'
@@ -503,6 +505,16 @@ export default function App() {
     }
   };
 
+  // Même logique que handleOpenDefi : sans compte, pas d'historique à
+  // afficher, on va donc directement à la création (via la pub).
+  const handleOpenMemories = () => {
+    if (session) {
+      setShowMemoriesDashboard(true);
+    } else {
+      setPendingAdAction('challenge');
+    }
+  };
+
   // Bouton "Jouer" / "Créer mon défi" venant d'une page SEO (?jouer=...) :
   // lance directement l'action correspondante au premier chargement, une
   // seule fois, puis nettoie l'URL — même schéma que les défis reçus par
@@ -792,6 +804,7 @@ export default function App() {
           onSelect={handleSelectDifficulty}
           onRequestSendChallenge={handleRequestSendChallenge}
           onOpenDefi={handleOpenDefi}
+          onOpenMemories={handleOpenMemories}
         />
 
         <AdSlot slot="8033973037" />
@@ -943,6 +956,18 @@ export default function App() {
                 setPendingAdAction('defi');
               }}
               onRegenerateDefi={handleRegenerateDefi}
+            />
+          </ErrorBoundary>
+        )}
+        {showMemoriesDashboard && (
+          <ErrorBoundary>
+            <MemoriesDashboard
+              userId={session?.user?.id ?? null}
+              onClose={() => setShowMemoriesDashboard(false)}
+              onCreateChallenge={() => {
+                setShowMemoriesDashboard(false);
+                setPendingAdAction('challenge');
+              }}
             />
           </ErrorBoundary>
         )}

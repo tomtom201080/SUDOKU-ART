@@ -3,7 +3,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { generateSudoku, isGridComplete, DIFFICULTIES } from '../sudoku/generator';
 import { resolveImagePath, resolveImagePathLow, listAllImages, pickImageForTier, pickRewardImage, TIERS_BY_DIFFICULTY } from '../data/imageLibrary';
 import { addToGallery, recordWin } from '../utils/storage';
-import { markChallengeCompleted, deleteChallenge } from '../lib/challenges';
+import { markChallengeCompleted } from '../lib/challenges';
 import { markPaintingSeen, getMergedUnseenIds } from '../lib/seenPaintings';
 import { logGameStart, logGameComplete, logGameFail } from '../lib/analytics';
 import { submitRematchResult, submitGroupResult, updateChallengerBaseline, determineRematchWinner } from '../lib/rematches';
@@ -448,7 +448,6 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
             });
             if (challengeMeta.id) {
               markChallengeCompleted(challengeMeta.id, 'lost');
-              deleteChallenge(challengeMeta.id, challengeMeta.photoPath);
             }
           }
           return next;
@@ -670,7 +669,6 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
       });
       if (challengeMeta?.id) {
         markChallengeCompleted(challengeMeta.id, 'won');
-        deleteChallenge(challengeMeta.id, challengeMeta.photoPath);
       }
       if (watermark && !watermark.isCustom) {
         addToGallery(watermark, { difficulty });
@@ -789,7 +787,6 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
 
     if (challengeMeta?.id) {
       markChallengeCompleted(challengeMeta.id, 'won');
-      deleteChallenge(challengeMeta.id, challengeMeta.photoPath);
     }
 
     if (watermark && !watermark.isCustom) {
@@ -1088,11 +1085,10 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
       setIsFailed(true);
       logGameFail({ difficulty, userId, errorCount, elapsedSeconds, isChallenge: !!challengeMeta?.id });
       // Perdu par excès d'erreurs (pas par timeout) : sans ça, ni le timeout
-      // ci-dessus ni ce chemin ne supprimaient la photo/ligne du défi — voir
+      // ci-dessus ni ce chemin ne marquaient le défi terminé — voir
       // l'équivalent dans l'effet du chronomètre plus haut.
       if (challengeMeta?.id) {
         markChallengeCompleted(challengeMeta.id, 'lost');
-        deleteChallenge(challengeMeta.id, challengeMeta.photoPath);
       }
     },
     resetErrorCount: (n) => setErrorCount(n),

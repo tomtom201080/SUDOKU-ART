@@ -82,7 +82,7 @@ function PhotoScreen({ onSelectDifficulty, onSendChallenge, onBack }) {
   );
 }
 
-function HomeScreen({ onPick, onOpenDefi }) {
+function HomeScreen({ onPick, onOpenDefi, onOpenMemories }) {
   const { t } = useT();
   return (
     <div className="ds-home">
@@ -101,7 +101,7 @@ function HomeScreen({ onPick, onOpenDefi }) {
           <span className="ds-card-label">{t('home_sudoku_label')}</span>
           <span className="ds-card-desc">{t('home_sudoku_desc')}</span>
         </button>
-        <button className="ds-card" onClick={() => onPick('photo')}>
+        <button className="ds-card" onClick={onOpenMemories}>
           <span className="ds-card-icon">📷</span>
           <span className="ds-card-label">{t('home_memories_label')}</span>
           <span className="ds-card-desc">{t('home_memories_desc')}</span>
@@ -116,7 +116,7 @@ function HomeScreen({ onPick, onOpenDefi }) {
   );
 }
 
-export default function DifficultySelector({ onSelect, onRequestSendChallenge, onOpenDefi }) {
+export default function DifficultySelector({ onSelect, onRequestSendChallenge, onOpenDefi, onOpenMemories }) {
   const { t } = useT();
   const [screen, setScreen] = useState('home');
 
@@ -129,5 +129,5 @@ export default function DifficultySelector({ onSelect, onRequestSendChallenge, o
   if (screen === 'photo') return (
     <PhotoScreen onSelectDifficulty={(diff, img) => onSelect(diff, img)} onSendChallenge={(img) => onRequestSendChallenge(img)} onBack={() => setScreen('home')} />
   );
-  return <HomeScreen onPick={setScreen} onOpenDefi={onOpenDefi} />;
+  return <HomeScreen onPick={setScreen} onOpenDefi={onOpenDefi} onOpenMemories={onOpenMemories} />;
 }
