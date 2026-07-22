@@ -20,6 +20,11 @@ function loadScript(measurementId) {
 
   const script = document.createElement('script');
   script.async = true;
+  // Sans crossorigin, une erreur interne à ce script tiers remonte à
+  // window.onerror sous la forme générique "Script error." (aucun message,
+  // aucune pile) — ce qui la rend indiscernable d'un vrai bug de l'app dans
+  // le suivi d'erreurs (trackGameError) comme pour l'utilisateur.
+  script.crossOrigin = 'anonymous';
   script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
   document.head.appendChild(script);
 }
