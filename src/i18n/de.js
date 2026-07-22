@@ -375,6 +375,7 @@ export default {
   mem_dash_empty: 'Du hast noch keine Memories gesendet.',
   mem_empty_received: 'Du hast noch keine Memories erhalten.',
   mem_dash_create: '➕ Neue Memory senden',
+  mem_no_photo: 'Kein Foto für diese Herausforderung.',
   mem_delete_confirm: 'Diese Herausforderung und ihr Foto endgültig löschen? Der Empfänger verliert dann den Zugriff auf das Raster.',
 
   // ── DeleteAccountModal ───────────────────────────────────────────

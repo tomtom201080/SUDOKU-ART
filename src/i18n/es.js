@@ -375,6 +375,7 @@ export default {
   mem_dash_empty: 'Todavía no has enviado ninguna Memory.',
   mem_empty_received: 'Todavía no has recibido ninguna Memory.',
   mem_dash_create: '➕ Enviar una nueva Memory',
+  mem_no_photo: 'Sin foto para este reto.',
   mem_delete_confirm: '¿Eliminar este reto y su foto definitivamente? El destinatario perderá el acceso a la cuadrícula.',
 
   // ── DeleteAccountModal ───────────────────────────────────────────

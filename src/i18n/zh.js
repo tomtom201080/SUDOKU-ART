@@ -375,6 +375,7 @@ export default {
   mem_dash_empty: '你还没有发送过 Memories。',
   mem_empty_received: '你还没有收到过 Memories。',
   mem_dash_create: '➕ 发送新的 Memory',
+  mem_no_photo: '这个挑战没有照片。',
   mem_delete_confirm: '确定要永久删除这个挑战及其照片吗？对方将无法再访问该棋盘。',
 
   // ── DeleteAccountModal ────────────────────────────────────────

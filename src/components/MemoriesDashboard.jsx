@@ -2,21 +2,22 @@
 import { useT } from '../i18n/index.jsx';
 import { useState, useEffect } from 'react';
 import { fetchSentChallenges, fetchReceivedChallenges, deleteChallenge, purgeExpiredChallenges } from '../lib/challenges';
+import { getSharedPhotoPublicUrl } from '../lib/sharedPhoto';
 import './DefiDashboard.css';
 
 function fmtDate(iso) {
   return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
 }
 
-function ChallengeRow({ c, isSent, onDelete, deletingId }) {
+function ChallengeRow({ c, isSent, onDelete, deletingId, onExpand }) {
   const { t } = useT();
   const diffLabel = (d) => ({ facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') })[d] ?? d;
 
   return (
-    <div className="defi-row">
+    <div className="defi-row" onClick={() => onExpand(c)} style={{ cursor: 'pointer' }}>
       <div className="defi-row-left">
         <span className="defi-row-opponent">
-          {isSent ? t('dd_sent_label') : (c.sender_email || t('defi_a_friend'))}
+          {isSent ? (c.label || t('dd_sent_label')) : (c.sender_email || t('defi_a_friend'))}
         </span>
         <span className="defi-row-meta">
           {diffLabel(c.difficulty_mode)} · {fmtDate(c.created_at)}
@@ -31,10 +32,41 @@ function ChallengeRow({ c, isSent, onDelete, deletingId }) {
         )}
         <button
           className="defi-row-delete"
-          onClick={() => onDelete(c)}
+          onClick={e => { e.stopPropagation(); onDelete(c); }}
           disabled={deletingId === c.id}
           title={t('dd_delete_title')}
         >🗑</button>
+      </div>
+    </div>
+  );
+}
+
+// Détail d'une ligne : montre la photo envoyée/reçue (tant qu'elle n'a pas
+// été purgée — voir purgeExpiredChallenges) et le résultat le cas échéant.
+function ChallengeDetail({ c, isSent, onClose }) {
+  const { t } = useT();
+  const diffLabel = (d) => ({ facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') })[d] ?? d;
+  const photoUrl = c.photo_path ? getSharedPhotoPublicUrl(c.photo_path) : null;
+
+  return (
+    <div className="defi-dash-overlay" onClick={onClose}>
+      <div className="defi-dash-panel" onClick={e => e.stopPropagation()}>
+        <div className="defi-dash-header">
+          <h2>{isSent ? t('dd_sent_label') : (c.sender_email || t('defi_a_friend'))}</h2>
+          <button className="defi-dash-close" onClick={onClose}>✕</button>
+        </div>
+        <p className="defi-row-meta">{diffLabel(c.difficulty_mode)} · {fmtDate(c.created_at)}</p>
+        {photoUrl ? (
+          <img src={photoUrl} alt="" className="challenge-photo-preview" />
+        ) : (
+          <p className="defi-dash-empty">{t('mem_no_photo')}</p>
+        )}
+        {c.completed && (
+          <div className={`defi-result-badge ${c.result === 'won' ? 'won' : 'lost'}`}>
+            {c.result === 'won' ? t('dd_won') : t('dd_lost')}
+          </div>
+        )}
+        {!c.completed && <p className="defi-row-waiting">{t('defi_waiting')}</p>}
       </div>
     </div>
   );
@@ -50,6 +82,7 @@ export default function MemoriesDashboard({ userId, onClose, onCreateChallenge =
   const [sent, setSent] = useState(null);
   const [received, setReceived] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [expanded, setExpanded] = useState(null); // { challenge, isSent } affiché en détail
 
   useEffect(() => {
     if (!userId) { setSent([]); setReceived([]); return; }
@@ -111,12 +144,25 @@ export default function MemoriesDashboard({ userId, onClose, onCreateChallenge =
                 <p className="defi-dash-empty">{isSent ? t('mem_dash_empty') : t('mem_empty_received')}</p>
               )}
               {list?.map(c => (
-                <ChallengeRow key={c.id} c={c} isSent={isSent} onDelete={handleDelete} deletingId={deletingId} />
+                <ChallengeRow
+                  key={c.id} c={c} isSent={isSent}
+                  onDelete={handleDelete}
+                  deletingId={deletingId}
+                  onExpand={(challenge) => setExpanded({ challenge, isSent })}
+                />
               ))}
             </div>
           </>
         )}
       </div>
+
+      {expanded && (
+        <ChallengeDetail
+          c={expanded.challenge}
+          isSent={expanded.isSent}
+          onClose={() => setExpanded(null)}
+        />
+      )}
     </div>
   );
 }

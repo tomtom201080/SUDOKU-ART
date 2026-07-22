@@ -38,6 +38,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null, u
 
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(preloadedPhotoUrl);
+  const [challengeName, setChallengeName] = useState('');
 
   useEffect(() => {
     if (!preloadedPhotoUrl) return;
@@ -86,7 +87,8 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null, u
         difficultyMode,
         maxErrors,
         timeLimitMinutes,
-        hintsLimit
+        hintsLimit,
+        label: challengeName.trim() || null
       });
       const link = buildChallengeLink(challenge.id);
       setShareLink(link);
@@ -141,6 +143,17 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null, u
           </>
         ) : (
           <>
+            {/* Nom de la Memory (facultatif) : pour s'y retrouver dans l'historique */}
+            <p className="challenge-step-title">{t('defi_name_label')}</p>
+            <input
+              type="text"
+              className="challenge-name-input"
+              value={challengeName}
+              onChange={e => setChallengeName(e.target.value)}
+              placeholder={t('defi_name_placeholder')}
+              maxLength={40}
+            />
+
             <div className="challenge-step">
               <p className="challenge-step-title">{t('cc_step1')}</p>
               {photoPreview ? (

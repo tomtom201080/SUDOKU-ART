@@ -375,6 +375,7 @@ export default {
   mem_dash_empty: 'Tu n\'as pas encore envoyé de Memories.',
   mem_empty_received: 'Tu n\'as pas encore reçu de Memories.',
   mem_dash_create: '➕ Envoyer une nouvelle Memory',
+  mem_no_photo: 'Pas de photo pour ce défi.',
   mem_delete_confirm: 'Supprimer ce défi et sa photo définitivement ? Le destinataire perdra l\'accès à la grille.',
 
   // ── DeleteAccountModal ────────────────────────────────────────
