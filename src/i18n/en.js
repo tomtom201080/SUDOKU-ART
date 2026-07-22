@@ -56,7 +56,6 @@ export default {
   game_notes: '✏️ Notes',
   game_undo: '↩️ Undo',
   game_hint: '💡 Hint',
-  game_hint_pick: '🎯 Pick a cell',
   game_watermark_toggle: 'Watermark',
 
   // ── Win ───────────────────────────────────────────────────────
@@ -594,6 +593,9 @@ export default {
   help_challenge_desc: 'You can set a maximum number of errors and a time limit.',
 
   // ── HintModal ─────────────────────────────────────────────────
+  hint_choice_question: 'How do you want your hint?',
+  hint_choice_random: '🎲 Reveal a digit',
+  hint_choice_pick: '🎯 Unlock a specific cell',
   hint_question: 'Which digit do you want to reveal?',
   hint_pick_instruction: 'Tap an empty cell in the grid to reveal it',
 

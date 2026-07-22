@@ -11,7 +11,6 @@ const NumberPad = forwardRef(function NumberPad({
   onUndo,
   canUndo,
   onHint,
-  onHintPick,
   hintsDisabled,
   completedDigits
 }, ref) {
@@ -68,17 +67,6 @@ const NumberPad = forwardRef(function NumberPad({
         >
           {t('game_hint')}{hintsDisabled ? ' 🚫' : ''}
         </button>
-
-        {onHintPick && (
-          <button
-            className={`number-pad-btn number-pad-hint-pick ${hintsDisabled ? 'is-disabled' : ''}`}
-            onClick={hintsDisabled ? undefined : onHintPick}
-            disabled={disabled || hintsDisabled}
-            title={hintsDisabled ? t('hint_limit_reached') : undefined}
-          >
-            {t('game_hint_pick')}{hintsDisabled ? ' 🚫' : ''}
-          </button>
-        )}
       </div>
     </div>
   );

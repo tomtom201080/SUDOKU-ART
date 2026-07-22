@@ -1,5 +1,5 @@
 // src/components/HintModal.jsx
-// Nouveau flux : pub → choix du chiffre → révélation animée dans la grille
+// Flux : choix (chiffre au hasard / case précise) → pub → révélation animée
 import { useState, useEffect, useCallback } from 'react';
 import { useT } from '../i18n/index.jsx';
 import { getAdConsent } from '../lib/adConsent';
@@ -8,34 +8,38 @@ import './HintModal.css';
 
 const AD_WAIT = 5;
 
-// mode: 'random' (choisir un chiffre, l'app pioche une case au hasard) ou
-// 'pick' (l'utilisateur désigne lui-même la case sur la grille — la
-// sélection se fait alors hors de ce composant, via onReadyToPick).
 export default function HintModal({
-  mode = 'random',
   userGrid,
   puzzleSolution,
   onRevealHint,   // (row, col, value) → place le chiffre + animation
-  onReadyToPick,  // appelé une fois la pub passée, en mode 'pick'
+  onReadyToPick,  // appelé une fois la pub passée, si l'utilisateur a choisi "case précise"
   onClose,
   hintsUsed = 0,
   maxHints = null
 }) {
   const { t } = useT();
-  const [phase, setPhase] = useState('ad'); // 'ad' | 'pick'
+  // 'choice' (écran de choix) -> 'ad' (pub, si consentie) -> 'digits' (choix du chiffre, mode aléatoire)
+  const [phase, setPhase] = useState('choice');
+  const [mode, setMode] = useState(null); // 'random' | 'pick', choisi par l'utilisateur
   const [countdown, setCountdown] = useState(AD_WAIT);
   const consent = getAdConsent();
   const hasAdsense = !!getAdsenseClientId();
   const showAd = consent === 'accepted' && hasAdsense;
 
-  useEffect(() => {
+  const chooseMode = (chosenMode) => {
+    setMode(chosenMode);
     if (!showAd) {
       // Pas de pub à montrer (refusée ou non configurée) : on passe
       // directement à la suite, sans jamais bloquer l'indice.
-      if (mode === 'pick') onReadyToPick?.();
-      else setPhase('pick');
+      if (chosenMode === 'pick') onReadyToPick?.();
+      else setPhase('digits');
       return;
     }
+    setPhase('ad');
+  };
+
+  useEffect(() => {
+    if (phase !== 'ad') return;
     loadAdsenseScript();
     try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
     const iv = setInterval(() => {
@@ -43,14 +47,14 @@ export default function HintModal({
         if (c <= 1) {
           clearInterval(iv);
           if (mode === 'pick') onReadyToPick?.();
-          else setPhase('pick');
+          else setPhase('digits');
           return 0;
         }
         return c - 1;
       });
     }, 1000);
     return () => clearInterval(iv);
-  }, [showAd, mode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [phase, mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Calcule quels chiffres ont encore des cases vides
   const availableDigits = useCallback(() => {
@@ -86,6 +90,24 @@ export default function HintModal({
   const counterLabel = maxHints != null
     ? t('hint_counter_max', { n: hintsUsed + 1, max: maxHints })
     : t('hint_counter', { n: hintsUsed + 1 });
+
+  if (phase === 'choice') return (
+    <div className="hint-bar">
+      <div className="hint-bar-header">
+        <span className="hint-step-label">💡 {counterLabel}</span>
+        <button className="hint-btn-close" onClick={onClose}>✕</button>
+      </div>
+      <p className="hint-pick-question">{t('hint_choice_question')}</p>
+      <div className="hint-bar-actions">
+        <button className="hint-btn-primary" onClick={() => chooseMode('random')}>
+          {t('hint_choice_random')}
+        </button>
+        <button className="hint-btn-secondary" onClick={() => chooseMode('pick')}>
+          {t('hint_choice_pick')}
+        </button>
+      </div>
+    </div>
+  );
 
   if (phase === 'ad') return (
     <div className="hint-bar">

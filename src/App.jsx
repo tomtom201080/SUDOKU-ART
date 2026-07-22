@@ -629,7 +629,6 @@ export default function App() {
   };
 
   const [hintRevealCell, setHintRevealCell] = useState(null); // { row, col, value }
-  const [hintMode, setHintMode] = useState(null); // null | 'random' | 'pick'
   const [pickingHintCell, setPickingHintCell] = useState(false); // true = en attente d'un tap sur la grille
 
   const handleRevealHint = (row, col, value) => {
@@ -649,19 +648,20 @@ export default function App() {
     updateGameSessionSnapshot({ hintCount: game.hintsUsed + 1, lastActionType: 'hint' });
     setShowHint(false);
     setPickingHintCell(false);
-    setHintMode(null);
     // Déclencher l'animation étoiles sur cette case
     setHintRevealCell({ row, col, value });
     setTimeout(() => setHintRevealCell(null), 2200);
   };
 
-  const handleOpenHintRandom = () => { setHintMode('random'); setShowHint(true); };
-  const handleOpenHintPick = () => { setHintMode('pick'); setShowHint(true); };
-  // Appelé par HintModal une fois la pub (mode "pick") passée : on ferme la
-  // barre d'indice et on attend un tap sur une case vide de la grille.
+  // Un seul point d'entrée "Indice" : le choix entre "révéler un chiffre" et
+  // "débloquer une case précise" se fait à l'intérieur de HintModal.
+  const handleOpenHint = () => setShowHint(true);
+  // Appelé par HintModal une fois la pub passée, si l'utilisateur a choisi
+  // "débloquer une case précise" : on ferme la barre d'indice et on attend
+  // un tap sur une case vide de la grille.
   const handleReadyToPickCell = () => { setShowHint(false); setPickingHintCell(true); };
-  const handleCancelPickCell = () => { setPickingHintCell(false); setHintMode(null); };
-  const handleCloseHint = () => { setShowHint(false); setHintMode(null); };
+  const handleCancelPickCell = () => setPickingHintCell(false);
+  const handleCloseHint = () => setShowHint(false);
 
   // Un clic en dehors de la grille (et du pavé numérique) désélectionne la
   // case en cours : ça désactive le surlignage et fait réapparaître l'image
@@ -1000,8 +1000,7 @@ export default function App() {
           onToggleNotes={game.toggleNotesMode}
           onUndo={game.undo}
           canUndo={game.canUndo}
-          onHint={handleOpenHintRandom}
-          onHintPick={handleOpenHintPick}
+          onHint={handleOpenHint}
           hintsDisabled={
             game.challengeMeta?.hints_limit != null &&
             game.hintsUsed >= game.challengeMeta.hints_limit
@@ -1012,7 +1011,6 @@ export default function App() {
 
       {showHint && (
         <HintModal
-          mode={hintMode}
           userGrid={game.userGrid}
           puzzleSolution={game.puzzleData?.solution}
           onRevealHint={handleRevealHint}

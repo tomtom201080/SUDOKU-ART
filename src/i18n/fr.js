@@ -56,7 +56,6 @@ export default {
   game_notes: '✏️ Notes',
   game_undo: '↩️ Annuler',
   game_hint: '💡 Indice',
-  game_hint_pick: '🎯 Choisir',
   game_watermark_toggle: 'Filigrane',
 
   // ── Victoire ──────────────────────────────────────────────────
@@ -594,6 +593,9 @@ export default {
   help_challenge_desc: 'Tu peux configurer un nombre d\'erreurs autorisées et un temps limite.',
 
   // ── HintModal ─────────────────────────────────────────────────
+  hint_choice_question: 'Comment veux-tu ton indice ?',
+  hint_choice_random: '🎲 Révéler un chiffre',
+  hint_choice_pick: '🎯 Débloquer une case précise',
   hint_question: 'Quel chiffre veux-tu découvrir ?',
   hint_pick_instruction: 'Touche une case vide de la grille pour la découvrir',
 
