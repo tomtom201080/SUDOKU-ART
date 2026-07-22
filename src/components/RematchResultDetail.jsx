@@ -25,6 +25,7 @@ export default function RematchResultDetail({ rematch, winner, isSent = true, on
   const meSeconds = isSent ? rematch.challenger_result_seconds : rematch.recipient_result_seconds;
   const friendErrors = isSent ? rematch.recipient_result_errors : rematch.challenger_result_errors;
   const friendSeconds = isSent ? rematch.recipient_result_seconds : rematch.challenger_result_seconds;
+  const friendName = (isSent ? rematch.recipient_name : rematch.challenger_name) || t('rrd_friend');
 
   return (
     <div className="painting-detail-overlay" onClick={onClose}>
@@ -46,7 +47,7 @@ export default function RematchResultDetail({ rematch, winner, isSent = true, on
                 <td>{formatTime(meSeconds)}</td>
               </tr>
               <tr>
-                <td>{t('rrd_friend')}</td>
+                <td>{friendName}</td>
                 <td>{friendErrors}</td>
                 <td>{formatTime(friendSeconds)}</td>
               </tr>

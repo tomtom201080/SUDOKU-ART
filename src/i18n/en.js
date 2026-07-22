@@ -417,7 +417,7 @@ export default {
   incoming_group: 'Group',
   incoming_connected: 'Sign in to link your score to your account',
   incoming_pseudo_title: 'Choose a name for this challenge',
-  incoming_pseudo_desc: 'It will appear in the leaderboard.',
+  incoming_pseudo_desc: 'It will be shown with your result.',
   incoming_pseudo_placeholder: 'Your name (e.g. Player42)',
   incoming_pseudo_btn: '▶ Play with this name',
   incoming_pseudo_checking: 'Checking…',

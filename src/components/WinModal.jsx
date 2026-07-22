@@ -154,7 +154,7 @@ export default function WinModal({
     const message =
       t('win_rematch_share_intro', { name }) +
       t('rrd_me_line', { label: t('rrd_me'), errors: rematchOutcome.challengerErrors, time: formatTime(rematchOutcome.challengerSeconds) }) +
-      t('rrd_me_line', { label: t('rrd_friend'), errors: rematchOutcome.recipientErrors, time: formatTime(rematchOutcome.recipientSeconds) }) +
+      t('rrd_me_line', { label: rematchOutcome.recipientName || t('rrd_friend'), errors: rematchOutcome.recipientErrors, time: formatTime(rematchOutcome.recipientSeconds) }) +
       verdict;
     await shareText(message, t('fail_share_title'));
     setRematchResultSent(true);

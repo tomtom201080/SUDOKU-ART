@@ -14,21 +14,29 @@ export function validateUsername(username) {
 // Récupère le profil de l'utilisateur connecté
 export async function fetchMyProfile(userId) {
   if (!userId) return null;
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('profiles')
     .select('username, preferred_lang')
     .eq('id', userId)
     .maybeSingle();
+  // Ne jamais avaler l'erreur en silence : un rejet RLS/réseau ici serait
+  // sinon indistinguable d'un utilisateur qui n'a simplement pas encore de
+  // pseudo, et ferait réapparaître à tort la modale de création (voir
+  // App.jsx, qui traite tout profil "vide" comme "pseudo à créer").
+  if (error) console.error('fetchMyProfile failed:', error);
   return data ?? null;
 }
 
-// Vérifie si un pseudo est disponible (insensible à la casse)
-export async function checkUsernameAvailable(username) {
-  const { data } = await supabase
+// Vérifie si un pseudo est disponible (insensible à la casse). excludeUserId
+// permet à l'utilisateur de re-soumettre son propre pseudo actuel sans se
+// le voir refuser comme "déjà pris".
+export async function checkUsernameAvailable(username, excludeUserId = null) {
+  let query = supabase
     .from('profiles')
     .select('id')
-    .ilike('username', username.trim())
-    .maybeSingle();
+    .ilike('username', username.trim());
+  if (excludeUserId) query = query.neq('id', excludeUserId);
+  const { data } = await query.maybeSingle();
   return !data; // true = disponible
 }
 

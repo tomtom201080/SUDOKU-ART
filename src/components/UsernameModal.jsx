@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { validateUsername, checkUsernameAvailable, saveUsername } from '../lib/profiles';
 import './UsernameModal.css';
 
-export default function UsernameModal({ userId, onDone }) {
+export default function UsernameModal({ userId, currentUsername = null, onDone }) {
   const { t } = useT();
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState(currentUsername ?? '');
   const [error, setError] = useState(null);
   const [checking, setChecking] = useState(false);
   const [status, setStatus] = useState('idle'); // 'idle' | 'saving' | 'done'
@@ -24,7 +24,7 @@ export default function UsernameModal({ userId, onDone }) {
     setError(null);
 
     try {
-      const available = await checkUsernameAvailable(value);
+      const available = await checkUsernameAvailable(value, userId);
       if (!available) {
         setError(t('uname_taken'));
         setChecking(false);

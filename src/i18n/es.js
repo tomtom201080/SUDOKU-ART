@@ -417,7 +417,7 @@ export default {
   incoming_group: 'Grupo',
   incoming_connected: 'Inicia sesión para vincularlo a tu cuenta',
   incoming_pseudo_title: 'Elige un apodo para este desafío',
-  incoming_pseudo_desc: 'Será visible en la clasificación.',
+  incoming_pseudo_desc: 'Se mostrará junto a tu resultado.',
   incoming_pseudo_placeholder: 'Tu apodo (ej.: Jugador42)',
   incoming_pseudo_btn: '▶ Jugar con este apodo',
   incoming_pseudo_checking: 'Comprobando…',

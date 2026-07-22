@@ -417,7 +417,7 @@ export default {
   incoming_group: 'Groupe',
   incoming_connected: 'Connexion pour rattacher à ton compte',
   incoming_pseudo_title: 'Choisis un pseudo pour ce défi',
-  incoming_pseudo_desc: 'Il sera visible dans le classement.',
+  incoming_pseudo_desc: 'Il sera affiché avec ton résultat.',
   incoming_pseudo_placeholder: 'Ton pseudo (ex : Joueur42)',
   incoming_pseudo_btn: '▶ Jouer avec ce pseudo',
   incoming_pseudo_checking: 'Vérification…',

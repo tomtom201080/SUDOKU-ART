@@ -151,7 +151,7 @@ export async function claimRematchToken(id) {
 }
 
 // Enregistre le résultat du destinataire une fois sa partie terminée.
-export async function submitRematchResult(id, { errors, seconds, hints = 0, userId }) {
+export async function submitRematchResult(id, { errors, seconds, hints = 0, userId, playerName = null }) {
   await supabase
     .from('rematches')
     .update({
@@ -159,6 +159,7 @@ export async function submitRematchResult(id, { errors, seconds, hints = 0, user
       recipient_result_seconds: seconds,
       recipient_result_hints: hints,
       recipient_user_id: userId ?? null,
+      recipient_name: playerName ?? null,
       completed: true
     })
     .eq('id', id);

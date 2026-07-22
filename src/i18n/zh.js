@@ -417,7 +417,7 @@ export default {
   incoming_group: '团体',
   incoming_connected: '登录以关联到你的账号',
   incoming_pseudo_title: '为这个挑战选择一个昵称',
-  incoming_pseudo_desc: '它将在排行榜中可见。',
+  incoming_pseudo_desc: '它将与你的成绩一起显示。',
   incoming_pseudo_placeholder: '你的昵称（例如：玩家42）',
   incoming_pseudo_btn: '▶ 使用此昵称游玩',
   incoming_pseudo_checking: '验证中……',

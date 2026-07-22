@@ -33,18 +33,24 @@ export default function IncomingDefiModal({ rematch, onLogin, onPlayFree }) {
   const isGroup    = !!rematch?.group_mode;
 
   const handlePlayFreeClick = () => {
-    if (isGroup) {
-      // Mode groupe sans compte → demander un pseudo local au défi
-      setStep('pseudo');
-    } else {
-      onPlayFree(null);
-    }
+    // Candidat libre sans compte → demander un pseudo local au défi, en
+    // mode groupe comme en mode perso (sinon le destinataire d'un défi 1v1
+    // reste anonyme dans les résultats et le message envoyé au challenger).
+    setStep('pseudo');
   };
 
   const handleSubmitPseudo = async () => {
     const trimmed = pseudo.trim();
     if (trimmed.length < 2) { setError(t('incoming_pseudo_short')); return; }
     if (trimmed.length > 20) { setError(t('incoming_pseudo_long')); return; }
+
+    // L'unicité du pseudo ne concerne que le mode groupe (plusieurs
+    // candidats libres à distinguer sur un même défi) : en mode perso il n'y
+    // a qu'un seul destinataire, pas de collision possible.
+    if (!isGroup) {
+      onPlayFree(trimmed);
+      return;
+    }
 
     setChecking(true);
     setError(null);

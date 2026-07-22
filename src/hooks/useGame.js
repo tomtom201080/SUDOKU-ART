@@ -91,6 +91,10 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setImageIntensityState(v);
     try { localStorage.setItem(INTENSITY_KEY, String(v)); } catch {}
   };
+  // Comme setImageIntensityState() utilisé plus bas pour startRematchGame :
+  // force l'intensité pour CETTE partie (mode classique) sans écraser la
+  // préférence globale persistée de l'utilisateur.
+  const setImageIntensityForSession = (v) => setImageIntensityState(v);
   const [isComplete, setIsComplete] = useState(false);
   const [showWinModal, setShowWinModal] = useState(false);
   // true entre la fin de grille et l'affichage du résultat, uniquement pour
@@ -710,7 +714,8 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
             errors: errorCount,
             seconds: finalElapsed,
             hints: hintsUsed,
-            userId
+            userId,
+            playerName: activeRematch.playerPseudo ?? username ?? null
           }).catch(err => {
             console.error('submitRematchResult failed:', err);
             trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.submitRematchResult', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
@@ -730,6 +735,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
             challengerSeconds: activeRematch.challengerSeconds,
             challengerHints: activeRematch.challengerHints ?? 0,
             challengerHasAccount: activeRematch.challengerHasAccount,
+            recipientName: activeRematch.playerPseudo ?? username ?? null,
             recipientErrors: errorCount,
             recipientSeconds: finalElapsed,
             recipientHints: hintsUsed,
@@ -755,7 +761,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
         else setShowWinModal(true);
       }, 3000);
     }
-  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, notesMode, isFailed, challengeMeta, watermark, userId, imageIntensity, elapsedSeconds, activeRematch, activeQuestStage]);
+  }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, notesMode, isFailed, challengeMeta, watermark, userId, imageIntensity, elapsedSeconds, activeRematch, activeQuestStage, username]);
 
   // Annule le dernier coup joué (grille + notes + erreurs reviennent à l'état
   // précédent). Le compteur d'erreurs cumulé n'est lui jamais "annulé" : une
@@ -819,7 +825,8 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
           errors: errorCount,
           seconds: elapsedSeconds,
           hints: hintsUsed,
-          userId
+          userId,
+          playerName: activeRematch.playerPseudo ?? username ?? null
         }).catch(err => {
           console.error('submitRematchResult failed:', err);
           trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.solveGridForTesting.submitRematchResult', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
@@ -839,6 +846,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
           challengerSeconds: activeRematch.challengerSeconds,
           challengerHints: activeRematch.challengerHints ?? 0,
           challengerHasAccount: activeRematch.challengerHasAccount,
+          recipientName: activeRematch.playerPseudo ?? username ?? null,
           recipientErrors: errorCount,
           recipientSeconds: elapsedSeconds,
           recipientHints: hintsUsed,
@@ -1049,6 +1057,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     watermarkVisible,
     imageIntensity,
     setImageIntensity,
+    setImageIntensityForSession,
     isComplete,
     showWinModal,
     pendingDefiResultAd,

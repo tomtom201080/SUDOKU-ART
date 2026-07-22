@@ -332,7 +332,9 @@ export default function App() {
     setLastChallengeMeta(null);
     if (isClassic) {
       // Sudoku classique : on lance sans image et on force l'intensité à 0
-      game.setImageIntensity(0);
+      // pour CETTE partie, sans écraser la préférence globale de l'utilisateur
+      // (sinon les prochaines parties en mode Art/Photo restent bloquées à 0).
+      game.setImageIntensityForSession(0);
       game.startNewGame(difficultyId, null, null, null);
     } else {
       const tier = TIERS_BY_DIFFICULTY[difficultyId] ?? 'commune';
@@ -671,10 +673,10 @@ export default function App() {
     if (!game.difficulty) return;
 
     function handlePointerDown(event) {
-      const insideBoard = boardRef.current && boardRef.current.contains(event.target);
-      const insidePad = padRef.current && padRef.current.contains(event.target);
-      const insideHintBar = event.target.closest && event.target.closest('.hint-bar');
-      if (!insideBoard && !insidePad && !insideHintBar) {
+      const target = event.target.closest
+        ? event.target.closest('.sudoku-board, .number-pad, .hint-bar')
+        : null;
+      if (!target) {
         setSelectedCell(null);
         setHighlightValue(0);
       }
@@ -924,6 +926,7 @@ export default function App() {
         {showUsernameModal && session && (
           <UsernameModal
             userId={session.user.id}
+            currentUsername={username}
             onDone={(pseudo) => {
               setUsername(pseudo);
               setShowUsernameModal(false);
@@ -963,7 +966,7 @@ export default function App() {
       )}
 
       <div className="game-screen">
-        {game.imageIntensity > 0 && game.watermark && (
+        {!isClassicMode && game.watermark && (
           <div className="intensity-control">
             <label htmlFor="image-intensity">
               {t('game_intensity')}

@@ -417,7 +417,7 @@ export default {
   incoming_group: 'Gruppe',
   incoming_connected: 'Anmeldung, um es deinem Konto zuzuordnen',
   incoming_pseudo_title: 'Wähle einen Spitznamen für diese Herausforderung',
-  incoming_pseudo_desc: 'Er wird in der Bestenliste sichtbar sein.',
+  incoming_pseudo_desc: 'Er wird zusammen mit deinem Ergebnis angezeigt.',
   incoming_pseudo_placeholder: 'Dein Spitzname (z. B.: Spieler42)',
   incoming_pseudo_btn: '▶ Mit diesem Spitznamen spielen',
   incoming_pseudo_checking: 'Wird geprüft…',
