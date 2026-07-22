@@ -24,11 +24,16 @@ export default defineConfig({
         clientsClaim: true,
         // Les pages SEO (scripts/prerender-seo.mjs) sont de vrais fichiers
         // HTML statiques distincts, chacun avec ses propres balises meta.
-        // Sans cette exclusion, le service worker redirigerait toute
-        // navigation vers ces routes vers le index.html mis en cache (repli
-        // SPA par défaut), qui n'a pas les bonnes metas ni le bon contenu.
+        // Les fichiers texte/XML à la racine (ads.txt, robots.txt,
+        // sitemap.xml) doivent eux aussi être exclus : ce sont de vrais
+        // fichiers statiques, jamais des routes de l'app. Sans cette
+        // exclusion, le service worker redirigerait toute navigation vers
+        // ces URLs vers le index.html mis en cache (repli SPA par défaut),
+        // qui n'a ni le bon contenu ni le bon Content-Type — c'est ce qui
+        // a fait échouer la vérification ads.txt de Google AdSense.
         navigateFallbackDenylist: [
-          /^\/(comment-ca-marche|creer-un-defi-sudoku|sudoku-gratuit|sudoku-facile|sudoku-difficile|sudoku-expert|sudoku-image-cachee|sudoku-art)(\/.*)?$/
+          /^\/(comment-ca-marche|creer-un-defi-sudoku|sudoku-gratuit|sudoku-facile|sudoku-difficile|sudoku-expert|sudoku-image-cachee|sudoku-art)(\/.*)?$/,
+          /^\/(ads\.txt|robots\.txt|sitemap\.xml|googled061d540f6ae8f0f\.html)$/
         ]
       }
     })
