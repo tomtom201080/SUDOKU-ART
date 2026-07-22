@@ -179,28 +179,6 @@ body.dark .note-digit {
   color: #D8D8EE;
 }
 
-/* Surlignage de l'indice animé étape par étape : une couleur différente
-   pour la ligne, la colonne, le carré, puis la conclusion finale. */
-.sudoku-cell.hint-zone-row {
-  background-color: rgba(33, 150, 243, 0.28) !important;
-}
-
-.sudoku-cell.hint-zone-col {
-  background-color: rgba(255, 152, 0, 0.28) !important;
-}
-
-.sudoku-cell.hint-zone-box {
-  background-color: rgba(156, 39, 176, 0.22) !important;
-}
-
-.sudoku-cell.hint-zone-answer {
-  background-color: rgba(76, 175, 80, 0.35) !important;
-}
-
-.sudoku-cell.hint-zone-partial {
-  background-color: rgba(0, 188, 212, 0.32) !important;
-}
-
 .sudoku-cell.hint-target {
   outline: 3px solid var(--accent);
   outline-offset: -3px;
@@ -218,22 +196,6 @@ body.dark .note-digit {
 @keyframes pickable-pulse {
   0%, 100% { background-color: transparent; }
   50% { background-color: color-mix(in srgb, var(--accent) 14%, transparent); }
-}
-
-body.dark .sudoku-cell.hint-zone-row {
-  background-color: rgba(33, 150, 243, 0.35) !important;
-}
-
-body.dark .sudoku-cell.hint-zone-col {
-  background-color: rgba(255, 152, 0, 0.35) !important;
-}
-
-body.dark .sudoku-cell.hint-zone-box {
-  background-color: rgba(156, 39, 176, 0.3) !important;
-}
-
-body.dark .sudoku-cell.hint-zone-answer {
-  background-color: rgba(76, 175, 80, 0.4) !important;
 }
 
 /* Révélation d'un indice : chiffre en couleur accent avec étoiles animées */

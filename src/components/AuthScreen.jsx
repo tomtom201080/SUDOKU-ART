@@ -105,7 +105,7 @@ export default function AuthScreen({ onCancel }) {
 
         <form onSubmit={handleSubmit} className="auth-form">
           <label>
-            Email
+            {t('auth_email')}
             <input
               type="email"
               value={email}
@@ -117,7 +117,7 @@ export default function AuthScreen({ onCancel }) {
 
           {mode !== 'forgot' && (
             <label>
-              Mot de passe
+              {t('auth_password')}
               <input
                 type="password"
                 value={password}

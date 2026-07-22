@@ -36,7 +36,8 @@ export async function checkUsernameAvailable(username, excludeUserId = null) {
     .select('id')
     .ilike('username', username.trim());
   if (excludeUserId) query = query.neq('id', excludeUserId);
-  const { data } = await query.maybeSingle();
+  const { data, error } = await query.maybeSingle();
+  if (error) throw error;
   return !data; // true = disponible
 }
 

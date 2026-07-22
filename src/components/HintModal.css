@@ -81,20 +81,6 @@
   cursor: pointer;
 }
 
-.hint-reveal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 0 4px;
-}
-
-.hint-reveal-number {
-  font-size: 3.5rem;
-  font-weight: 800;
-  color: var(--accent);
-  line-height: 1;
-}
-
 .hint-pick-question {
   font-size: 0.9rem;
   font-weight: 600;

@@ -95,6 +95,16 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
   // force l'intensité pour CETTE partie (mode classique) sans écraser la
   // préférence globale persistée de l'utilisateur.
   const setImageIntensityForSession = (v) => setImageIntensityState(v);
+  // Ramène l'intensité en mémoire à la préférence persistée : à appeler en
+  // quittant le mode classique (Art/Photo), pour annuler le forçage à 0 fait
+  // par setImageIntensityForSession() et ne pas rester bloqué à 0 pour le
+  // reste de la session tant que la page n'est pas rechargée.
+  const restoreImageIntensityPreference = () => {
+    try {
+      const stored = localStorage.getItem(INTENSITY_KEY);
+      setImageIntensityState(stored !== null ? parseFloat(stored) : 0.28);
+    } catch { setImageIntensityState(0.28); }
+  };
   const [isComplete, setIsComplete] = useState(false);
   const [showWinModal, setShowWinModal] = useState(false);
   // true entre la fin de grille et l'affichage du résultat, uniquement pour
@@ -1058,6 +1068,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     imageIntensity,
     setImageIntensity,
     setImageIntensityForSession,
+    restoreImageIntensityPreference,
     isComplete,
     showWinModal,
     pendingDefiResultAd,

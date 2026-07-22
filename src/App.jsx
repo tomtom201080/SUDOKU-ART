@@ -88,7 +88,11 @@ export default function App() {
   const LANG_NAMES = { fr: 'Français', en: 'English', de: 'Deutsch', es: 'Español', zh: '中文' };
   // Un utilisateur connecté voit sa préférence sauvegardée sur son profil
   // (retrouvée sur n'importe quel appareil), pas seulement sur cet appareil.
-  const handleLangChange = (newLang) => setLang(newLang, { persistToProfile: session?.user?.id });
+  const langManuallyChangedRef = useRef(false);
+  const handleLangChange = (newLang) => {
+    langManuallyChangedRef.current = true;
+    setLang(newLang, { persistToProfile: session?.user?.id });
+  };
 
   const DIFFICULTY_LABELS = {
     facile: t('diff_facile'),
@@ -337,6 +341,11 @@ export default function App() {
       game.setImageIntensityForSession(0);
       game.startNewGame(difficultyId, null, null, null);
     } else {
+      // Si la partie précédente était en mode classique, l'intensité est
+      // restée forcée à 0 en mémoire pour cette session : on la ramène à la
+      // préférence persistée de l'utilisateur avant de lancer une partie
+      // Art/Photo.
+      game.restoreImageIntensityPreference();
       const tier = TIERS_BY_DIFFICULTY[difficultyId] ?? 'commune';
       game.startNewGame(difficultyId, customImageUrl, null, preloadedByTier[tier] ?? null);
     }
@@ -590,17 +599,23 @@ export default function App() {
   // pour la retrouver sur n'importe quel appareil — voir i18n/index.jsx).
   useEffect(() => {
     if (!session) { setUsername(null); return; }
+    let cancelled = false;
+    langManuallyChangedRef.current = false;
     fetchMyProfile(session.user.id).then(profile => {
+      if (cancelled) return;
       if (profile?.username) {
         setUsername(profile.username);
       } else {
         // Pas encore de pseudo → afficher la modale
         setShowUsernameModal(true);
       }
-      if (profile?.preferred_lang) {
+      // Ne pas écraser un changement de langue manuel fait pendant que cette
+      // requête était en vol (course sinon possible juste après connexion).
+      if (profile?.preferred_lang && !langManuallyChangedRef.current) {
         setLang(profile.preferred_lang);
       }
     });
+    return () => { cancelled = true; };
   }, [session?.user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCloseGameEnd = () => {
@@ -633,6 +648,7 @@ export default function App() {
 
   const [hintRevealCell, setHintRevealCell] = useState(null); // { row, col, value }
   const [pickingHintCell, setPickingHintCell] = useState(false); // true = en attente d'un tap sur la grille
+  const hintRevealTimeoutRef = useRef(null);
 
   const handleRevealHint = (row, col, value) => {
     // forceValue: true pose directement la vraie valeur, sans dépendre de
@@ -651,9 +667,15 @@ export default function App() {
     updateGameSessionSnapshot({ hintCount: game.hintsUsed + 1, lastActionType: 'hint' });
     setShowHint(false);
     setPickingHintCell(false);
-    // Déclencher l'animation étoiles sur cette case
+    // Déclencher l'animation étoiles sur cette case. On nettoie un éventuel
+    // timeout précédent : sans ça, un deuxième indice pris à moins de 2.2s
+    // du premier se voit couper son animation par le timeout du premier.
+    if (hintRevealTimeoutRef.current) clearTimeout(hintRevealTimeoutRef.current);
     setHintRevealCell({ row, col, value });
-    setTimeout(() => setHintRevealCell(null), 2200);
+    hintRevealTimeoutRef.current = setTimeout(() => {
+      setHintRevealCell(null);
+      hintRevealTimeoutRef.current = null;
+    }, 2200);
   };
 
   // Un seul point d'entrée "Indice" : le choix entre "révéler un chiffre" et

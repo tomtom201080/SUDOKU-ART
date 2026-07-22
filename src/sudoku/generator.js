@@ -159,5 +159,3 @@ export function isGridComplete(userGrid, solution) {
   }
   return true;
 }
-
-export { SIZE, BOX };
