@@ -26,7 +26,6 @@ import InstallAppModal from './components/InstallAppModal';
 import HelpModal from './components/HelpModal';
 import KpiDashboard from './components/KpiDashboard';
 import AdSlot from './components/AdSlot';
-import HomeSeoContent from './components/HomeSeoContent';
 import ConsentBanner from './components/ConsentBanner';
 import AdInterstitial from './components/AdInterstitial';
 import { TermsModal, PrivacyModal } from './components/LegalModal';
@@ -746,8 +745,6 @@ export default function App() {
         />
 
         <AdSlot slot="1234567890" />
-
-        <HomeSeoContent />
 
         {/* Empilées dans un conteneur dédié : ces bannières partagent la même
             position fixe en bas d'écran et se chevaucheraient sinon si
