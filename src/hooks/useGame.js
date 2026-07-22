@@ -6,7 +6,7 @@ import { addToGallery, recordWin } from '../utils/storage';
 import { markChallengeCompleted, deleteChallenge } from '../lib/challenges';
 import { markPaintingSeen, getMergedUnseenIds } from '../lib/seenPaintings';
 import { logGameStart, logGameComplete, logGameFail } from '../lib/analytics';
-import { submitRematchResult, submitGroupResult, determineRematchWinner } from '../lib/rematches';
+import { submitRematchResult, submitGroupResult, updateChallengerBaseline, determineRematchWinner } from '../lib/rematches';
 import { trackGameError, normalizeErrorCode } from '../lib/tracking';
 
 function cloneGrid(grid) {
@@ -113,6 +113,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
   const [tempFullReveal, setTempFullReveal] = useState(false); // affichage complet temporaire après une zone complétée
   const [activeRematch, setActiveRematch] = useState(null); // { id, challengerName, challengerErrors, challengerSeconds }
   const [rematchOutcome, setRematchOutcome] = useState(null); // résultat comparé, une fois la partie terminée
+  const [challengerBaselineJustSet, setChallengerBaselineJustSet] = useState(false); // true quand le créateur vient d'établir son propre score de référence (défi perso, personne d'autre n'a encore joué)
   const [activeQuestStage, setActiveQuestStage] = useState(null); // étape de la quête en cours, le cas échéant
   const [activeMathQuestStage, setActiveMathQuestStage] = useState(null); // étape Sudomath en cours, le cas échéant
 
@@ -158,6 +159,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setNextWatermark(null);
     setActiveRematch(null);
     setRematchOutcome(null);
+    setChallengerBaselineJustSet(false);
     setActiveQuestStage(null);
     setActiveMathQuestStage(null);
     setTempFullReveal(false);
@@ -257,11 +259,14 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
         challengerName: rematch.challenger_name,
         challengerErrors: rematch.challenger_result_errors,
         challengerSeconds: rematch.challenger_result_seconds,
+        challengerHints: rematch.challenger_result_hints ?? 0,
         challengerHasAccount: !!rematch.challenger_user_id,
+        challengerUserId: rematch.challenger_user_id ?? null,
         hintsLimit: rematch.hints_limit ?? null,
         groupMode: rematch.group_mode ?? false,
         playerPseudo: playerPseudo ?? null });
       setRematchOutcome(null);
+      setChallengerBaselineJustSet(false);
 
       logGameStart({ difficulty: rematch.difficulty, userId, isCustomPhoto: !!photoUrl, isChallenge: true });
     } catch (err) {
@@ -324,6 +329,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setChallengeMeta(null);
     setActiveRematch(null);
     setRematchOutcome(null);
+    setChallengerBaselineJustSet(false);
     setActiveQuestStage(null);
     setActiveMathQuestStage(null);
     setActiveQuestStage(stage);
@@ -384,6 +390,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setChallengeMeta(null);
     setActiveRematch(null);
     setRematchOutcome(null);
+    setChallengerBaselineJustSet(false);
     setActiveQuestStage(null);
     setActiveMathQuestStage(null);
     setActiveMathQuestStage(stage);
@@ -681,6 +688,22 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
               console.error('submitGroupResult failed:', err);
               trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.submitGroupResult', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
             });
+        } else if (activeRematch.challengerUserId && userId && activeRematch.challengerUserId === userId) {
+          // Le créateur joue son propre défi perso (via "Jouer maintenant"
+          // ou en rouvrant son propre lien) avant qu'un ami ne l'ait fait :
+          // son score devient la vraie référence du challenger, au lieu
+          // d'être comparé à tort au 0/0 fictif posé à la création. Ne
+          // touche jamais recipient_*, pour laisser la place intacte à un
+          // ami qui jouerait ensuite.
+          updateChallengerBaseline(activeRematch.id, {
+            errors: errorCount,
+            seconds: finalElapsed,
+            hints: hintsUsed
+          }).catch(err => {
+            console.error('updateChallengerBaseline failed:', err);
+            trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.updateChallengerBaseline', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
+          });
+          setChallengerBaselineJustSet(true);
         } else {
           // Mode perso 1v1
           submitRematchResult(activeRematch.id, {
@@ -778,6 +801,19 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
             console.error('submitGroupResult failed:', err);
             trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.solveGridForTesting.submitGroupResult', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
           });
+      } else if (activeRematch.challengerUserId && userId && activeRematch.challengerUserId === userId) {
+        // Même règle que dans setCellValue : le créateur qui teste son
+        // propre défi perso établit sa référence, pas un faux résultat de
+        // destinataire comparé au 0/0 fictif.
+        updateChallengerBaseline(activeRematch.id, {
+          errors: errorCount,
+          seconds: elapsedSeconds,
+          hints: hintsUsed
+        }).catch(err => {
+          console.error('updateChallengerBaseline failed:', err);
+          trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.solveGridForTesting.updateChallengerBaseline', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
+        });
+        setChallengerBaselineJustSet(true);
       } else {
         submitRematchResult(activeRematch.id, {
           errors: errorCount,
@@ -986,6 +1022,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setNextWatermark(null);
     setActiveRematch(null);
     setRematchOutcome(null);
+    setChallengerBaselineJustSet(false);
     setActiveQuestStage(null);
     setActiveMathQuestStage(null);
     setTempFullReveal(false);
@@ -1047,6 +1084,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     submitMathAnswer,
     activeRematch,
     rematchOutcome,
+    challengerBaselineJustSet,
     resetToMenu,
     setCellValue,
     undo,

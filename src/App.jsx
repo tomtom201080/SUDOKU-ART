@@ -1039,6 +1039,7 @@ export default function App() {
           watermark={isClassicMode ? null : game.watermark}
           challengeMeta={game.challengeMeta}
           rematchOutcome={game.rematchOutcome}
+          challengerBaselineJustSet={game.challengerBaselineJustSet}
           activeRematch={game.activeRematch}
           userId={session?.user?.id ?? null}
           errorCount={game.errorCount}

@@ -53,6 +53,8 @@ export default {
   win_rematch_title_win: '🏆 You won this challenge!',
   win_rematch_title_lose: '😅 Your friend did better this time.',
   win_rematch_title_tie: '🤝 Perfect tie!',
+  win_baseline_set_title: '✅ Your reference score is saved',
+  win_baseline_set_desc: 'Send your link to a friend: their score will be compared to this one once they\'ve played.',
   win_rematch_send: '📤 Send result via WhatsApp',
   win_rematch_sent: '✅ Result sent',
   win_me: 'You',

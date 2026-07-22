@@ -20,6 +20,7 @@ export default function WinModal({
   watermark,
   challengeMeta,
   rematchOutcome,
+  challengerBaselineJustSet,
   activeRematch,
   userId,
   errorCount,
@@ -169,6 +170,13 @@ export default function WinModal({
           <p className="win-challenge-stats">
             {t('win_stats_row', { errors: errorCount, s: errorCount === 1 ? '' : 's', time: formatTime(elapsedSeconds) })}
           </p>
+        )}
+
+        {challengerBaselineJustSet && (
+          <div className="rematch-outcome">
+            <p className="rematch-outcome-title">{t('win_baseline_set_title')}</p>
+            <p className="rematch-scoring-note">{t('win_baseline_set_desc')}</p>
+          </div>
         )}
 
         {rematchOutcome && (

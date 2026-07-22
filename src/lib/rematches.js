@@ -164,6 +164,24 @@ export async function submitRematchResult(id, { errors, seconds, hints = 0, user
     .eq('id', id);
 }
 
+// Mode perso (1v1) : quand le CRÉATEUR joue lui-même son propre défi (via
+// "Jouer maintenant" juste après l'avoir créé, ou en rouvrant son propre
+// lien) avant qu'un ami ne l'ait fait, son score doit devenir la vraie
+// référence du challenger — pas un score de "destinataire" comparé à tort
+// au 0/0 fictif posé à la création. Met à jour la même ligne, ne consomme
+// jamais la place du destinataire (recipient_*, "premier arrivé" reste
+// intact pour un ami qui jouerait ensuite).
+export async function updateChallengerBaseline(id, { errors, seconds, hints = 0 }) {
+  await supabase
+    .from('rematches')
+    .update({
+      challenger_result_errors: errors,
+      challenger_result_seconds: seconds,
+      challenger_result_hints: hints
+    })
+    .eq('id', id);
+}
+
 // Liste les défis envoyés par ce compte dont le destinataire vient de
 // terminer, et qui n'ont pas encore été vus par le challenger.
 export async function fetchUnnotifiedRematchResults(userId) {
