@@ -84,7 +84,9 @@ function RematchRow({ r, isSent, onHide, onExpand, onRegenerate }) {
     <div className="defi-row" onClick={() => hasPlayed && onExpand(r)} style={{ cursor: hasPlayed ? 'pointer' : 'default' }}>
       <div className="defi-row-left">
         <span className="defi-row-opponent">
-          {isGroup ? '👨‍👩‍👧 ' : ''}{isSent ? (r.challenger_name ? t('dd_sent_by', { name: r.challenger_name }) : t('dd_sent_label')) : (r.challenger_name || t('defi_a_friend'))}
+          {/* Envoyé : "envoyé par X" n'apporte rien (X, c'est toujours soi-même)
+              — on affiche plutôt le nom donné au défi, ou un libellé neutre. */}
+          {isGroup ? '👨‍👩‍👧 ' : ''}{isSent ? (r.label || t('dd_sent_label')) : (r.challenger_name || t('defi_a_friend'))}
         </span>
         <span className="defi-row-meta">
           {diffLabel(r.difficulty) ?? r.difficulty} · {fmtDate(r.created_at)}

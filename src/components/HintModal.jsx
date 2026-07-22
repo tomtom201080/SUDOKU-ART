@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useT } from '../i18n/index.jsx';
 import { getAdConsent } from '../lib/adConsent';
-import { loadAdsenseScript, getAdsenseClientId } from '../lib/adsense';
+import { loadAdsenseScript, pushAdsenseAd, getAdsenseClientId } from '../lib/adsense';
 import './HintModal.css';
 
 const AD_WAIT = 5;
@@ -18,19 +18,22 @@ export default function HintModal({
   maxHints = null
 }) {
   const { t } = useT();
-  // 'choice' (écran de choix) -> 'ad' (pub, si consentie) -> 'digits' (choix du chiffre, mode aléatoire)
+  // 'choice' (écran de choix) -> 'ad' -> 'digits' (choix du chiffre, mode aléatoire)
   const [phase, setPhase] = useState('choice');
   const [mode, setMode] = useState(null); // 'random' | 'pick', choisi par l'utilisateur
   const [countdown, setCountdown] = useState(AD_WAIT);
   const consent = getAdConsent();
   const hasAdsense = !!getAdsenseClientId();
-  const showAd = consent === 'accepted' && hasAdsense;
+  // La pub s'affiche toujours si AdSense est configuré : le consentement ne
+  // conditionne que la personnalisation (voir pushAdsenseAd), jamais
+  // l'affichage — l'utilisateur ne peut pas désactiver les pubs elles-mêmes.
+  const showAd = hasAdsense;
 
   const chooseMode = (chosenMode) => {
     setMode(chosenMode);
     if (!showAd) {
-      // Pas de pub à montrer (refusée ou non configurée) : on passe
-      // directement à la suite, sans jamais bloquer l'indice.
+      // AdSense non configuré dans cet environnement : on passe directement
+      // à la suite, sans jamais bloquer l'indice.
       if (chosenMode === 'pick') onReadyToPick?.();
       else setPhase('digits');
       return;
@@ -41,7 +44,7 @@ export default function HintModal({
   useEffect(() => {
     if (phase !== 'ad') return;
     loadAdsenseScript();
-    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
+    pushAdsenseAd(consent === 'accepted');
     const iv = setInterval(() => {
       setCountdown(c => {
         if (c <= 1) {

@@ -89,12 +89,14 @@ export default function IncomingDefiModal({ rematch, onLogin, onPlayFree }) {
                 {t('incoming_play_free_btn')}
               </button>
             </div>
+            <p className="incoming-defi-warning">{t('incoming_play_free_warning')}</p>
           </>
         )}
 
         {step === 'pseudo' && (
           <>
             <p className="incoming-defi-note">{t('incoming_pseudo_desc')}</p>
+            <p className="incoming-defi-warning">{t('incoming_play_free_warning')}</p>
             <input
               className="incoming-pseudo-input"
               type="text"

@@ -379,7 +379,6 @@ export default {
   // ── DefiDashboard ─────────────────────────────────────────────
   dd_no_results: 'Nobody has played yet.',
   dd_sent_label: 'Challenge sent',
-  dd_sent_by: 'Sent by {name}',
   dd_results_arrow: 'See results →',
   dd_group_badge: 'Group',
   dd_won: 'Won 🏆',
@@ -447,6 +446,7 @@ export default {
   incoming_hidden_photo: '📷 Hidden photo',
   incoming_login_desc: 'Sign in so your score is linked to your account and visible to {name}.',
   incoming_play_free_btn: '🎮 Play without an account',
+  incoming_play_free_warning: '⚠️ Without an account, if you get disconnected by mistake (browser closing, switching device...), your result might not be saved.',
 
   // ── MaxErrorsModal ────────────────────────────────────────────
   maxerr_title: '{n} errors!',
@@ -562,6 +562,8 @@ export default {
   fail_stats: '{errors} error{s} — ⏱ {time}',
 
   // ── DefiComposer ──────────────────────────────────────────────
+  defi_name_label: 'Challenge name (optional)',
+  defi_name_placeholder: 'E.g.: Sunday challenge',
   defi_step1_label: '1. Challenge mode',
   defi_rule_msg: '\n⏱ Rule: +2 min per error or hint used',
   defi_group_msg: '\nMultiple people can play — share the link!',

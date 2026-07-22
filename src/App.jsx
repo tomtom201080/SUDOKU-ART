@@ -26,6 +26,7 @@ import InstallAppModal from './components/InstallAppModal';
 import HelpModal from './components/HelpModal';
 import KpiDashboard from './components/KpiDashboard';
 import AdSlot from './components/AdSlot';
+import HomeSeoContent from './components/HomeSeoContent';
 import ConsentBanner from './components/ConsentBanner';
 import AdInterstitial from './components/AdInterstitial';
 import { TermsModal, PrivacyModal } from './components/LegalModal';
@@ -33,7 +34,7 @@ import DeleteAccountModal from './components/DeleteAccountModal';
 import OnboardingModal from './components/OnboardingModal';
 import HomeProgress from './components/HomeProgress';
 import FeedbackModal from './components/FeedbackModal';
-import { getAdConsent, setAdConsent } from './lib/adConsent';
+import { setAdConsent } from './lib/adConsent';
 import { hasDecided as hasConsentDecided } from './lib/consent';
 import { useT } from './i18n/index.jsx';
 import { useGame } from './hooks/useGame';
@@ -132,7 +133,6 @@ export default function App() {
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showKpiDashboard, setShowKpiDashboard] = useState(false);
-  const [adConsent, setAdConsentState] = useState(() => getAdConsent());
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
@@ -474,16 +474,14 @@ export default function App() {
 
   const handleAdClose = () => setPendingAdAction(null);
 
-  // Ouvre DefiComposer avec une pub interstitielle avant
+  // Ouvre DefiComposer avec une pub interstitielle avant. La pub s'affiche
+  // toujours (personnalisée ou non selon le consentement, voir
+  // AdInterstitial) — le consentement ne permet pas de sauter la pub.
   const handleOpenDefi = () => {
     if (session) {
       setShowDefiDashboard(true);
-    } else if (adConsent === 'accepted') {
-      // Pub consentie → montrer l'interstitielle
-      setPendingAdAction('defi');
     } else {
-      // Pas de pub → aller directement au composer
-      setShowDefiComposer(true);
+      setPendingAdAction('defi');
     }
   };
 
@@ -512,11 +510,7 @@ export default function App() {
   const handleRegenerateDefi = (rematch) => {
     setShowDefiDashboard(false);
     setRegenerateSource(rematch);
-    if (adConsent === 'accepted') {
-      setPendingAdAction('defi');
-    } else {
-      setShowDefiComposer(true);
-    }
+    setPendingAdAction('defi');
   };
 
   // Appelé par DefiComposer quand la grille est prête à jouer
@@ -751,9 +745,9 @@ export default function App() {
           onOpenDefi={handleOpenDefi}
         />
 
-        {adConsent === 'accepted' && (
-          <AdSlot slot="1234567890" />
-        )}
+        <AdSlot slot="1234567890" />
+
+        <HomeSeoContent />
 
         {/* Empilées dans un conteneur dédié : ces bannières partagent la même
             position fixe en bas d'écran et se chevaucheraient sinon si
@@ -827,7 +821,7 @@ export default function App() {
         {showPrivacyPolicy && (
           <PrivacyModal
             onClose={() => setShowPrivacyPolicy(false)}
-            onConsentChange={(value) => { setAdConsent(value); setAdConsentState(value); }}
+            onConsentChange={setAdConsent}
           />
         )}
         {showDeleteAccount && (
@@ -838,7 +832,7 @@ export default function App() {
         )}
         {!consentDecided && !showOnboarding && (
           <ConsentBanner
-            onDecided={() => { setConsentDecided(true); setAdConsentState(getAdConsent()); }}
+            onDecided={() => setConsentDecided(true)}
             onShowPrivacy={() => setShowPrivacyPolicy(true)}
           />
         )}
@@ -941,6 +935,9 @@ export default function App() {
             {DIFFICULTY_ICONS[game.difficulty] ?? '🎯'} {DIFFICULTY_LABELS[game.difficulty] ?? game.difficulty}
           </span>
           <span className="stat-pill">❌ {game.errorCount} / {game.challengeMeta?.maxErrors ?? 3}</span>
+          <span className="stat-pill">
+            💡 {game.hintsUsed}{game.activeRematch?.hintsLimit != null ? ` / ${game.activeRematch.hintsLimit}` : ''}
+          </span>
           {darkModeButton}
           <button className="icon-btn" onClick={game.toggleWatermark} title={t('game_watermark_toggle')}>
             {game.watermarkVisible ? '🙈' : '🙉'}
@@ -1002,8 +999,8 @@ export default function App() {
           canUndo={game.canUndo}
           onHint={handleOpenHint}
           hintsDisabled={
-            game.challengeMeta?.hints_limit != null &&
-            game.hintsUsed >= game.challengeMeta.hints_limit
+            game.activeRematch?.hintsLimit != null &&
+            game.hintsUsed >= game.activeRematch.hintsLimit
           }
           completedDigits={game.completedDigits}
         />
@@ -1017,7 +1014,7 @@ export default function App() {
           onReadyToPick={handleReadyToPickCell}
           onClose={handleCloseHint}
           hintsUsed={game.hintsUsed}
-          maxHints={game.challengeMeta?.maxHints ?? null}
+          maxHints={game.activeRematch?.hintsLimit ?? null}
         />
       )}
 

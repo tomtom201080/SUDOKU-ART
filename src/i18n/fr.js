@@ -379,7 +379,6 @@ export default {
   // ── DefiDashboard ─────────────────────────────────────────────
   dd_no_results: 'Personne n\'a encore joué.',
   dd_sent_label: 'Défi envoyé',
-  dd_sent_by: 'Envoyé par {name}',
   dd_results_arrow: 'Voir résultats →',
   dd_group_badge: 'Groupe',
   dd_won: 'Gagné 🏆',
@@ -447,6 +446,7 @@ export default {
   incoming_hidden_photo: '📷 Photo cachée',
   incoming_login_desc: 'Connecte-toi pour que ton score soit rattaché à ton compte et visible par {name}.',
   incoming_play_free_btn: '🎮 Jouer en participation libre',
+  incoming_play_free_warning: '⚠️ Sans compte, si tu es déconnecté par erreur (fermeture du navigateur, changement d\'appareil...), ton résultat risque de ne pas être enregistré.',
 
   // ── MaxErrorsModal ────────────────────────────────────────────
   maxerr_title: '{n} erreurs !',
@@ -562,6 +562,8 @@ export default {
   fail_stats: '{errors} erreur{s} — ⏱ {time}',
 
   // ── DefiComposer ──────────────────────────────────────────────
+  defi_name_label: 'Nom du défi (facultatif)',
+  defi_name_placeholder: 'Ex : Défi du dimanche',
   defi_step1_label: '1. Mode du défi',
   defi_rule_msg: '\n⏱ Règle : +2 min par erreur ou indice utilisé',
   defi_group_msg: '\nPlusieurs personnes peuvent jouer — partagez le lien !',

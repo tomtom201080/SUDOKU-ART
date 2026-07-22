@@ -49,7 +49,7 @@ export async function createRematch({
   puzzle, solution, difficulty, photoPath,
   challengerName, challengerUserId,
   challengerErrors, challengerSeconds, challengerHints = 0,
-  hintsLimit = null, groupMode = false, classicMode = false
+  hintsLimit = null, groupMode = false, classicMode = false, label = null
 }) {
   const { data, error } = await supabase
     .from('rematches')
@@ -65,7 +65,8 @@ export async function createRematch({
       challenger_result_hints: challengerHints,
       hints_limit: hintsLimit ?? null,
       group_mode: groupMode,
-      classic_mode: classicMode
+      classic_mode: classicMode,
+      label: label ?? null
     })
     .select()
     .single();
@@ -80,7 +81,7 @@ export async function createRematch({
 // n'est jamais modifié ni supprimé, il reste intact dans l'historique.
 // Permet de changer le mode (perso/groupe) et l'image par rapport à
 // l'original.
-export async function regenerateRematch(original, { groupMode, classicMode, photoPath, challengerName, challengerUserId }) {
+export async function regenerateRematch(original, { groupMode, classicMode, photoPath, challengerName, challengerUserId, label }) {
   const puzzle   = typeof original.puzzle   === 'string' ? JSON.parse(original.puzzle)   : original.puzzle;
   const solution = typeof original.solution === 'string' ? JSON.parse(original.solution) : original.solution;
 
@@ -96,7 +97,8 @@ export async function regenerateRematch(original, { groupMode, classicMode, phot
     challengerHints: original.challenger_result_hints ?? 0,
     hintsLimit: original.hints_limit ?? null,
     groupMode,
-    classicMode
+    classicMode,
+    label: label !== undefined ? label : (original.label ?? null)
   });
 }
 

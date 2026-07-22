@@ -15,6 +15,7 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, hi
   const [photoPreview, setPhotoPreview] = useState(null);
   const [imageChoice, setImageChoice] = useState(defaultImageUrl ? 'keep' : 'none'); // 'keep' | 'new' | 'none'
   const [groupMode, setGroupMode] = useState(false);
+  const [defiName, setDefiName] = useState('');
   const [challengerName, setChallengerName] = useState('');
   const [status, setStatus] = useState('idle'); // idle | sending | done | error
   const [shareLink, setShareLink] = useState(null);
@@ -70,7 +71,8 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, hi
         challengerSeconds: elapsedSeconds,
         challengerHints: hintsUsed,
         groupMode,
-        classicMode
+        classicMode,
+        label: defiName.trim() || null
       });
 
       const link = buildRematchLink(rematch.id);
@@ -148,6 +150,19 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, hi
                 />
               </div>
             )}
+
+            {/* Nom du défi (facultatif) */}
+            <div className="challenge-step">
+              <p className="challenge-step-title">{t('defi_name_label')}</p>
+              <input
+                type="text"
+                className="challenge-name-input"
+                value={defiName}
+                onChange={(e) => setDefiName(e.target.value)}
+                placeholder={t('defi_name_placeholder')}
+                maxLength={40}
+              />
+            </div>
 
             {/* Perso ou groupe */}
             <div className="challenge-step">

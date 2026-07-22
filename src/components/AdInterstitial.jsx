@@ -1,10 +1,12 @@
 import { useT } from '../i18n/index.jsx';
 // src/components/AdInterstitial.jsx
 // S'affiche avant une action "premium" (envoi de défi, grille avec photo).
-// Respecte le consentement : si l'utilisateur a refusé les pubs, on passe.
+// La pub s'affiche toujours si AdSense est configuré : le consentement ne
+// conditionne que sa personnalisation (voir pushAdsenseAd dans lib/adsense),
+// jamais son affichage.
 import { useEffect, useRef, useState } from 'react';
 import { getAdConsent } from '../lib/adConsent';
-import { loadAdsenseScript, getAdsenseClientId } from '../lib/adsense';
+import { loadAdsenseScript, pushAdsenseAd, getAdsenseClientId } from '../lib/adsense';
 import './AdInterstitial.css';
 
 const WAIT_SECONDS = 5;
@@ -13,14 +15,15 @@ export default function AdInterstitial({ onContinue, onClose }) {
   const { t } = useT();
 
   const [countdown, setCountdown] = useState(WAIT_SECONDS);
-  const intervalRef = useRef(null);  const consent = getAdConsent();
+  const intervalRef = useRef(null);
+  const consent = getAdConsent();
   const hasAdsense = !!getAdsenseClientId();
 
   useEffect(() => {
-    if (consent !== 'accepted' || !hasAdsense) return;
+    if (!hasAdsense) return;
 
     loadAdsenseScript();
-    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
+    pushAdsenseAd(consent === 'accepted');
 
     intervalRef.current = setInterval(() => {
       setCountdown(c => {
@@ -30,10 +33,10 @@ export default function AdInterstitial({ onContinue, onClose }) {
     }, 1000);
 
     return () => clearInterval(intervalRef.current);
-  }, [consent, hasAdsense]);
+  }, [hasAdsense]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Si pas de pub à montrer → ne rien rendre (onContinue déjà appelé)
-  if (consent !== 'accepted' || !hasAdsense) return null;
+  // Si pas de pub à montrer (AdSense non configuré) → ne rien rendre
+  if (!hasAdsense) return null;
 
   return (
     <div className="ad-interstitial-overlay">

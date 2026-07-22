@@ -20,3 +20,21 @@ export function loadAdsenseScript() {
   document.head.appendChild(script);
   scriptLoaded = true;
 }
+
+// Déclenche l'affichage d'une pub. Les publicités s'affichent toujours,
+// que l'utilisateur ait donné son consentement ou non — seul le CONTENU
+// change : personnalisé (basé sur le profil) si consentement donné, ou
+// générique/contextuel sinon, via le flag standard AdSense
+// requestNonPersonalizedAds. L'utilisateur ne peut pas désactiver
+// entièrement les pubs, seulement leur personnalisation.
+export function pushAdsenseAd(personalized) {
+  try {
+    window.adsbygoogle = window.adsbygoogle || [];
+    if (!personalized) {
+      window.adsbygoogle.requestNonPersonalizedAds = 1;
+    }
+    window.adsbygoogle.push({});
+  } catch {
+    // annonce indisponible (bloqueur de pub, etc.) : rien à faire de plus
+  }
+}

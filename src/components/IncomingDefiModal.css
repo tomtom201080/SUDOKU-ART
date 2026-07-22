@@ -23,6 +23,17 @@
   margin: 0 0 18px;
 }
 
+.incoming-defi-warning {
+  font-size: 0.75rem;
+  color: #B45309;
+  background: rgba(180, 83, 9, 0.1);
+  border-radius: 8px;
+  padding: 8px 10px;
+  line-height: 1.4;
+  margin: 10px 0 0;
+  text-align: center;
+}
+
 .incoming-pseudo-input {
   width: 100%;
   padding: 11px 14px;

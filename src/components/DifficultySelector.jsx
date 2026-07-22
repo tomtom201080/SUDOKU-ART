@@ -1,6 +1,5 @@
 // src/components/DifficultySelector.jsx
 import { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useT } from '../i18n/index.jsx';
 import './DifficultySelector.css';
 
@@ -83,47 +82,6 @@ function PhotoScreen({ onSelectDifficulty, onSendChallenge, onBack }) {
   );
 }
 
-// Contenu SEO affiché sous les cartes de jeu : texte réel, visible sans
-// interaction, avec un seul h1 sur la page (celui du bloc logo ci-dessus —
-// ces sections utilisent des h2). Utilise useT() comme le reste de l'app :
-// contrairement aux nouvelles pages SEO dédiées (src/seo/pages.jsx), ce
-// contenu fait partie de l'app elle-même, toujours rendue côté client.
-function HomeSeoContent() {
-  const { t } = useT();
-  return (
-    <div className="ds-seo-content">
-      <section>
-        <h2>{t('home_seo_free_title')}</h2>
-        <p>{t('home_seo_free_body')}</p>
-      </section>
-      <section>
-        <h2>{t('home_seo_reveal_title')}</h2>
-        <p>{t('home_seo_reveal_body')}</p>
-      </section>
-      <section>
-        <h2>{t('home_seo_image_title')}</h2>
-        <p>{t('home_seo_image_body')} <Link to="/sudoku-image-cachee">{t('home_seo_art_link')}</Link></p>
-      </section>
-      <section>
-        <h2>{t('home_seo_challenge_title')}</h2>
-        <p>{t('home_seo_challenge_body')} <Link to="/creer-un-defi-sudoku">{t('home_seo_challenge_link')}</Link></p>
-      </section>
-      <section>
-        <h2>{t('home_seo_friends_title')}</h2>
-        <p>{t('home_seo_friends_body')}</p>
-      </section>
-      <section>
-        <h2>{t('home_seo_devices_title')}</h2>
-        <p>{t('home_seo_devices_body')}</p>
-      </section>
-      <section>
-        <h2>{t('home_seo_howto_title')}</h2>
-        <p>{t('home_seo_howto_body')} <Link to="/comment-ca-marche">{t('home_seo_howto_link')}</Link></p>
-      </section>
-    </div>
-  );
-}
-
 function HomeScreen({ onPick, onOpenDefi }) {
   const { t } = useT();
   return (
@@ -154,7 +112,6 @@ function HomeScreen({ onPick, onOpenDefi }) {
           <span className="ds-card-desc">{t('home_defi_desc')}</span>
         </button>
       </div>
-      <HomeSeoContent />
     </div>
   );
 }

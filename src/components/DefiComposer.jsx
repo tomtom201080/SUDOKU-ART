@@ -28,6 +28,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
   const [difficulty, setDifficulty] = useState(regenerateFrom?.difficulty ?? null);
   const [hintsLimit, setHintsLimit] = useState(regenerateFrom?.hints_limit ?? null);
   const [groupMode, setGroupMode]   = useState(regenerateFrom?.group_mode ?? false); // false = perso, true = groupe
+  const [defiName, setDefiName]     = useState(regenerateFrom?.label ?? '');
   const [photoFile, setPhotoFile]   = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [imageChoice, setImageChoice] = useState(defaultImageUrl ? 'keep' : 'none'); // 'keep' | 'new' | 'none'
@@ -89,8 +90,10 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
         challengerUserId: userId ?? null
       };
 
+      const label = defiName.trim() || null;
+
       const rematch = regenerateFrom
-        ? await regenerateRematch(regenerateFrom, { ...senderIdentity, photoPath, groupMode, classicMode })
+        ? await regenerateRematch(regenerateFrom, { ...senderIdentity, photoPath, groupMode, classicMode, label })
         : await createRematch({
             puzzle:           puzzleData.puzzle,
             solution:         puzzleData.solution,
@@ -102,7 +105,8 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
             challengerHints:  0,
             hintsLimit,
             groupMode,
-            classicMode });
+            classicMode,
+            label });
 
       const link      = buildRematchLink(rematch.id);
       const diffLabel = DIFFICULTY_KEYS[difficulty] ? t(DIFFICULTY_KEYS[difficulty]) : difficulty;
@@ -182,6 +186,17 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
 
         {(step === 'config' || step === 'sending') && (
           <>
+            {/* Nom du défi (facultatif) : pour s'y retrouver dans l'historique */}
+            <p className="challenge-step-title">{t('defi_name_label')}</p>
+            <input
+              type="text"
+              className="challenge-name-input"
+              value={defiName}
+              onChange={e => setDefiName(e.target.value)}
+              placeholder={t('defi_name_placeholder')}
+              maxLength={40}
+            />
+
             {/* Mode : Perso ou Groupe */}
             <p className="challenge-step-title">{t('defi_step1_label')}</p>
             <div className="defi-mode-toggle">
