@@ -744,7 +744,7 @@ export default function App() {
           onOpenDefi={handleOpenDefi}
         />
 
-        <AdSlot slot="1234567890" />
+        <AdSlot slot="8033973037" />
 
         {/* Empilées dans un conteneur dédié : ces bannières partagent la même
             position fixe en bas d'écran et se chevaucheraient sinon si

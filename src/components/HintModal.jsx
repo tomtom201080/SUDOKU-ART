@@ -119,7 +119,7 @@ export default function HintModal({
         <span className="hint-step-progress">{countdown}s</span>
       </div>
       <ins className="adsbygoogle" style={{ display: 'block', minHeight: 80 }}
-        data-ad-client={getAdsenseClientId()} data-ad-slot="HINT_SLOT_ID"
+        data-ad-client={getAdsenseClientId()} data-ad-slot="4007098117"
         data-ad-format="auto" data-full-width-responsive="true" />
       <p className="hint-step-text">
         {t('hint_wait', { n: countdown, s: countdown > 1 ? 's' : '' })}

@@ -52,7 +52,7 @@ export default function AdInterstitial({ onContinue, onClose }) {
           className="adsbygoogle ad-interstitial-slot"
           style={{ display: 'block' }}
           data-ad-client={getAdsenseClientId()}
-          data-ad-slot="INTERSTITIAL_SLOT_ID"
+          data-ad-slot="1388673635"
           data-ad-format="auto"
           data-full-width-responsive="true"
         />

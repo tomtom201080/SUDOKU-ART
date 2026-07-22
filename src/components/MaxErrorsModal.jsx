@@ -1,8 +1,11 @@
 // src/components/MaxErrorsModal.jsx
+// La pub s'affiche toujours si AdSense est configuré : le consentement ne
+// conditionne que sa personnalisation (voir pushAdsenseAd), jamais son
+// affichage.
 import { useEffect, useState } from 'react';
 import { useT } from '../i18n/index.jsx';
 import { getAdConsent } from '../lib/adConsent';
-import { loadAdsenseScript, getAdsenseClientId } from '../lib/adsense';
+import { loadAdsenseScript, pushAdsenseAd, getAdsenseClientId } from '../lib/adsense';
 import './MaxErrorsModal.css';
 
 const AD_WAIT = 5;
@@ -13,12 +16,12 @@ export default function MaxErrorsModal({ errorCount, maxErrors = 3, onContinue, 
   const [countdown, setCountdown] = useState(AD_WAIT);
   const consent = getAdConsent();
   const hasAdsense = !!getAdsenseClientId();
-  const canShowAd = consent === 'accepted' && hasAdsense;
+  const canShowAd = hasAdsense;
 
   useEffect(() => {
     if (phase !== 'ad') return;
     loadAdsenseScript();
-    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch {}
+    pushAdsenseAd(consent === 'accepted');
     const iv = setInterval(() => {
       setCountdown(c => {
         if (c <= 1) {
@@ -40,7 +43,7 @@ export default function MaxErrorsModal({ errorCount, maxErrors = 3, onContinue, 
         <ins className="adsbygoogle maxerr-ad-slot"
           style={{ display: 'block', minHeight: 200 }}
           data-ad-client={getAdsenseClientId()}
-          data-ad-slot="INTERSTITIAL_SLOT_ID"
+          data-ad-slot="1388673635"
           data-ad-format="auto"
           data-full-width-responsive="true"
         />
