@@ -93,6 +93,11 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
   };
   const [isComplete, setIsComplete] = useState(false);
   const [showWinModal, setShowWinModal] = useState(false);
+  // true entre la fin de grille et l'affichage du résultat, uniquement pour
+  // un participant à un défi (activeRematch défini) — le temps de montrer
+  // une pub avant de découvrir son classement/score. Jamais pour une partie
+  // normale, où le résultat s'affiche directement.
+  const [pendingDefiResultAd, setPendingDefiResultAd] = useState(false);
   const [isFailed, setIsFailed] = useState(false);
   const [rewardImage, setRewardImage] = useState(null);
   const [errorCells, setErrorCells] = useState(() => new Set());
@@ -143,6 +148,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setWatermarkVisible(true);
     setIsComplete(false);
     setShowWinModal(false);
+    setPendingDefiResultAd(false);
     if (winRevealTimeoutRef.current) {
       clearTimeout(winRevealTimeoutRef.current);
       winRevealTimeoutRef.current = null;
@@ -230,6 +236,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
       }
       setIsComplete(false);
       setShowWinModal(false);
+      setPendingDefiResultAd(false);
       if (winRevealTimeoutRef.current) { clearTimeout(winRevealTimeoutRef.current); winRevealTimeoutRef.current = null; }
       setIsFailed(false);
       setRewardImage(null);
@@ -293,6 +300,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setWatermarkVisible(true);
     setIsComplete(false);
     setShowWinModal(false);
+    setPendingDefiResultAd(false);
     if (winRevealTimeoutRef.current) {
       clearTimeout(winRevealTimeoutRef.current);
       winRevealTimeoutRef.current = null;
@@ -352,6 +360,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setWatermarkVisible(true);
     setIsComplete(false);
     setShowWinModal(false);
+    setPendingDefiResultAd(false);
     if (winRevealTimeoutRef.current) {
       clearTimeout(winRevealTimeoutRef.current);
       winRevealTimeoutRef.current = null;
@@ -711,12 +720,17 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
       }
 
       // Étoiles sur toute la grille, puis on laisse admirer la photo complète
-      // pendant 3 secondes avant d'afficher la popup de victoire.
+      // pendant 3 secondes avant d'afficher la popup de victoire — ou, pour
+      // un participant à un défi (pas celui qui l'a créé), une pub d'abord
+      // (voir pendingDefiResultAd, affichée par App.jsx via AdInterstitial).
       setCelebrate([{ type: 'all', index: 0 }]);
       if (celebrateTimeoutRef.current) clearTimeout(celebrateTimeoutRef.current);
       celebrateTimeoutRef.current = setTimeout(() => setCelebrate([]), 3000);
       if (winRevealTimeoutRef.current) clearTimeout(winRevealTimeoutRef.current);
-      winRevealTimeoutRef.current = setTimeout(() => setShowWinModal(true), 3000);
+      winRevealTimeoutRef.current = setTimeout(() => {
+        if (activeRematch?.id) setPendingDefiResultAd(true);
+        else setShowWinModal(true);
+      }, 3000);
     }
   }, [puzzleData, userGrid, notesGrid, errorCells, errorCount, difficulty, notesMode, isFailed, challengeMeta, watermark, userId, imageIntensity, elapsedSeconds, activeRematch, activeQuestStage]);
 
@@ -800,7 +814,10 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     if (celebrateTimeoutRef.current) clearTimeout(celebrateTimeoutRef.current);
     celebrateTimeoutRef.current = setTimeout(() => setCelebrate([]), 3000);
     if (winRevealTimeoutRef.current) clearTimeout(winRevealTimeoutRef.current);
-    winRevealTimeoutRef.current = setTimeout(() => setShowWinModal(true), 3000);
+    winRevealTimeoutRef.current = setTimeout(() => {
+      if (activeRematch?.id) setPendingDefiResultAd(true);
+      else setShowWinModal(true);
+    }, 3000);
   }, [puzzleData, difficulty, challengeMeta, watermark, userId, activeRematch, errorCount, elapsedSeconds, hintsUsed, username]);
 
   const undo = useCallback(() => {
@@ -828,6 +845,14 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
   // reste affichée, avec la photo entièrement révélée derrière.
   const dismissWinModal = useCallback(() => {
     setShowWinModal(false);
+    setPendingDefiResultAd(false);
+  }, []);
+
+  // Appelé par App.jsx une fois la pub (AdInterstitial) passée ou fermée
+  // par le participant à un défi — affiche enfin le résultat/classement.
+  const proceedToWinModalAfterAd = useCallback(() => {
+    setPendingDefiResultAd(false);
+    setShowWinModal(true);
   }, []);
 
   // Un chiffre est "entièrement découvert" quand ses 9 occurrences sont
@@ -951,6 +976,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setWatermark(null);
     setIsComplete(false);
     setShowWinModal(false);
+    setPendingDefiResultAd(false);
     if (winRevealTimeoutRef.current) {
       clearTimeout(winRevealTimeoutRef.current);
       winRevealTimeoutRef.current = null;
@@ -988,6 +1014,8 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setImageIntensity,
     isComplete,
     showWinModal,
+    pendingDefiResultAd,
+    proceedToWinModalAfterAd,
     isFailed,
     challengeMeta,
     completedDigits,

@@ -1027,6 +1027,13 @@ export default function App() {
         </div>
       )}
 
+      {game.pendingDefiResultAd && (
+        <AdInterstitial
+          onContinue={game.proceedToWinModalAfterAd}
+          onClose={game.proceedToWinModalAfterAd}
+        />
+      )}
+
       {game.showWinModal && (
         <WinModal
           difficulty={game.difficulty}
