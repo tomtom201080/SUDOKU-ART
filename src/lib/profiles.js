@@ -16,7 +16,7 @@ export async function fetchMyProfile(userId) {
   if (!userId) return null;
   const { data } = await supabase
     .from('profiles')
-    .select('username')
+    .select('username, preferred_lang')
     .eq('id', userId)
     .maybeSingle();
   return data ?? null;
@@ -37,5 +37,25 @@ export async function saveUsername(userId, username) {
   const { error } = await supabase
     .from('profiles')
     .upsert({ id: userId, username: username.trim() }, { onConflict: 'id' });
+  if (error) throw error;
+}
+
+// Langue préférée d'un utilisateur connecté (voir src/i18n/index.jsx) :
+// permet de retrouver sa langue sur n'importe quel appareil, contrairement
+// à localStorage qui reste propre à chaque appareil/navigateur.
+export async function fetchPreferredLang(userId) {
+  if (!userId) return null;
+  const { data } = await supabase
+    .from('profiles')
+    .select('preferred_lang')
+    .eq('id', userId)
+    .maybeSingle();
+  return data?.preferred_lang ?? null;
+}
+
+export async function savePreferredLang(userId, lang) {
+  const { error } = await supabase
+    .from('profiles')
+    .upsert({ id: userId, preferred_lang: lang }, { onConflict: 'id' });
   if (error) throw error;
 }

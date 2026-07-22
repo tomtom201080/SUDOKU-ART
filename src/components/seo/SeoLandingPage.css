@@ -27,6 +27,38 @@
   border-radius: 6px;
 }
 
+.seo-page-lang-switch {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.seo-lang-link,
+.seo-lang-current {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 6px;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.seo-lang-link {
+  color: var(--text-muted);
+}
+
+.seo-lang-link:hover,
+.seo-lang-link:focus-visible {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.seo-lang-current {
+  color: var(--accent-text);
+  background: var(--accent);
+}
+
 .seo-page-play-link {
   background: var(--accent);
   color: var(--accent-text);

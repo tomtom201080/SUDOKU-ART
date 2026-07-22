@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 // scripts/prerender-seo.mjs
 //
-// Étape post-build : pour chaque page SEO (src/seo/pages.jsx), génère un
-// vrai fichier HTML statique (dist/<slug>/index.html) avec ses propres
-// title/description/canonical/OG/Twitter et son contenu réellement rendu
-// dans le HTML — pas seulement posé en JS après coup. C'est nécessaire car
-// l'app est une SPA sans SSR : sans ce script, les bots qui n'exécutent pas
-// de JS (partage WhatsApp/Facebook/Twitter, certains crawlers) ne verraient
-// que le <title>Sudoku Art</title> générique du template Vite.
+// Étape post-build : pour chaque page SEO (une par combinaison langue ×
+// page, src/seo/pages.jsx + languages.js), génère un vrai fichier HTML
+// statique (dist/<lang>/<slug>/index.html, ou dist/<slug>/index.html pour
+// la langue par défaut) avec ses propres title/description/canonical/OG/
+// Twitter/hreflang et son contenu réellement rendu dans le HTML — pas
+// seulement posé en JS après coup. C'est nécessaire car l'app est une SPA
+// sans SSR : sans ce script, les bots qui n'exécutent pas de JS (partage
+// WhatsApp/Facebook/Twitter, certains crawlers) ne verraient que le
+// <title>Sudoku Art</title> générique du template Vite.
 //
 // La page d'accueil ("/") n'est PAS re-rendue ici : c'est l'app de jeu
 // elle-même (état complexe, Supabase, etc.), impossible et inutile à
@@ -65,7 +67,9 @@ const OG_IMAGE = `${SITE_URL}/og-image.png`;
 const HOME_META = {
   title: 'Sudoku Art – Jouez au Sudoku et révélez une image cachée',
   description: "Jouez gratuitement au Sudoku, défiez vos amis et révélez progressivement une œuvre d'art, une photo ou un message caché derrière chaque grille.",
-  path: '/'
+  path: '/',
+  lang: 'fr',
+  dir: 'ltr'
 };
 
 function escapeHtml(str) {
@@ -76,13 +80,16 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-function buildMetaBlock({ title, description, canonicalPath }) {
+function buildMetaBlock({ title, description, canonicalPath, alternates }) {
   const canonicalUrl = `${SITE_URL}${canonicalPath}`;
   const t = escapeHtml(title);
   const d = escapeHtml(description);
+  const hreflangLinks = (alternates ?? [])
+    .map(a => `\n    <link rel="alternate" hreflang="${a.hreflang}" href="${SITE_URL}${a.path}" />`)
+    .join('');
   return `
     <meta name="description" content="${d}" />
-    <link rel="canonical" href="${canonicalUrl}" />
+    <link rel="canonical" href="${canonicalUrl}" />${hreflangLinks}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Sudoku Art" />
     <meta property="og:title" content="${t}" />
@@ -95,10 +102,11 @@ function buildMetaBlock({ title, description, canonicalPath }) {
     <meta name="twitter:image" content="${OG_IMAGE}" />${GOOGLE_SITE_VERIFICATION ? `\n    <meta name="google-site-verification" content="${escapeHtml(GOOGLE_SITE_VERIFICATION)}" />` : ''}`;
 }
 
-function applyHead(template, { title, description, canonicalPath }) {
+function applyHead(template, { title, description, canonicalPath, lang, dir, alternates }) {
   let html = template;
+  html = html.replace(/<html lang="[^"]*"( dir="[^"]*")?>/, `<html lang="${lang}"${dir === 'rtl' ? ' dir="rtl"' : ''}>`);
   html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(title)}</title>`);
-  html = html.replace(/<head>/, `<head>${buildMetaBlock({ title, description, canonicalPath })}`);
+  html = html.replace(/<head>/, `<head>${buildMetaBlock({ title, description, canonicalPath, alternates })}`);
   return html;
 }
 
@@ -140,7 +148,10 @@ async function main() {
   const homeHtml = applyHead(template, {
     title: HOME_META.title,
     description: HOME_META.description,
-    canonicalPath: HOME_META.path
+    canonicalPath: HOME_META.path,
+    lang: HOME_META.lang,
+    dir: HOME_META.dir,
+    alternates: null
   });
   await fs.writeFile(indexPath, homeHtml, 'utf-8');
   console.log('✓ / (accueil) — metas mises à jour');
@@ -150,27 +161,36 @@ async function main() {
     let html = applyHead(template, {
       title: page.title,
       description: page.description,
-      canonicalPath: `/${page.slug}`
+      canonicalPath: page.path,
+      lang: page.lang,
+      dir: page.dir,
+      alternates: page.alternates
     });
     html = html.replace('<div id="root"></div>', `<div id="root">${page.markup}</div>`);
 
-    const outDir = path.join(DIST, page.slug);
+    const outDir = path.join(DIST, page.path.replace(/^\//, ''));
     await fs.mkdir(outDir, { recursive: true });
     await fs.writeFile(path.join(outDir, 'index.html'), html, 'utf-8');
-    console.log(`✓ /${page.slug} — généré`);
+    console.log(`✓ ${page.path} — généré`);
   }
 
   // ── Sitemap généré depuis la même source (jamais désynchronisé des routes réelles) ──
-  const urls = [
-    { loc: `${SITE_URL}/`, priority: '1.0' },
-    ...pages.map(p => ({ loc: `${SITE_URL}/${p.slug}`, priority: '0.7' }))
-  ];
+  // Annotations hreflang par URL, format standard des sitemaps multilingues.
   const today = new Date().toISOString().slice(0, 10);
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls
-    .map(u => `  <url>\n    <loc>${u.loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>${u.priority}</priority>\n  </url>`)
+  const urlEntries = [
+    { loc: `${SITE_URL}/`, priority: '1.0', alternates: null },
+    ...pages.map(p => ({ loc: `${SITE_URL}${p.path}`, priority: '0.7', alternates: p.alternates }))
+  ];
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urlEntries
+    .map(u => {
+      const altLinks = (u.alternates ?? [])
+        .map(a => `\n    <xhtml:link rel="alternate" hreflang="${a.hreflang}" href="${SITE_URL}${a.path}" />`)
+        .join('');
+      return `  <url>\n    <loc>${u.loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>${u.priority}</priority>${altLinks}\n  </url>`;
+    })
     .join('\n')}\n</urlset>\n`;
   await fs.writeFile(path.join(DIST, 'sitemap.xml'), sitemap, 'utf-8');
-  console.log(`✓ sitemap.xml — ${urls.length} URLs`);
+  console.log(`✓ sitemap.xml — ${urlEntries.length} URLs`);
 }
 
 main().catch(err => {

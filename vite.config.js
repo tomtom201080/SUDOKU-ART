@@ -32,6 +32,9 @@ export default defineConfig({
         // qui n'a ni le bon contenu ni le bon Content-Type — c'est ce qui
         // a fait échouer la vérification ads.txt de Google AdSense.
         navigateFallbackDenylist: [
+          // Pages SEO : slug français direct, ou préfixé d'un code langue
+          // (/en/sudoku-facile, /de/sudoku-facile...) — voir src/seo/languages.js.
+          /^\/(en|de|es|zh)\/(comment-ca-marche|creer-un-defi-sudoku|sudoku-gratuit|sudoku-facile|sudoku-difficile|sudoku-expert|sudoku-image-cachee|sudoku-art)(\/.*)?$/,
           /^\/(comment-ca-marche|creer-un-defi-sudoku|sudoku-gratuit|sudoku-facile|sudoku-difficile|sudoku-expert|sudoku-image-cachee|sudoku-art)(\/.*)?$/,
           /^\/(ads\.txt|robots\.txt|sitemap\.xml|googled061d540f6ae8f0f\.html)$/
         ]

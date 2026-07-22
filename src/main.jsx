@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App.jsx';
 import { LangProvider } from './i18n/index.jsx';
 import SeoLandingPage from './components/seo/SeoLandingPage.jsx';
-import { SEO_PAGES } from './seo/pages.jsx';
+import { getAllSeoRoutes } from './seo/pages.jsx';
 import './index.css';
 import { initTracking, installGlobalErrorTracking } from './lib/tracking';
 
@@ -13,14 +13,15 @@ installGlobalErrorTracking({ isGameInProgress: () => document.body.classList.con
 
 // L'app de jeu (état interne, aucune dépendance au routeur — voir App.jsx)
 // reste montée sur "/" exactement comme avant. Les nouvelles pages SEO sont
-// des routes indépendantes, sans aucun partage d'état avec le jeu.
+// des routes indépendantes, sans aucun partage d'état avec le jeu — une par
+// combinaison langue × page (voir src/seo/languages.js et pages.jsx).
 ReactDOM.createRoot(document.getElementById('root')).render(
   <LangProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
-        {SEO_PAGES.map(page => (
-          <Route key={page.slug} path={`/${page.slug}`} element={<SeoLandingPage page={page} />} />
+        {getAllSeoRoutes().map(({ path, lang, page }) => (
+          <Route key={path} path={path} element={<SeoLandingPage page={page} lang={lang} />} />
         ))}
       </Routes>
     </BrowserRouter>

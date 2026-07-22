@@ -84,7 +84,11 @@ function formatTime(totalSeconds) {
 
 export default function App() {
   const { t, lang, setLang } = useT();
-  const toggleLanguage = () => setLang(lang === 'fr' ? 'en' : 'fr');
+  const LANG_FLAGS = { fr: '🇫🇷', en: '🇬🇧', de: '🇩🇪', es: '🇪🇸', zh: '🇨🇳' };
+  const LANG_NAMES = { fr: 'Français', en: 'English', de: 'Deutsch', es: 'Español', zh: '中文' };
+  // Un utilisateur connecté voit sa préférence sauvegardée sur son profil
+  // (retrouvée sur n'importe quel appareil), pas seulement sur cet appareil.
+  const handleLangChange = (newLang) => setLang(newLang, { persistToProfile: session?.user?.id });
 
   const DIFFICULTY_LABELS = {
     facile: t('diff_facile'),
@@ -580,7 +584,8 @@ export default function App() {
     setHighlightValue(0);
   };
 
-  // Charger le profil dès qu'on est connecté
+  // Charger le profil dès qu'on est connecté (pseudo + langue préférée,
+  // pour la retrouver sur n'importe quel appareil — voir i18n/index.jsx).
   useEffect(() => {
     if (!session) { setUsername(null); return; }
     fetchMyProfile(session.user.id).then(profile => {
@@ -590,8 +595,11 @@ export default function App() {
         // Pas encore de pseudo → afficher la modale
         setShowUsernameModal(true);
       }
+      if (profile?.preferred_lang) {
+        setLang(profile.preferred_lang);
+      }
     });
-  }, [session?.user?.id]);
+  }, [session?.user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCloseGameEnd = () => {
     if (game.isComplete || game.isFailed) {
@@ -726,9 +734,17 @@ export default function App() {
           <div className="header-actions">
             {darkModeButton}
             <button className="icon-btn" onClick={() => setShowHelpModal(true)} title={t('nav_rules_title')}>❓</button>
-            <button className="icon-btn" onClick={toggleLanguage} title="Language">
-              {lang === 'fr' ? '🇬🇧' : '🇫🇷'}
-            </button>
+            <select
+              className="icon-btn lang-select"
+              value={lang}
+              onChange={(e) => handleLangChange(e.target.value)}
+              title="Language"
+              aria-label="Language"
+            >
+              {Object.keys(LANG_NAMES).map(code => (
+                <option key={code} value={code}>{LANG_FLAGS[code]} {code.toUpperCase()}</option>
+              ))}
+            </select>
             <button className="icon-btn" onClick={() => setShowInstallModal(true)} title={t('nav_install_title')}>📲</button>
             {session?.user?.email === 't.dabadie@gmail.com' && (
               <button className="icon-btn" onClick={() => setShowKpiDashboard(true)} title={t('nav_stats_title')}>📊</button>

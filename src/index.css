@@ -119,6 +119,17 @@ body {
   padding: 0;
 }
 
+/* Sélecteur de langue : même look que .icon-btn, mais plus large (un
+   <select> natif a besoin de place pour son texte + sa flèche). */
+.lang-select {
+  width: auto;
+  min-width: 52px;
+  padding: 0 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  appearance: auto;
+}
+
 .stat-pill {
   display: inline-flex;
   align-items: center;

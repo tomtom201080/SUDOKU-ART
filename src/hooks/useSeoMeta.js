@@ -1,8 +1,8 @@
 // src/hooks/useSeoMeta.js
-// Synchronise title/description/canonical/OG/Twitter/lang côté client à
-// chaque changement de route. Les bots qui n'exécutent pas de JS (partage
-// WhatsApp/Facebook/Twitter, certains crawlers) voient eux le HTML déjà
-// correct généré par scripts/prerender-seo.mjs — ce hook couvre la
+// Synchronise title/description/canonical/OG/Twitter/lang/hreflang côté
+// client à chaque changement de route. Les bots qui n'exécutent pas de JS
+// (partage WhatsApp/Facebook/Twitter, certains crawlers) voient eux le HTML
+// déjà correct généré par scripts/prerender-seo.mjs — ce hook couvre la
 // navigation interne (SPA) et le rendu par Google (qui exécute le JS).
 import { useEffect } from 'react';
 
@@ -29,8 +29,26 @@ function upsertLink(rel, href) {
   el.setAttribute('href', href);
 }
 
+// Remplace entièrement le jeu de <link rel="alternate" hreflang="..."> :
+// une page a un ensemble d'alternates différent de la précédente, on ne
+// peut pas se contenter d'ajouter/mettre à jour, il faut retirer celles
+// qui ne sont plus valables pour cette page.
+function replaceHreflangLinks(alternates) {
+  document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
+  if (!alternates) return;
+  for (const { hreflang, href } of alternates) {
+    const el = document.createElement('link');
+    el.setAttribute('rel', 'alternate');
+    el.setAttribute('hreflang', hreflang);
+    el.setAttribute('href', href);
+    document.head.appendChild(el);
+  }
+}
+
 // path : chemin absolu ("/", "/sudoku-facile"...) utilisé pour la canonical.
-export function useSeoMeta({ title, description, path = '/', image = DEFAULT_OG_IMAGE, lang = 'fr' }) {
+// alternates : [{ hreflang: 'en'|'x-default'..., href: 'https://...' }] —
+// versions de cette même page dans les autres langues.
+export function useSeoMeta({ title, description, path = '/', image = DEFAULT_OG_IMAGE, lang = 'fr', alternates = null }) {
   useEffect(() => {
     if (title) document.title = title;
     document.documentElement.lang = lang;
@@ -38,9 +56,11 @@ export function useSeoMeta({ title, description, path = '/', image = DEFAULT_OG_
     const canonicalUrl = `${SITE_URL}${path}`;
     if (description) upsertMeta('name', 'description', description);
     upsertLink('canonical', canonicalUrl);
+    replaceHreflangLinks(alternates);
 
     upsertMeta('property', 'og:type', 'website');
     upsertMeta('property', 'og:site_name', 'Sudoku Art');
+    upsertMeta('property', 'og:locale', lang);
     if (title) upsertMeta('property', 'og:title', title);
     if (description) upsertMeta('property', 'og:description', description);
     upsertMeta('property', 'og:url', canonicalUrl);
@@ -50,5 +70,5 @@ export function useSeoMeta({ title, description, path = '/', image = DEFAULT_OG_
     if (title) upsertMeta('name', 'twitter:title', title);
     if (description) upsertMeta('name', 'twitter:description', description);
     upsertMeta('name', 'twitter:image', image);
-  }, [title, description, path, image, lang]);
+  }, [title, description, path, image, lang, alternates]);
 }
