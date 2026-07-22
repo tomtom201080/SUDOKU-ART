@@ -185,7 +185,8 @@ export async function updateChallengeProgress(challengeId, { percent, errorCount
       progress_elapsed_seconds: elapsedSeconds,
       progress_hints_used: hintsUsed
     })
-    .eq('id', challengeId);
+    .eq('id', challengeId)
+    .eq('completed', false);
 }
 
 export async function markChallengeCompleted(challengeId, result) {

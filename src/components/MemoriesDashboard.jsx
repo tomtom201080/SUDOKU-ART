@@ -122,8 +122,8 @@ export default function MemoriesDashboard({ userId, onClose, onCreateChallenge =
     if (!userId) { setSent([]); setReceived([]); return; }
     let cancelled = false;
     const refresh = () => {
-      fetchSentChallenges(userId).then(data => { if (!cancelled) setSent(data); });
-      fetchReceivedChallenges(userId).then(data => { if (!cancelled) setReceived(data); });
+      fetchSentChallenges(userId).then(data => { if (!cancelled) setSent(data); }).catch(err => console.error('fetchSentChallenges failed:', err));
+      fetchReceivedChallenges(userId).then(data => { if (!cancelled) setReceived(data); }).catch(err => console.error('fetchReceivedChallenges failed:', err));
     };
     // Nettoyage différé (défis terminés depuis plus de 7 jours), une seule
     // fois à l'ouverture — voir le commentaire dans lib/challenges.js.
