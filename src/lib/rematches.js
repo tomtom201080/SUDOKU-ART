@@ -150,6 +150,32 @@ export async function claimRematchToken(id) {
   return { granted: data?.claim_token === deviceToken };
 }
 
+// Marque le début de la partie du destinataire (mode perso uniquement) —
+// sert à distinguer "en attente" de "en cours" dans "Mes défis envoyés".
+export async function markRematchStarted(id) {
+  await supabase
+    .from('rematches')
+    .update({ recipient_started_at: new Date().toISOString() })
+    .eq('id', id)
+    .is('recipient_started_at', null);
+}
+
+// Instantané de progression du destinataire (mode perso), poussé
+// périodiquement pendant la partie — jamais après completed=true, pour ne
+// pas écraser le résultat final déjà validé.
+export async function updateRematchProgress(id, { percent, errorCount, elapsedSeconds, hintsUsed }) {
+  await supabase
+    .from('rematches')
+    .update({
+      recipient_progress_percent: percent,
+      recipient_progress_error_count: errorCount,
+      recipient_progress_elapsed_seconds: elapsedSeconds,
+      recipient_progress_hints_used: hintsUsed
+    })
+    .eq('id', id)
+    .eq('completed', false);
+}
+
 // Enregistre le résultat du destinataire une fois sa partie terminée.
 export async function submitRematchResult(id, { errors, seconds, hints = 0, userId, playerName = null }) {
   await supabase
@@ -263,8 +289,22 @@ export async function fetchReceivedRematches(userId) {
 // tentative remplace la précédente, même règle "la dernière tentative
 // écrase" que submitRematchResult en mode perso. Un candidat libre non
 // connecté (userId absent) reste géré par pseudo, sans changement.
-export async function submitGroupResult(rematchId, { errors, seconds, hints = 0, userId, playerName }) {
+// resultRowId (optionnel) : id de la ligne déjà créée par
+// startGroupParticipant au démarrage — s'il est fourni, on met à jour
+// directement cette ligne plutôt que de re-chercher/re-créer, ce qui évite
+// tout doublon même pour un candidat libre non connecté (pas d'autre moyen
+// fiable de le retrouver).
+export async function submitGroupResult(rematchId, { errors, seconds, hints = 0, userId, playerName, resultRowId = null }) {
   const name = playerName ?? 'Anonyme';
+
+  if (resultRowId) {
+    const { error } = await supabase
+      .from('rematch_results')
+      .update({ player_name: name, player_user_id: userId ?? null, errors, seconds, hints, completed: true })
+      .eq('id', resultRowId);
+    if (error) throw error;
+    return;
+  }
 
   if (userId) {
     const { data: existing } = await supabase
@@ -277,7 +317,7 @@ export async function submitGroupResult(rematchId, { errors, seconds, hints = 0,
     if (existing) {
       const { error } = await supabase
         .from('rematch_results')
-        .update({ player_name: name, errors, seconds, hints })
+        .update({ player_name: name, errors, seconds, hints, completed: true })
         .eq('id', existing.id);
       if (error) throw error;
       return;
@@ -292,18 +332,116 @@ export async function submitGroupResult(rematchId, { errors, seconds, hints = 0,
       player_user_id: userId ?? null,
       errors,
       seconds,
-      hints
+      hints,
+      completed: true
     });
   if (error) throw error;
 }
 
-// Récupère tous les résultats d'un défi de groupe
+// Crée (ou retrouve) la ligne de suivi du participant dès qu'il démarre sa
+// partie en mode groupe — avant cette fonctionnalité, la ligne n'existait
+// qu'à la toute fin (submitGroupResult). Retourne l'id de la ligne, à
+// réutiliser ensuite pour la progression et le résultat final
+// (submitGroupResult({ resultRowId })), pour ne jamais créer de doublon
+// même pour un candidat libre non connecté.
+export async function startGroupParticipant(rematchId, { userId, playerName }) {
+  const name = playerName ?? 'Anonyme';
+
+  if (userId) {
+    const { data: existing } = await supabase
+      .from('rematch_results')
+      .select('id')
+      .eq('rematch_id', rematchId)
+      .eq('player_user_id', userId)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase
+        .from('rematch_results')
+        .update({ player_name: name, started_at: new Date().toISOString() })
+        .eq('id', existing.id)
+        .is('started_at', null);
+      return existing.id;
+    }
+  }
+
+  const { data, error } = await supabase
+    .from('rematch_results')
+    .insert({
+      rematch_id: rematchId,
+      player_name: name,
+      player_user_id: userId ?? null,
+      started_at: new Date().toISOString(),
+      completed: false,
+      errors: 0,
+      seconds: 0,
+      hints: 0
+    })
+    .select('id')
+    .single();
+
+  if (error) throw error;
+  return data.id;
+}
+
+// Instantané de progression d'un participant de groupe, poussé
+// périodiquement pendant la partie.
+export async function updateGroupParticipantProgress(resultRowId, { percent, errorCount, elapsedSeconds, hintsUsed }) {
+  await supabase
+    .from('rematch_results')
+    .update({
+      progress_percent: percent,
+      progress_error_count: errorCount,
+      progress_elapsed_seconds: elapsedSeconds,
+      progress_hints_used: hintsUsed
+    })
+    .eq('id', resultRowId)
+    .eq('completed', false);
+}
+
+// Résumé agrégé pour la ligne générique d'un défi de groupe dans "Mes défis
+// envoyés" : combien de participants sont en cours de partie, combien ont
+// déjà joué — le détail complet (qui, à quel stade) est chargé séparément
+// au clic sur la ligne (fetchGroupResults).
+export async function fetchGroupProgressSummary(rematchId) {
+  const { data } = await supabase
+    .from('rematch_results')
+    .select('completed, started_at')
+    .eq('rematch_id', rematchId);
+
+  const rows = data ?? [];
+  return {
+    inProgress: rows.filter(r => r.started_at && !r.completed).length,
+    played: rows.filter(r => r.completed).length
+  };
+}
+
+// Récupère les résultats FINAUX d'un défi de groupe, pour le classement
+// (WinModal, GroupLeaderboard) — exclut les participants encore en cours de
+// partie (voir startGroupParticipant) : leurs errors/seconds/hints ne sont
+// que des zéros provisoires tant qu'ils n'ont pas terminé, les inclure ici
+// fausserait le classement (faux "0 erreur, 00:00" en tête).
 export async function fetchGroupResults(rematchId) {
   const { data } = await supabase
     .from('rematch_results')
     .select('*')
     .eq('rematch_id', rematchId)
+    .eq('completed', true)
     .order('seconds', { ascending: true });
+  return data ?? [];
+}
+
+// Récupère les participants EN COURS de partie (pour le détail "qui en est
+// où" au clic sur une ligne de défi de groupe) — distinct de
+// fetchGroupResults, qui ne renvoie que les résultats finaux.
+export async function fetchGroupInProgressParticipants(rematchId) {
+  const { data } = await supabase
+    .from('rematch_results')
+    .select('*')
+    .eq('rematch_id', rematchId)
+    .eq('completed', false)
+    .not('started_at', 'is', null)
+    .order('started_at', { ascending: true });
   return data ?? [];
 }
 

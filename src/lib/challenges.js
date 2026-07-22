@@ -164,6 +164,30 @@ export async function fetchPendingChallenges() {
 // Ne supprime plus la photo/ligne immédiatement : voir purgeExpiredChallenges
 // ci-dessous, qui s'en charge 7 jours après completed_at (le temps de
 // consulter le résultat dans le tableau Memories).
+// Marque le début de la partie (appelé une seule fois, au lancement) — sert
+// à distinguer "en attente" de "en cours" dans le tableau Memories.
+export async function markChallengeStarted(challengeId) {
+  await supabase
+    .from('challenges')
+    .update({ started_at: new Date().toISOString() })
+    .eq('id', challengeId)
+    .is('started_at', null);
+}
+
+// Instantané de progression, poussé périodiquement pendant la partie (voir
+// useGame.js) — jamais après la fin, pour ne pas écraser le résultat final.
+export async function updateChallengeProgress(challengeId, { percent, errorCount, elapsedSeconds, hintsUsed }) {
+  await supabase
+    .from('challenges')
+    .update({
+      progress_percent: percent,
+      progress_error_count: errorCount,
+      progress_elapsed_seconds: elapsedSeconds,
+      progress_hints_used: hintsUsed
+    })
+    .eq('id', challengeId);
+}
+
 export async function markChallengeCompleted(challengeId, result) {
   await supabase
     .from('challenges')

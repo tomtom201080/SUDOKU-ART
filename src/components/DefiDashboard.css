@@ -127,6 +127,13 @@
   font-style: italic;
 }
 
+.defi-row-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
 .defi-badge {
   font-size: 0.7rem;
   font-weight: 700;
@@ -201,6 +208,13 @@
 .group-leaderboard-header button {
   background: none; border: none;
   color: var(--text-color); font-size: 1.1rem; cursor: pointer;
+}
+
+.group-in-progress-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin: 10px 0 4px;
 }
 
 .group-leaderboard-meta {

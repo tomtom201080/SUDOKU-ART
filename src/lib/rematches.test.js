@@ -49,7 +49,7 @@ describe('submitGroupResult', () => {
 
     await submitGroupResult('rematch-1', { errors: 2, seconds: 10, hints: 1, userId: 'user-1', playerName: 'Moi' });
 
-    expect(update.update).toHaveBeenCalledWith({ player_name: 'Moi', errors: 2, seconds: 10, hints: 1 });
+    expect(update.update).toHaveBeenCalledWith({ player_name: 'Moi', errors: 2, seconds: 10, hints: 1, completed: true });
     expect(update.eq).toHaveBeenCalledWith('id', 'existing-row');
     expect(update.insert).not.toHaveBeenCalled();
   });

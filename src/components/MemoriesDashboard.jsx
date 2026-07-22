@@ -5,8 +5,52 @@ import { fetchSentChallenges, fetchReceivedChallenges, deleteChallenge, purgeExp
 import { getSharedPhotoPublicUrl } from '../lib/sharedPhoto';
 import './DefiDashboard.css';
 
+// Rafraîchissement périodique pendant que le tableau reste ouvert, pour que
+// le statut "en cours" (et sa synthèse) avance sans avoir à refermer/rouvrir.
+const REFRESH_INTERVAL_MS = 15000;
+
 function fmtDate(iso) {
   return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+}
+
+function fmtMMSS(totalSeconds) {
+  const s = Math.max(0, Math.round(totalSeconds ?? 0));
+  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+}
+
+// Statut d'une Memory : en attente (jamais ouverte), en cours (ouverte,
+// partie non terminée — synthèse %, temps, erreurs, indices), ou terminée
+// (résultat gagné/perdu). Partagé entre la ligne et le détail.
+function ChallengeStatus({ c }) {
+  const { t } = useT();
+
+  if (c.completed) {
+    return (
+      <div className={`defi-result-badge ${c.result === 'won' ? 'won' : 'lost'}`}>
+        {c.result === 'won' ? t('dd_won') : t('dd_lost')}
+      </div>
+    );
+  }
+
+  if (c.started_at) {
+    return (
+      <div className="defi-row-progress">
+        <span className="defi-badge defi-badge-pending">{t('status_in_progress')}</span>
+        <span className="defi-row-meta">
+          {t('progress_summary', {
+            percent: c.progress_percent ?? 0,
+            time: fmtMMSS(c.progress_elapsed_seconds),
+            errors: c.progress_error_count ?? 0,
+            es: (c.progress_error_count ?? 0) > 1 ? 's' : '',
+            hints: c.progress_hints_used ?? 0,
+            hs: (c.progress_hints_used ?? 0) > 1 ? 's' : ''
+          })}
+        </span>
+      </div>
+    );
+  }
+
+  return <span className="defi-row-waiting">{t('defi_waiting')}</span>;
 }
 
 function ChallengeRow({ c, isSent, onDelete, deletingId, onExpand }) {
@@ -24,12 +68,7 @@ function ChallengeRow({ c, isSent, onDelete, deletingId, onExpand }) {
         </span>
       </div>
       <div className="defi-row-right">
-        {!c.completed && <span className="defi-row-waiting">{t('defi_waiting')}</span>}
-        {c.completed && (
-          <div className={`defi-result-badge ${c.result === 'won' ? 'won' : 'lost'}`}>
-            {c.result === 'won' ? t('dd_won') : t('dd_lost')}
-          </div>
-        )}
+        <ChallengeStatus c={c} />
         <button
           className="defi-row-delete"
           onClick={e => { e.stopPropagation(); onDelete(c); }}
@@ -42,7 +81,7 @@ function ChallengeRow({ c, isSent, onDelete, deletingId, onExpand }) {
 }
 
 // Détail d'une ligne : montre la photo envoyée/reçue (tant qu'elle n'a pas
-// été purgée — voir purgeExpiredChallenges) et le résultat le cas échéant.
+// été purgée — voir purgeExpiredChallenges) et le statut/résultat.
 function ChallengeDetail({ c, isSent, onClose }) {
   const { t } = useT();
   const diffLabel = (d) => ({ facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') })[d] ?? d;
@@ -52,7 +91,7 @@ function ChallengeDetail({ c, isSent, onClose }) {
     <div className="defi-dash-overlay" onClick={onClose}>
       <div className="defi-dash-panel" onClick={e => e.stopPropagation()}>
         <div className="defi-dash-header">
-          <h2>{isSent ? t('dd_sent_label') : (c.sender_email || t('defi_a_friend'))}</h2>
+          <h2>{isSent ? (c.label || t('dd_sent_label')) : (c.sender_email || t('defi_a_friend'))}</h2>
           <button className="defi-dash-close" onClick={onClose}>✕</button>
         </div>
         <p className="defi-row-meta">{diffLabel(c.difficulty_mode)} · {fmtDate(c.created_at)}</p>
@@ -61,12 +100,7 @@ function ChallengeDetail({ c, isSent, onClose }) {
         ) : (
           <p className="defi-dash-empty">{t('mem_no_photo')}</p>
         )}
-        {c.completed && (
-          <div className={`defi-result-badge ${c.result === 'won' ? 'won' : 'lost'}`}>
-            {c.result === 'won' ? t('dd_won') : t('dd_lost')}
-          </div>
-        )}
-        {!c.completed && <p className="defi-row-waiting">{t('defi_waiting')}</p>}
+        <ChallengeStatus c={c} />
       </div>
     </div>
   );
@@ -86,12 +120,16 @@ export default function MemoriesDashboard({ userId, onClose, onCreateChallenge =
 
   useEffect(() => {
     if (!userId) { setSent([]); setReceived([]); return; }
-    // Nettoyage différé (défis terminés depuis plus de 7 jours) déclenché à
-    // chaque ouverture du tableau — voir le commentaire dans lib/challenges.js.
-    purgeExpiredChallenges(userId).finally(() => {
-      fetchSentChallenges(userId).then(setSent);
-      fetchReceivedChallenges(userId).then(setReceived);
-    });
+    let cancelled = false;
+    const refresh = () => {
+      fetchSentChallenges(userId).then(data => { if (!cancelled) setSent(data); });
+      fetchReceivedChallenges(userId).then(data => { if (!cancelled) setReceived(data); });
+    };
+    // Nettoyage différé (défis terminés depuis plus de 7 jours), une seule
+    // fois à l'ouverture — voir le commentaire dans lib/challenges.js.
+    purgeExpiredChallenges(userId).finally(refresh);
+    const intervalId = setInterval(refresh, REFRESH_INTERVAL_MS);
+    return () => { cancelled = true; clearInterval(intervalId); };
   }, [userId]);
 
   const handleDelete = async (challenge) => {

@@ -368,6 +368,9 @@ export default {
   dd_won: 'Ganado 🏆',
   dd_tie: 'Empate 🤝',
   dd_lost: 'Perdido',
+  status_in_progress: 'En curso',
+  progress_summary: '{percent}% · {time} · {errors} error{es} · {hints} pista{hs}',
+  dd_group_status: '{inProgress} en curso · {played} jugador{ps} jugaron',
 
   // ── MemoriesDashboard ─────────────────────────────────────────
   mem_dash_title: '📷 Mis Memories',

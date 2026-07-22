@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import {
   fetchSentRematches, fetchReceivedRematches,
   determineRematchWinner,
-  fetchGroupResults, hideRematch, getHiddenRematchIds
+  fetchGroupResults, fetchGroupInProgressParticipants, fetchGroupProgressSummary,
+  hideRematch, getHiddenRematchIds
 } from '../lib/rematches';
 import RematchResultDetail from './RematchResultDetail';
 import GroupResultsList from './GroupResultsList';
@@ -12,19 +13,72 @@ import './DefiDashboard.css';
 
 // DIFF_LABELS dynamiques via useT()
 
+// Rafraîchissement périodique pendant que le tableau (ou le détail groupe)
+// reste ouvert, pour que le statut "en cours" avance sans refermer/rouvrir.
+const REFRESH_INTERVAL_MS = 15000;
+
 function fmtDate(iso) {
   return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+}
+
+function fmtMMSS(totalSeconds) {
+  const s = Math.max(0, Math.round(totalSeconds ?? 0));
+  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+}
+
+function progressSummaryArgs(t, p) {
+  return t('progress_summary', {
+    percent: p.percent ?? 0,
+    time: fmtMMSS(p.elapsedSeconds),
+    errors: p.errorCount ?? 0,
+    es: (p.errorCount ?? 0) > 1 ? 's' : '',
+    hints: p.hintsUsed ?? 0,
+    hs: (p.hintsUsed ?? 0) > 1 ? 's' : ''
+  });
+}
+
+// ─── Participants en cours (détail groupe) ────────────────────────
+function GroupInProgressList({ participants }) {
+  const { t } = useT();
+  if (!participants || participants.length === 0) return null;
+
+  return (
+    <div className="group-in-progress-list">
+      <p className="group-in-progress-title">{t('status_in_progress')}</p>
+      {participants.map(p => (
+        <div key={p.id} className="group-result-row">
+          <span className="group-name">{p.player_name}</span>
+          <span className="defi-row-meta">
+            {progressSummaryArgs(t, {
+              percent: p.progress_percent,
+              elapsedSeconds: p.progress_elapsed_seconds,
+              errorCount: p.progress_error_count,
+              hintsUsed: p.progress_hints_used
+            })}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 // ─── Classement mode groupe ───────────────────────────────────────
 function GroupLeaderboard({ rematch, onClose }) {
   const { t } = useT();
   const [results, setResults] = useState(null);
+  const [inProgress, setInProgress] = useState(null);
   const diffLabel = (d) => ({ facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') })[d] ?? d;
   const hintsSuffix = rematch.hints_limit != null ? t('dd_hints_limit_suffix', { n: rematch.hints_limit, s: rematch.hints_limit > 1 ? 's' : '' }) : '';
 
   useEffect(() => {
-    fetchGroupResults(rematch.id).then(setResults);
+    let cancelled = false;
+    const refresh = () => {
+      fetchGroupResults(rematch.id).then(data => { if (!cancelled) setResults(data); });
+      fetchGroupInProgressParticipants(rematch.id).then(data => { if (!cancelled) setInProgress(data); });
+    };
+    refresh();
+    const intervalId = setInterval(refresh, REFRESH_INTERVAL_MS);
+    return () => { cancelled = true; clearInterval(intervalId); };
   }, [rematch.id]);
 
   return (
@@ -38,6 +92,7 @@ function GroupLeaderboard({ rematch, onClose }) {
           {diffLabel(rematch.difficulty) ?? rematch.difficulty} · {fmtDate(rematch.created_at)}{hintsSuffix}
         </p>
 
+        <GroupInProgressList participants={inProgress} />
         <GroupResultsList rematch={rematch} results={results} />
 
         <p className="rematch-scoring-note">{t('dd_scoring')}</p>
@@ -66,6 +121,50 @@ function PersonalResult({ r, isSent }) {
   );
 }
 
+// Statut "en cours" du destinataire, mode perso — synthèse %, temps,
+// erreurs, indices, poussée périodiquement pendant sa partie (useGame.js).
+function PersonalProgress({ r }) {
+  const { t } = useT();
+  return (
+    <div className="defi-row-progress">
+      <span className="defi-badge defi-badge-pending">{t('status_in_progress')}</span>
+      <span className="defi-row-meta">
+        {progressSummaryArgs(t, {
+          percent: r.recipient_progress_percent,
+          elapsedSeconds: r.recipient_progress_elapsed_seconds,
+          errorCount: r.recipient_progress_error_count,
+          hintsUsed: r.recipient_progress_hints_used
+        })}
+      </span>
+    </div>
+  );
+}
+
+// Résumé agrégé mode groupe, sur la ligne générique — combien de
+// participants sont en cours, combien ont déjà joué. Chargé séparément
+// (léger, pas inclus dans le select principal), rafraîchi périodiquement.
+function GroupRowStatus({ rematchId }) {
+  const { t } = useT();
+  const [summary, setSummary] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const refresh = () => fetchGroupProgressSummary(rematchId).then(s => { if (!cancelled) setSummary(s); });
+    refresh();
+    const intervalId = setInterval(refresh, REFRESH_INTERVAL_MS);
+    return () => { cancelled = true; clearInterval(intervalId); };
+  }, [rematchId]);
+
+  if (!summary || (summary.inProgress === 0 && summary.played === 0)) {
+    return <span className="defi-badge defi-badge-pending">{t('dd_group_badge')}</span>;
+  }
+  return (
+    <span className="defi-badge defi-badge-pending">
+      {t('dd_group_status', { inProgress: summary.inProgress, played: summary.played, ps: summary.played > 1 ? 's' : '' })}
+    </span>
+  );
+}
+
 // ─── Ligne de défi ───────────────────────────────────────────────
 function RematchRow({ r, isSent, onHide, onExpand, onRegenerate }) {
   const { t } = useT();
@@ -79,6 +178,7 @@ function RematchRow({ r, isSent, onHide, onExpand, onRegenerate }) {
   // on laisse toujours la ligne cliquable en mode groupe : le classement
   // affiche lui-même proprement "personne n'a encore joué" le cas échéant.
   const hasPlayed  = isGroup || r.completed;
+  const inProgress = !isGroup && !hasPlayed && !!r.recipient_started_at;
 
   return (
     <div className="defi-row" onClick={() => hasPlayed && onExpand(r)} style={{ cursor: hasPlayed ? 'pointer' : 'default' }}>
@@ -94,9 +194,9 @@ function RematchRow({ r, isSent, onHide, onExpand, onRegenerate }) {
         </span>
       </div>
       <div className="defi-row-right">
-        {!hasPlayed && <span className="defi-row-waiting">{t('defi_waiting')}</span>}
+        {!isGroup && !hasPlayed && (inProgress ? <PersonalProgress r={r} /> : <span className="defi-row-waiting">{t('defi_waiting')}</span>)}
         {hasPlayed && !isGroup && <PersonalResult r={r} isSent={isSent} />}
-        {isGroup && <span className="defi-badge defi-badge-pending">{t('dd_group_badge')}</span>}
+        {isGroup && <GroupRowStatus rematchId={r.id} />}
         {isSent && onRegenerate && (
           <button
             className="defi-row-resend"
@@ -124,8 +224,14 @@ export default function DefiDashboard({ userId, onClose, onCreateDefi, onRegener
   const [expanded, setExpanded] = useState(null); // { rematch, isSent } affiché en détail
 
   useEffect(() => {
-    fetchSentRematches(userId).then(setSent);
-    fetchReceivedRematches(userId).then(setReceived);
+    let cancelled = false;
+    const refresh = () => {
+      fetchSentRematches(userId).then(data => { if (!cancelled) setSent(data); });
+      fetchReceivedRematches(userId).then(data => { if (!cancelled) setReceived(data); });
+    };
+    refresh();
+    const intervalId = setInterval(refresh, REFRESH_INTERVAL_MS);
+    return () => { cancelled = true; clearInterval(intervalId); };
   }, [userId]);
 
   const handleHide = (id) => {

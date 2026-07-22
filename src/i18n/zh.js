@@ -368,6 +368,9 @@ export default {
   dd_won: '获胜 🏆',
   dd_tie: '平局 🤝',
   dd_lost: '失败',
+  status_in_progress: '进行中',
+  progress_summary: '{percent}% · {time} · {errors} 个错误 · {hints} 次提示',
+  dd_group_status: '{inProgress} 人进行中 · {played} 人已完成',
 
   // ── MemoriesDashboard ─────────────────────────────────────────
   mem_dash_title: '📷 我的 Memories',

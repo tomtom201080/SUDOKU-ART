@@ -3,10 +3,13 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { generateSudoku, isGridComplete, DIFFICULTIES } from '../sudoku/generator';
 import { resolveImagePath, resolveImagePathLow, listAllImages, pickImageForTier, pickRewardImage, TIERS_BY_DIFFICULTY } from '../data/imageLibrary';
 import { addToGallery, recordWin } from '../utils/storage';
-import { markChallengeCompleted } from '../lib/challenges';
+import { markChallengeCompleted, markChallengeStarted, updateChallengeProgress } from '../lib/challenges';
 import { markPaintingSeen, getMergedUnseenIds } from '../lib/seenPaintings';
 import { logGameStart, logGameComplete, logGameFail } from '../lib/analytics';
-import { submitRematchResult, submitGroupResult, updateChallengerBaseline, determineRematchWinner } from '../lib/rematches';
+import {
+  submitRematchResult, submitGroupResult, updateChallengerBaseline, determineRematchWinner,
+  markRematchStarted, updateRematchProgress, startGroupParticipant, updateGroupParticipantProgress
+} from '../lib/rematches';
 import { trackGameError, normalizeErrorCode } from '../lib/tracking';
 
 function cloneGrid(grid) {
@@ -204,6 +207,11 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
         : null
     );
 
+    // Marque le début de partie pour le suivi "en cours" (tableau Memories).
+    if (challengeOptions?.id) {
+      markChallengeStarted(challengeOptions.id).catch(() => null);
+    }
+
     logGameStart({
       difficulty: actualDifficulty,
       userId,
@@ -269,6 +277,13 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
       setHistory([]);
       setCelebrate([]);
       setChallengeMeta(null);
+      // Mêmes règles que la soumission du résultat final plus bas : le
+      // créateur qui rejoue son propre lien perso établit sa référence, il
+      // ne compte jamais comme un destinataire (aucun impact sur
+      // recipient_started_at/recipient_progress_*).
+      const isGroupMode = rematch.group_mode ?? false;
+      const isChallengerSelf = !!(userId && rematch.challenger_user_id && userId === rematch.challenger_user_id);
+
       setActiveRematch({
         id: rematch.id,
         challengerName: rematch.challenger_name,
@@ -278,17 +293,27 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
         challengerHasAccount: !!rematch.challenger_user_id,
         challengerUserId: rematch.challenger_user_id ?? null,
         hintsLimit: rematch.hints_limit ?? null,
-        groupMode: rematch.group_mode ?? false,
+        groupMode: isGroupMode,
+        isChallengerSelf,
         playerPseudo: playerPseudo ?? null });
       setRematchOutcome(null);
       setChallengerBaselineJustSet(false);
+
+      // Marque le début de partie pour le suivi "en cours" (tableau Défi).
+      if (isGroupMode) {
+        startGroupParticipant(rematch.id, { userId: userId ?? null, playerName: playerPseudo ?? username ?? null })
+          .then(rowId => setActiveRematch(prev => (prev && prev.id === rematch.id) ? { ...prev, groupResultRowId: rowId } : prev))
+          .catch(() => null);
+      } else if (!isChallengerSelf) {
+        markRematchStarted(rematch.id).catch(() => null);
+      }
 
       logGameStart({ difficulty: rematch.difficulty, userId, isCustomPhoto: !!photoUrl, isChallenge: true });
     } catch (err) {
       console.error('startRematchGame error:', err);
       // En cas d'erreur, on reste sur l'accueil plutôt que de planter
     }
-  }, [userId]);
+  }, [userId, username]);
 
   // Lance une étape précise du parcours de quête : la difficulté et le
   // tableau à révéler sont imposés par l'étape (pas de tirage au hasard).
@@ -694,7 +719,8 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
             seconds: finalElapsed,
             hints: hintsUsed,
             userId: userId ?? null,
-            playerName: activeRematch.playerPseudo ?? username ?? 'Anonyme' }).catch(err => {
+            playerName: activeRematch.playerPseudo ?? username ?? 'Anonyme',
+            resultRowId: activeRematch.groupResultRowId ?? null }).catch(err => {
               // Ne jamais bloquer l'écran de victoire sur cette écriture,
               // mais ne plus l'avaler en silence non plus (un rejet RLS ici
               // laisserait croire à tort que la partie a été enregistrée).
@@ -811,7 +837,8 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
           seconds: elapsedSeconds,
           hints: hintsUsed,
           userId: userId ?? null,
-          playerName: activeRematch.playerPseudo ?? username ?? 'Anonyme' }).catch(err => {
+          playerName: activeRematch.playerPseudo ?? username ?? 'Anonyme',
+          resultRowId: activeRematch.groupResultRowId ?? null }).catch(err => {
             console.error('submitGroupResult failed:', err);
             trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.solveGridForTesting.submitGroupResult', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
           });
@@ -964,6 +991,52 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     }
     return revealed / 81;
   }, [puzzleData, userGrid, isCellRevealed]);
+
+  // Ref tenue à jour à chaque rendu (sans dépendance : coût négligeable),
+  // pour que l'effet de synchronisation ci-dessous lise toujours la
+  // dernière valeur sans avoir besoin de recréer son intervalle à chaque
+  // changement — errorCount/elapsedSeconds/hintsUsed changent trop souvent
+  // (elapsedSeconds toutes les secondes) pour être des dépendances directes
+  // de cet effet : l'intervalle serait sans cesse annulé et jamais déclenché.
+  const progressSnapshotRef = useRef({ percent: 0, errorCount: 0, elapsedSeconds: 0, hintsUsed: 0 });
+  useEffect(() => {
+    progressSnapshotRef.current = {
+      percent: Math.round(revealProgress * 100),
+      errorCount,
+      elapsedSeconds,
+      hintsUsed
+    };
+  });
+
+  // Pousse périodiquement un instantané de progression pendant qu'une
+  // partie de Memory/défi est en cours, pour alimenter le statut "en cours"
+  // des tableaux Memories/Défi côté expéditeur. Jamais pour le créateur qui
+  // rejoue son propre lien perso (isChallengerSelf), ni en mode groupe tant
+  // que la ligne de suivi n'a pas encore été créée (groupResultRowId).
+  useEffect(() => {
+    const isChallenge = !!challengeMeta?.id;
+    const isPersonalRematch = !!activeRematch?.id && !activeRematch.groupMode && !activeRematch.isChallengerSelf;
+    const isGroupRematch = !!activeRematch?.id && activeRematch.groupMode && !!activeRematch.groupResultRowId;
+    if ((!isChallenge && !isPersonalRematch && !isGroupRematch) || isComplete || isFailed) return;
+
+    const push = () => {
+      const snapshot = progressSnapshotRef.current;
+      if (isChallenge) {
+        updateChallengeProgress(challengeMeta.id, snapshot).catch(() => null);
+      } else if (isPersonalRematch) {
+        updateRematchProgress(activeRematch.id, snapshot).catch(() => null);
+      } else if (isGroupRematch) {
+        updateGroupParticipantProgress(activeRematch.groupResultRowId, snapshot).catch(() => null);
+      }
+    };
+
+    const intervalId = setInterval(push, 10000);
+    return () => clearInterval(intervalId);
+  }, [
+    challengeMeta?.id, activeRematch?.id, activeRematch?.groupMode,
+    activeRematch?.isChallengerSelf, activeRematch?.groupResultRowId,
+    isComplete, isFailed
+  ]);
 
   // Construit les 27 "unités" de la grille (9 lignes, 9 colonnes, 9 carrés),
   // chacune sous forme de liste de 9 positions {row, col}.
