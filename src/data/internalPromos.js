@@ -50,8 +50,7 @@ export const INTERNAL_PROMOS = [
   { id: 'couple-memory', category: 'love', icon: '🥰', titleKey: 'promo_couple_memory_title', textKey: 'promo_couple_memory_text', ctaKey: 'promo_couple_memory_cta', destination: 'family-memory', supportedFormats: ['banner', 'interstitial'] },
   { id: 'childhood-photo', category: 'family', icon: '🧸', titleKey: 'promo_childhood_photo_title', textKey: 'promo_childhood_photo_text', ctaKey: 'promo_childhood_photo_cta', destination: 'family-memory', supportedFormats: ['banner', 'interstitial'] },
   { id: 'family-reunion', category: 'family', icon: '👨‍👩‍👧‍👦', titleKey: 'promo_family_reunion_title', textKey: 'promo_family_reunion_text', ctaKey: 'promo_family_reunion_cta', destination: 'invitation', supportedFormats: ['banner', 'interstitial'] },
-  { id: 'artwork', category: 'art', icon: '🎨', titleKey: 'promo_artwork_title', textKey: 'promo_artwork_text', ctaKey: 'promo_artwork_cta', destination: 'artwork', supportedFormats: ['banner', 'interstitial'] },
-  { id: 'home-museum', category: 'art', icon: '🏛️', titleKey: 'promo_home_museum_title', textKey: 'promo_home_museum_text', ctaKey: 'promo_home_museum_cta', destination: 'artwork', supportedFormats: ['banner', 'interstitial'] }
+  { id: 'artwork', category: 'art', icon: '🎨', titleKey: 'promo_artwork_title', textKey: 'promo_artwork_text', ctaKey: 'promo_artwork_cta', destination: 'artwork', supportedFormats: ['banner', 'interstitial'] }
 ];
 
 export function getAllPromoIds() {
