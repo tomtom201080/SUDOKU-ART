@@ -1,7 +1,13 @@
 // src/lib/adsense.js
 let scriptLoaded = false;
 
+// Coupure temporaire des pubs (ex : en attendant la validation AdSense),
+// sans toucher au script de vérification AdSense lui-même (index.html) ni
+// au reste du code — les 4 composants publicitaires (AdSlot, AdInterstitial,
+// HintModal, MaxErrorsModal) retombent déjà proprement sur leur variante
+// sans pub dès que cette fonction renvoie une valeur fausse.
 export function getAdsenseClientId() {
+  if (import.meta.env.VITE_ADS_ENABLED === 'false') return null;
   return import.meta.env.VITE_ADSENSE_CLIENT_ID || 'ca-pub-9595415133348818';
 }
 
