@@ -155,7 +155,13 @@ export async function claimRematchToken(id) {
 export async function markRematchStarted(id) {
   await supabase
     .from('rematches')
-    .update({ recipient_started_at: new Date().toISOString() })
+    .update({
+      recipient_started_at: new Date().toISOString(),
+      recipient_progress_percent: 0,
+      recipient_progress_error_count: 0,
+      recipient_progress_elapsed_seconds: 0,
+      recipient_progress_hints_used: 0
+    })
     .eq('id', id)
     .is('recipient_started_at', null);
 }
@@ -358,7 +364,14 @@ export async function startGroupParticipant(rematchId, { userId, playerName }) {
     if (existing) {
       await supabase
         .from('rematch_results')
-        .update({ player_name: name, started_at: new Date().toISOString() })
+        .update({
+          player_name: name,
+          started_at: new Date().toISOString(),
+          progress_percent: 0,
+          progress_error_count: 0,
+          progress_elapsed_seconds: 0,
+          progress_hints_used: 0
+        })
         .eq('id', existing.id)
         .is('started_at', null);
       return existing.id;
@@ -375,7 +388,11 @@ export async function startGroupParticipant(rematchId, { userId, playerName }) {
       completed: false,
       errors: 0,
       seconds: 0,
-      hints: 0
+      hints: 0,
+      progress_percent: 0,
+      progress_error_count: 0,
+      progress_elapsed_seconds: 0,
+      progress_hints_used: 0
     })
     .select('id')
     .single();

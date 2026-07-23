@@ -992,50 +992,47 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     return revealed / 81;
   }, [puzzleData, userGrid, isCellRevealed]);
 
-  // Ref tenue à jour à chaque rendu (sans dépendance : coût négligeable),
-  // pour que l'effet de synchronisation ci-dessous lise toujours la
-  // dernière valeur sans avoir besoin de recréer son intervalle à chaque
-  // changement — errorCount/elapsedSeconds/hintsUsed changent trop souvent
-  // (elapsedSeconds toutes les secondes) pour être des dépendances directes
-  // de cet effet : l'intervalle serait sans cesse annulé et jamais déclenché.
-  const progressSnapshotRef = useRef({ percent: 0, errorCount: 0, elapsedSeconds: 0, hintsUsed: 0 });
-  useEffect(() => {
-    progressSnapshotRef.current = {
-      percent: Math.round(revealProgress * 100),
-      errorCount,
-      elapsedSeconds,
-      hintsUsed
-    };
-  });
+  // Pousse un instantané de progression à seulement deux paliers fixes (50%
+  // et 100% de la grille révélée) plutôt que périodiquement — le démarrage
+  // (0%) est déjà couvert par markChallengeStarted/markRematchStarted/
+  // startGroupParticipant. Moins d'écritures, moins de risque. Jamais pour
+  // le créateur qui rejoue son propre lien perso (isChallengerSelf), ni en
+  // mode groupe tant que la ligne de suivi n'a pas encore été créée
+  // (groupResultRowId). Le ref retient, par id de défi, quels paliers ont
+  // déjà été envoyés — pour ne jamais renvoyer deux fois le même.
+  const sentProgressMilestonesRef = useRef({ id: null, sent50: false, sent100: false });
 
-  // Pousse périodiquement un instantané de progression pendant qu'une
-  // partie de Memory/défi est en cours, pour alimenter le statut "en cours"
-  // des tableaux Memories/Défi côté expéditeur. Jamais pour le créateur qui
-  // rejoue son propre lien perso (isChallengerSelf), ni en mode groupe tant
-  // que la ligne de suivi n'a pas encore été créée (groupResultRowId).
   useEffect(() => {
     const isChallenge = !!challengeMeta?.id;
     const isPersonalRematch = !!activeRematch?.id && !activeRematch.groupMode && !activeRematch.isChallengerSelf;
     const isGroupRematch = !!activeRematch?.id && activeRematch.groupMode && !!activeRematch.groupResultRowId;
     if ((!isChallenge && !isPersonalRematch && !isGroupRematch) || isComplete || isFailed) return;
 
-    const push = () => {
-      const snapshot = progressSnapshotRef.current;
-      if (isChallenge) {
-        updateChallengeProgress(challengeMeta.id, snapshot).catch(() => null);
-      } else if (isPersonalRematch) {
-        updateRematchProgress(activeRematch.id, snapshot).catch(() => null);
-      } else if (isGroupRematch) {
-        updateGroupParticipantProgress(activeRematch.groupResultRowId, snapshot).catch(() => null);
-      }
-    };
+    const currentId = challengeMeta?.id ?? activeRematch?.id;
+    if (sentProgressMilestonesRef.current.id !== currentId) {
+      sentProgressMilestonesRef.current = { id: currentId, sent50: false, sent100: false };
+    }
 
-    const intervalId = setInterval(push, 10000);
-    return () => clearInterval(intervalId);
+    const percent = Math.round(revealProgress * 100);
+    const milestone = percent >= 100 ? 100 : percent >= 50 ? 50 : null;
+    if (!milestone) return;
+    if (milestone === 50 && sentProgressMilestonesRef.current.sent50) return;
+    if (milestone === 100 && sentProgressMilestonesRef.current.sent100) return;
+    if (milestone === 50) sentProgressMilestonesRef.current.sent50 = true;
+    if (milestone === 100) sentProgressMilestonesRef.current.sent100 = true;
+
+    const snapshot = { percent, errorCount, elapsedSeconds, hintsUsed };
+    if (isChallenge) {
+      updateChallengeProgress(challengeMeta.id, snapshot).catch(() => null);
+    } else if (isPersonalRematch) {
+      updateRematchProgress(activeRematch.id, snapshot).catch(() => null);
+    } else if (isGroupRematch) {
+      updateGroupParticipantProgress(activeRematch.groupResultRowId, snapshot).catch(() => null);
+    }
   }, [
     challengeMeta?.id, activeRematch?.id, activeRematch?.groupMode,
     activeRematch?.isChallengerSelf, activeRematch?.groupResultRowId,
-    isComplete, isFailed
+    isComplete, isFailed, revealProgress, errorCount, elapsedSeconds, hintsUsed
   ]);
 
   // Construit les 27 "unités" de la grille (9 lignes, 9 colonnes, 9 carrés),

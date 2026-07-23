@@ -169,13 +169,21 @@ export async function fetchPendingChallenges() {
 export async function markChallengeStarted(challengeId) {
   await supabase
     .from('challenges')
-    .update({ started_at: new Date().toISOString() })
+    .update({
+      started_at: new Date().toISOString(),
+      progress_percent: 0,
+      progress_error_count: 0,
+      progress_elapsed_seconds: 0,
+      progress_hints_used: 0
+    })
     .eq('id', challengeId)
     .is('started_at', null);
 }
 
-// Instantané de progression, poussé périodiquement pendant la partie (voir
-// useGame.js) — jamais après la fin, pour ne pas écraser le résultat final.
+// Instantané de progression, poussé à trois moments fixes seulement
+// (démarrage, 50%, 100% — voir useGame.js) plutôt que périodiquement, pour
+// limiter le nombre d'écritures. Jamais après la fin, pour ne pas écraser
+// le résultat final.
 export async function updateChallengeProgress(challengeId, { percent, errorCount, elapsedSeconds, hintsUsed }) {
   await supabase
     .from('challenges')
