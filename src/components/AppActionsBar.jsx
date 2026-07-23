@@ -16,7 +16,11 @@ const APP_URL = typeof window !== 'undefined' ? window.location.origin : 'https:
 // propose pas d'invite d'installation native (Safari/iOS notamment).
 export default function AppActionsBar({ onShowInstallInstructions }) {
   const { t } = useT();
-  const { installed, canPromptNative, promptInstall } = useInstallPrompt();
+  // La détection "déjà installé" (display-mode standalone) s'est révélée peu
+  // fiable sur certains navigateurs mobiles réels — mieux vaut toujours
+  // montrer le bouton (clic sans effet gênant si déjà installé) que risquer
+  // de le cacher à tort pour quelqu'un qui en a besoin.
+  const { canPromptNative, promptInstall } = useInstallPrompt();
   const [justCopied, setJustCopied] = useState(false);
 
   const handleInstallClick = async () => {
@@ -51,11 +55,9 @@ export default function AppActionsBar({ onShowInstallInstructions }) {
 
   return (
     <div className="app-actions-bar">
-      {!installed && (
-        <button className="app-action-btn" onClick={handleInstallClick}>
-          📲 {t('app_install_btn')}
-        </button>
-      )}
+      <button className="app-action-btn" onClick={handleInstallClick}>
+        📲 {t('app_install_btn')}
+      </button>
       <button className="app-action-btn app-action-btn-secondary" onClick={handleShareClick}>
         {justCopied ? `✅ ${t('app_share_copied')}` : `🔗 ${t('app_share_btn')}`}
       </button>
