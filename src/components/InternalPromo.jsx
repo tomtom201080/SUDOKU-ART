@@ -4,13 +4,12 @@
 // une liste — présentée comme une publicité native. Voir getAdProvider()
 // dans lib/adsense.js pour le choix entre pubs internes et AdSense.
 //
-// Le bouton est volontairement décoratif : cliquer dessus ne navigue nulle
-// part et n'interrompt jamais une partie en cours (uniquement un événement
-// analytics, voir trackInternalPromoClick).
+// Volontairement non cliquable : aucun bouton, aucune navigation — la carte
+// n'interrompt jamais une partie en cours, elle est purement illustrative.
 import { useState } from 'react';
 import { useT } from '../i18n/index.jsx';
 import { INTERNAL_PROMOS } from '../data/internalPromos';
-import { trackInternalPromoView, trackInternalPromoClick } from '../lib/tracking';
+import { trackInternalPromoView } from '../lib/tracking';
 import './InternalPromo.css';
 
 const SEEN_KEY = 'sudoku-devoile:seenPromoIds';
@@ -62,16 +61,6 @@ export default function InternalPromo({ format = 'banner', placement }) {
     return chosen;
   });
 
-  const handleCtaClick = () => {
-    trackInternalPromoClick({
-      promoId: promo.id,
-      placement,
-      format,
-      language: lang,
-      route: typeof window !== 'undefined' ? window.location.pathname : undefined
-    });
-  };
-
   return (
     <div
       className={`internal-promo internal-promo-${format}`}
@@ -82,9 +71,6 @@ export default function InternalPromo({ format = 'banner', placement }) {
       <div className="internal-promo-body">
         <p className="internal-promo-title">{t(promo.titleKey)}</p>
         <p className="internal-promo-text">{t(promo.textKey)}</p>
-        <button type="button" className="internal-promo-cta" onClick={handleCtaClick}>
-          {t(promo.ctaKey)}
-        </button>
       </div>
       <span className="internal-promo-badge">{t('promo_badge_label')}</span>
     </div>

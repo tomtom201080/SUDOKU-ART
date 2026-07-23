@@ -241,10 +241,6 @@ export function trackInternalPromoView({ promoId, placement, format, language, r
   track('internal_promo_view', { promo_id: promoId, placement, format, language, route });
 }
 
-export function trackInternalPromoClick({ promoId, placement, format, language, route }) {
-  track('internal_promo_click', { promo_id: promoId, placement, format, language, route });
-}
-
 export function trackInternalPromoClose({ promoId, placement, format, language, route }) {
   track('internal_promo_close', { promo_id: promoId, placement, format, language, route });
 }
