@@ -28,6 +28,7 @@ import HelpModal from './components/HelpModal';
 import KpiDashboard from './components/KpiDashboard';
 import PlatformStatsDashboard from './components/PlatformStatsDashboard';
 import AdSlot from './components/AdSlot';
+import AppActionsBar from './components/AppActionsBar';
 import ConsentBanner from './components/ConsentBanner';
 import AdInterstitial from './components/AdInterstitial';
 import { TermsModal, PrivacyModal } from './components/LegalModal';
@@ -812,6 +813,11 @@ export default function App() {
           onOpenMemories={handleOpenMemories}
         />
 
+        <AppActionsBar onShowInstallInstructions={() => setShowInstallModal(true)} />
+        <a className="site-url-link" href="https://sudoku-art.vercel.app" target="_blank" rel="noopener noreferrer">
+          sudoku-art.vercel.app
+        </a>
+
         <AdSlot slot="8033973037" placement="home_banner" />
 
         {/* Empilées dans un conteneur dédié : ces bannières partagent la même
@@ -1093,6 +1099,11 @@ export default function App() {
           hintsLimit={game.activeRematch?.hintsLimit ?? game.challengeMeta?.hintsLimit ?? null}
           completedDigits={game.completedDigits}
         />
+
+        <AppActionsBar onShowInstallInstructions={() => setShowInstallModal(true)} />
+        <a className="site-url-link" href="https://sudoku-art.vercel.app" target="_blank" rel="noopener noreferrer">
+          sudoku-art.vercel.app
+        </a>
       </div>
 
       {showHint && (

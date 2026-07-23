@@ -785,4 +785,9 @@ export default {
   platform_stats_storage: '数据库',
   platform_stats_storage_used: '已用 {size}（占 Supabase 免费额度的 {percent}%）',
   platform_stats_storage_note: '免费额度参考值（500MB）——升级套餐后请自行调整。',
+
+  // ── AppActionsBar（安装 / 分享）──────────────────────────────────
+  app_install_btn: '安装应用',
+  app_share_btn: '分享给朋友',
+  app_share_copied: '链接已复制！',
 };

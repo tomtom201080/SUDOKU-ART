@@ -785,4 +785,9 @@ export default {
   platform_stats_storage: 'Database',
   platform_stats_storage_used: '{size} used ({percent}% of the Supabase free tier)',
   platform_stats_storage_note: 'Indicative free-tier limit (500 MB) — adjust if you upgrade your plan.',
+
+  // ── AppActionsBar (install / share) ─────────────────────────────
+  app_install_btn: 'Install the app',
+  app_share_btn: 'Share with a friend',
+  app_share_copied: 'Link copied!',
 };

@@ -785,4 +785,9 @@ export default {
   platform_stats_storage: 'Base de datos',
   platform_stats_storage_used: '{size} usados ({percent}% del plan gratuito de Supabase)',
   platform_stats_storage_note: 'Límite indicativo del plan gratuito (500 MB) — ajústalo si cambias de plan.',
+
+  // ── AppActionsBar (instalar / compartir) ────────────────────────
+  app_install_btn: 'Instalar la aplicación',
+  app_share_btn: 'Compartir con un amigo',
+  app_share_copied: '¡Enlace copiado!',
 };
