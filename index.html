@@ -8,27 +8,6 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/icon-192.png" />
     <script>
-      // Capturer TOUTE erreur JS - avant et après React
-      window.__errors = [];
-      function showError(msg, src, line, col, err) {
-        var div = document.getElementById('__debug');
-        if (!div) {
-          div = document.createElement('div');
-          div.id = '__debug';
-          div.style.cssText = 'position:fixed;inset:0;background:#111;color:#f66;padding:16px;font:12px monospace;z-index:99999;overflow:auto;white-space:pre-wrap;word-break:break-all';
-          document.body.appendChild(div);
-        }
-        var text = '💥 ' + msg;
-        if (src) text += '\n📍 ' + src + ':' + line + ':' + col;
-        if (err && err.stack) text += '\n' + err.stack;
-        text += '\n\n---\n\n';
-        div.textContent += text;
-        window.__errors.push(text);
-      }
-      window.onerror = showError;
-      window.addEventListener('unhandledrejection', function(e) {
-        showError('Promise: ' + (e.reason && (e.reason.message || e.reason)), '', '', '', e.reason);
-      });
       // Désinstaller SW
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(r) { r.forEach(function(s){s.unregister();}); });
