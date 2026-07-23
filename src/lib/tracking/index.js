@@ -233,6 +233,22 @@ export function trackFeedbackSubmitted({ feedbackType, feedbackContext, progress
   track('feedback_submitted', { feedback_type: feedbackType, feedback_context: feedbackContext, progress_percent: progressPercent, difficulty });
 }
 
+// ── Publicités internes (InternalPromo) ────────────────────────────────
+// Événements anonymes uniquement : identifiant de promo (pas de contenu
+// personnel), emplacement, format, langue, route. Jamais de photo ni de
+// message.
+export function trackInternalPromoView({ promoId, placement, format, language, route }) {
+  track('internal_promo_view', { promo_id: promoId, placement, format, language, route });
+}
+
+export function trackInternalPromoClick({ promoId, placement, format, language, route }) {
+  track('internal_promo_click', { promo_id: promoId, placement, format, language, route });
+}
+
+export function trackInternalPromoClose({ promoId, placement, format, language, route }) {
+  track('internal_promo_close', { promo_id: promoId, placement, format, language, route });
+}
+
 // ── Erreurs ─────────────────────────────────────────────────────────────
 // errorType/errorCode : codes normalisés uniquement (ex: 'render_crash',
 // 'supabase_request_failed'). Ne jamais transmettre error.message brut

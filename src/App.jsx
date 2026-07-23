@@ -807,7 +807,7 @@ export default function App() {
           onOpenMemories={handleOpenMemories}
         />
 
-        <AdSlot slot="8033973037" />
+        <AdSlot slot="8033973037" placement="home_banner" />
 
         {/* Empilées dans un conteneur dédié : ces bannières partagent la même
             position fixe en bas d'écran et se chevaucheraient sinon si

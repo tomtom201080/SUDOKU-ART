@@ -5,7 +5,8 @@
 import { useEffect, useState } from 'react';
 import { useT } from '../i18n/index.jsx';
 import { getAdConsent } from '../lib/adConsent';
-import { loadAdsenseScript, pushAdsenseAd, getAdsenseClientId } from '../lib/adsense';
+import { loadAdsenseScript, pushAdsenseAd, getAdsenseClientId, getAdProvider } from '../lib/adsense';
+import InternalPromo from './InternalPromo';
 import './MaxErrorsModal.css';
 
 const AD_WAIT = 5;
@@ -15,13 +16,17 @@ export default function MaxErrorsModal({ errorCount, maxErrors = 3, onContinue, 
   const [phase, setPhase] = useState('ask'); // 'ask' | 'ad' | 'done'
   const [countdown, setCountdown] = useState(AD_WAIT);
   const consent = getAdConsent();
-  const hasAdsense = !!getAdsenseClientId();
-  const canShowAd = hasAdsense;
+  const provider = getAdProvider();
+  const clientId = getAdsenseClientId();
+  const showAdsense = provider === 'adsense' && !!clientId;
+  const canShowAd = provider !== 'off';
 
   useEffect(() => {
     if (phase !== 'ad') return;
-    loadAdsenseScript();
-    pushAdsenseAd(consent === 'accepted');
+    if (showAdsense) {
+      loadAdsenseScript();
+      pushAdsenseAd(consent === 'accepted');
+    }
     const iv = setInterval(() => {
       setCountdown(c => {
         if (c <= 1) {
@@ -33,20 +38,26 @@ export default function MaxErrorsModal({ errorCount, maxErrors = 3, onContinue, 
       });
     }, 1000);
     return () => clearInterval(iv);
-  }, [phase]);
+  }, [phase, showAdsense]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (phase === 'ad') return (
     <div className="maxerr-overlay">
       <div className="maxerr-panel">
-        <p className="maxerr-icon">📢</p>
-        <h2 className="maxerr-title">{t('maxerr_ad_title')}</h2>
-        <ins className="adsbygoogle maxerr-ad-slot"
-          style={{ display: 'block', minHeight: 200 }}
-          data-ad-client={getAdsenseClientId()}
-          data-ad-slot="1388673635"
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        />
+        {showAdsense ? (
+          <>
+            <p className="maxerr-icon">📢</p>
+            <h2 className="maxerr-title">{t('maxerr_ad_title')}</h2>
+            <ins className="adsbygoogle maxerr-ad-slot"
+              style={{ display: 'block', minHeight: 200 }}
+              data-ad-client={clientId}
+              data-ad-slot="1388673635"
+              data-ad-format="auto"
+              data-full-width-responsive="true"
+            />
+          </>
+        ) : (
+          <InternalPromo format="interstitial" placement="max_errors" />
+        )}
         <p className="maxerr-wait">{countdown}s…</p>
       </div>
     </div>

@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useT } from '../i18n/index.jsx';
 import { getAdConsent } from '../lib/adConsent';
-import { loadAdsenseScript, pushAdsenseAd, getAdsenseClientId } from '../lib/adsense';
+import { loadAdsenseScript, pushAdsenseAd, getAdsenseClientId, getAdProvider } from '../lib/adsense';
+import InternalPromo from './InternalPromo';
 import './HintModal.css';
 
 const AD_WAIT = 5;
@@ -23,11 +24,14 @@ export default function HintModal({
   const [mode, setMode] = useState(null); // 'random' | 'pick', choisi par l'utilisateur
   const [countdown, setCountdown] = useState(AD_WAIT);
   const consent = getAdConsent();
-  const hasAdsense = !!getAdsenseClientId();
-  // La pub s'affiche toujours si AdSense est configuré : le consentement ne
-  // conditionne que la personnalisation (voir pushAdsenseAd), jamais
-  // l'affichage — l'utilisateur ne peut pas désactiver les pubs elles-mêmes.
-  const showAd = hasAdsense;
+  const provider = getAdProvider();
+  const clientId = getAdsenseClientId();
+  const showAdsense = provider === 'adsense' && !!clientId;
+  // La pub s'affiche toujours si un fournisseur est configuré : le
+  // consentement ne conditionne que la personnalisation AdSense (voir
+  // pushAdsenseAd), jamais l'affichage — l'utilisateur ne peut pas
+  // désactiver les pubs/promotions elles-mêmes, seulement leur contenu.
+  const showAd = provider !== 'off';
 
   const chooseMode = (chosenMode) => {
     setMode(chosenMode);
@@ -43,8 +47,10 @@ export default function HintModal({
 
   useEffect(() => {
     if (phase !== 'ad') return;
-    loadAdsenseScript();
-    pushAdsenseAd(consent === 'accepted');
+    if (showAdsense) {
+      loadAdsenseScript();
+      pushAdsenseAd(consent === 'accepted');
+    }
     const iv = setInterval(() => {
       setCountdown(c => {
         if (c <= 1) {
@@ -57,7 +63,7 @@ export default function HintModal({
       });
     }, 1000);
     return () => clearInterval(iv);
-  }, [phase, mode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [phase, mode, showAdsense]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Calcule quels chiffres ont encore des cases vides
   const availableDigits = useCallback(() => {
@@ -118,9 +124,13 @@ export default function HintModal({
         <span className="hint-step-label">{t('hint_ad_label')}</span>
         <span className="hint-step-progress">{countdown}s</span>
       </div>
-      <ins className="adsbygoogle" style={{ display: 'block', minHeight: 80 }}
-        data-ad-client={getAdsenseClientId()} data-ad-slot="4007098117"
-        data-ad-format="auto" data-full-width-responsive="true" />
+      {showAdsense ? (
+        <ins className="adsbygoogle" style={{ display: 'block', minHeight: 80 }}
+          data-ad-client={clientId} data-ad-slot="4007098117"
+          data-ad-format="auto" data-full-width-responsive="true" />
+      ) : (
+        <InternalPromo format="banner" placement="hint" />
+      )}
       <p className="hint-step-text">
         {t('hint_wait', { n: countdown, s: countdown > 1 ? 's' : '' })}
       </p>

@@ -1,13 +1,25 @@
 // src/lib/adsense.js
 let scriptLoaded = false;
 
-// Coupure temporaire des pubs (ex : en attendant la validation AdSense),
-// sans toucher au script de vérification AdSense lui-même (index.html) ni
-// au reste du code — les 4 composants publicitaires (AdSlot, AdInterstitial,
-// HintModal, MaxErrorsModal) retombent déjà proprement sur leur variante
-// sans pub dès que cette fonction renvoie une valeur fausse.
+// Choix centralisé du fournisseur affiché à chaque emplacement publicitaire
+// — un seul endroit à changer pour basculer d'un mode à l'autre :
+//   - 'internal' (par défaut) : promotions internes, voir InternalPromo.jsx
+//     et src/data/internalPromos.js — utile tant qu'AdSense n'est pas
+//     validé, sans toucher au script de vérification dans index.html.
+//   - 'adsense'  : vraies pubs AdSense.
+//   - 'off'      : rien du tout (ni pub ni promotion interne).
+// Les 4 composants publicitaires (AdSlot, AdInterstitial, HintModal,
+// MaxErrorsModal) retombent automatiquement sur InternalPromo si 'adsense'
+// est choisi mais qu'aucun identifiant client n'est configuré — filet de
+// sécurité en cas de blocage/erreur AdSense, sans créer d'emplacement vide.
+export function getAdProvider() {
+  const raw = import.meta.env.VITE_AD_PROVIDER;
+  if (raw === 'adsense') return 'adsense';
+  if (raw === 'off') return 'off';
+  return 'internal';
+}
+
 export function getAdsenseClientId() {
-  if (import.meta.env.VITE_ADS_ENABLED === 'false') return null;
   return import.meta.env.VITE_ADSENSE_CLIENT_ID || 'ca-pub-9595415133348818';
 }
 

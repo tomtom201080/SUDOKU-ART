@@ -1,30 +1,29 @@
-import { useT } from '../i18n/index.jsx';
 // src/components/AdSlot.jsx
 // La pub s'affiche toujours si AdSense est configuré : le consentement ne
 // conditionne que sa personnalisation (voir pushAdsenseAd), jamais son
 // affichage.
 import { useEffect } from 'react';
 import { getAdConsent } from '../lib/adConsent';
-import { loadAdsenseScript, pushAdsenseAd, getAdsenseClientId } from '../lib/adsense';
+import { loadAdsenseScript, pushAdsenseAd, getAdsenseClientId, getAdProvider } from '../lib/adsense';
+import InternalPromo from './InternalPromo';
 import './AdSlot.css';
 
-export default function AdSlot({ slot, format = 'auto' }) {
-  const { t } = useT();
+export default function AdSlot({ slot, format = 'auto', placement = 'banner' }) {
+  const provider = getAdProvider();
   const clientId = getAdsenseClientId();
+  const showAdsense = provider === 'adsense' && !!clientId;
   const consent = getAdConsent();
 
   useEffect(() => {
-    if (!clientId) return;
+    if (!showAdsense) return;
     loadAdsenseScript();
     pushAdsenseAd(consent === 'accepted');
-  }, [clientId, slot]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [showAdsense, slot]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!clientId) {
-    return (
-      <div className="ad-slot-placeholder">
-        {t('ad_placeholder')}
-      </div>
-    );
+  if (provider === 'off') return null;
+
+  if (!showAdsense) {
+    return <InternalPromo format="banner" placement={placement} />;
   }
 
   return (

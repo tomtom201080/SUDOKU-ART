@@ -6,24 +6,33 @@ import { useT } from '../i18n/index.jsx';
 // jamais son affichage.
 import { useEffect, useRef, useState } from 'react';
 import { getAdConsent } from '../lib/adConsent';
-import { loadAdsenseScript, pushAdsenseAd, getAdsenseClientId } from '../lib/adsense';
+import { loadAdsenseScript, pushAdsenseAd, getAdsenseClientId, getAdProvider } from '../lib/adsense';
+import InternalPromo from './InternalPromo';
+import { trackInternalPromoClose } from '../lib/tracking';
 import './AdInterstitial.css';
 
 const WAIT_SECONDS = 5;
 
 export default function AdInterstitial({ onContinue, onClose }) {
-  const { t } = useT();
+  const { t, lang } = useT();
 
   const [countdown, setCountdown] = useState(WAIT_SECONDS);
   const intervalRef = useRef(null);
   const consent = getAdConsent();
-  const hasAdsense = !!getAdsenseClientId();
+  const provider = getAdProvider();
+  const clientId = getAdsenseClientId();
+  const showAdsense = provider === 'adsense' && !!clientId;
+  // Rien à montrer (ni pub, ni promo interne) → ne jamais bloquer l'action
+  // en attente derrière cet interstitiel.
+  const showNothing = provider === 'off';
 
   useEffect(() => {
-    if (!hasAdsense) return;
+    if (showNothing) return;
 
-    loadAdsenseScript();
-    pushAdsenseAd(consent === 'accepted');
+    if (showAdsense) {
+      loadAdsenseScript();
+      pushAdsenseAd(consent === 'accepted');
+    }
 
     intervalRef.current = setInterval(() => {
       setCountdown(c => {
@@ -33,10 +42,33 @@ export default function AdInterstitial({ onContinue, onClose }) {
     }, 1000);
 
     return () => clearInterval(intervalRef.current);
-  }, [hasAdsense]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [showAdsense, showNothing]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Si pas de pub à montrer (AdSense non configuré) → ne rien rendre
-  if (!hasAdsense) return null;
+  // Échap ferme l'interstitiel dès que la fermeture est possible (même
+  // condition que le bouton ✕), sans jamais la devancer.
+  useEffect(() => {
+    if (showNothing || countdown > 0) return;
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') handleClose();
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showNothing, countdown, onClose, showAdsense, lang]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Ni pub ni promo interne à montrer (provider "off") → laisse l'action en
+  // attente se poursuivre immédiatement plutôt que de rester bloquée.
+  useEffect(() => {
+    if (showNothing) onContinue?.();
+  }, [showNothing, onContinue]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (showNothing) return null;
+
+  const handleClose = () => {
+    if (!showAdsense) {
+      trackInternalPromoClose({ placement: 'challenge_interstitial', format: 'interstitial', language: lang, route: window.location.pathname });
+    }
+    onClose?.();
+  };
 
   return (
     <div className="ad-interstitial-overlay">
@@ -44,18 +76,22 @@ export default function AdInterstitial({ onContinue, onClose }) {
         <div className="ad-interstitial-header">
           <span className="ad-interstitial-label">{t('ad_label')}</span>
           {countdown === 0 && (
-            <button className="ad-interstitial-close" onClick={onClose}>✕</button>
+            <button className="ad-interstitial-close" onClick={handleClose}>✕</button>
           )}
         </div>
 
-        <ins
-          className="adsbygoogle ad-interstitial-slot"
-          style={{ display: 'block' }}
-          data-ad-client={getAdsenseClientId()}
-          data-ad-slot="1388673635"
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        />
+        {showAdsense ? (
+          <ins
+            className="adsbygoogle ad-interstitial-slot"
+            style={{ display: 'block' }}
+            data-ad-client={clientId}
+            data-ad-slot="1388673635"
+            data-ad-format="auto"
+            data-full-width-responsive="true"
+          />
+        ) : (
+          <InternalPromo format="interstitial" placement="challenge_interstitial" />
+        )}
 
         <div className="ad-interstitial-footer">
           {countdown > 0 ? (
