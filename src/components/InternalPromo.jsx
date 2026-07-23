@@ -71,8 +71,8 @@ export default function InternalPromo({ format = 'banner', placement }) {
       <div className="internal-promo-body">
         <p className="internal-promo-title">{t(promo.titleKey)}</p>
         <p className="internal-promo-text">{t(promo.textKey)}</p>
+        <span className="internal-promo-badge">{t('promo_badge_label')}</span>
       </div>
-      <span className="internal-promo-badge">{t('promo_badge_label')}</span>
     </div>
   );
 }

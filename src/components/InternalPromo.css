@@ -24,6 +24,8 @@
 }
 
 .internal-promo-badge {
+  display: block;
+  margin-top: 4px;
   font-size: 0.62rem;
   font-weight: 600;
   color: var(--text-muted);
@@ -68,11 +70,6 @@
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-}
-
-.internal-promo-banner .internal-promo-badge {
-  align-self: flex-start;
-  flex-shrink: 0;
 }
 
 /* ── Format interstitiel : plus visible, texte complet, centré ── */
