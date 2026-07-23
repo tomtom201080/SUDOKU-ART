@@ -6,37 +6,56 @@
     </linearGradient>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
-  
-  <!-- Grille sudoku stylisée -->
-  <g transform="translate(700, 80)" opacity="0.15">
-    <rect width="420" height="420" rx="12" fill="none" stroke="white" stroke-width="3"/>
-    <line x1="140" y1="0" x2="140" y2="420" stroke="white" stroke-width="3"/>
-    <line x1="280" y1="0" x2="280" y2="420" stroke="white" stroke-width="3"/>
-    <line x1="0" y1="140" x2="420" y2="140" stroke="white" stroke-width="3"/>
-    <line x1="0" y1="280" x2="420" y2="280" stroke="white" stroke-width="3"/>
-    <line x1="47" y1="0" x2="47" y2="420" stroke="white" stroke-width="1" opacity="0.5"/>
-    <line x1="94" y1="0" x2="94" y2="420" stroke="white" stroke-width="1" opacity="0.5"/>
-    <line x1="187" y1="0" x2="187" y2="420" stroke="white" stroke-width="1" opacity="0.5"/>
-    <line x1="234" y1="0" x2="234" y2="420" stroke="white" stroke-width="1" opacity="0.5"/>
-    <line x1="327" y1="0" x2="327" y2="420" stroke="white" stroke-width="1" opacity="0.5"/>
-    <line x1="374" y1="0" x2="374" y2="420" stroke="white" stroke-width="1" opacity="0.5"/>
+
+  <!-- Logo (identique à favicon.svg / icon-512.png), mis en avant -->
+  <g transform="translate(724, 105)">
+    <rect x="0" y="0" width="420" height="420" rx="79" fill="#D98E04"/>
+    <rect x="0" y="0" width="420" height="420" rx="79" fill="none" stroke="#B8590A" stroke-width="5" opacity="0.3"/>
+
+    <g transform="translate(78.75, 78.75)">
+      <rect x="0" y="0" width="262.5" height="262.5" rx="16.4" fill="#FBF6EC"/>
+
+      <g stroke="#E7DEC8" stroke-width="3.3">
+        <line x1="87.4" y1="8.2" x2="87.4" y2="254.2" />
+        <line x1="174.7" y1="8.2" x2="174.7" y2="254.2" />
+        <line x1="8.2" y1="87.4" x2="254.2" y2="87.4" />
+        <line x1="8.2" y1="174.7" x2="254.2" y2="174.7" />
+      </g>
+
+      <g stroke="#2E2A22" stroke-width="5.7" fill="none">
+        <rect x="4.9" y="4.9" width="252.6" height="252.6" rx="13.1"/>
+        <line x1="87.4" y1="4.9" x2="87.4" y2="257.4" />
+        <line x1="174.7" y1="4.9" x2="174.7" y2="257.4" />
+        <line x1="4.9" y1="87.4" x2="257.4" y2="87.4" />
+        <line x1="4.9" y1="174.7" x2="257.4" y2="174.7" />
+      </g>
+
+      <text x="29.5" y="64" font-family="Segoe UI, sans-serif" font-size="47.6" font-weight="700" fill="#2E2A22">5</text>
+      <text x="205.2" y="64" font-family="Segoe UI, sans-serif" font-size="47.6" font-weight="700" fill="#2E2A22">2</text>
+      <text x="29.5" y="238" font-family="Segoe UI, sans-serif" font-size="47.6" font-weight="700" fill="#2E2A22">8</text>
+
+      <g transform="translate(131.3, 131.3)">
+        <path d="M0,-50.9 L13.1,-13.1 L50.9,0 L13.1,13.1 L0,50.9 L-13.1,13.1 L-50.9,0 L-13.1,-13.1 Z"
+              fill="#D98E04" stroke="#FBF6EC" stroke-width="4.9" stroke-linejoin="round"/>
+      </g>
+    </g>
   </g>
 
   <!-- Titre -->
-  <text x="80" y="200" font-family="Georgia, serif" font-size="88" font-weight="bold" fill="white">Sudoku Art</text>
-  
+  <text x="80" y="230" font-family="Georgia, serif" font-size="88" font-weight="bold" fill="white">Sudoku Art</text>
+
   <!-- Sous-titre -->
-  <text x="82" y="280" font-family="Arial, sans-serif" font-size="36" fill="rgba(255,255,255,0.85)">Résous la grille, révèle une œuvre d'art</text>
+  <text x="82" y="310" font-family="Arial, sans-serif" font-size="36" fill="rgba(255,255,255,0.85)">Résous la grille, révèle une œuvre d'art</text>
 
   <!-- Badges -->
-  <rect x="82" y="330" width="160" height="48" rx="24" fill="rgba(255,255,255,0.2)"/>
-  <text x="162" y="362" font-family="Arial, sans-serif" font-size="22" fill="white" text-anchor="middle">🖼️ Art</text>
-  
-  <rect x="260" y="330" width="200" height="48" rx="24" fill="rgba(255,255,255,0.2)"/>
-  <text x="360" y="362" font-family="Arial, sans-serif" font-size="22" fill="white" text-anchor="middle">📷 Memories</text>
-  
-  <rect x="478" y="330" width="160" height="48" rx="24" fill="rgba(255,255,255,0.2)"/>
-  <text x="558" y="362" font-family="Arial, sans-serif" font-size="22" fill="white" text-anchor="middle">🎯 Défi</text>
+  <rect x="82" y="360" width="160" height="48" rx="24" fill="rgba(255,255,255,0.2)"/>
+  <text x="162" y="392" font-family="Arial, sans-serif" font-size="22" fill="white" text-anchor="middle">🖼️ Art</text>
+
+  <rect x="260" y="360" width="200" height="48" rx="24" fill="rgba(255,255,255,0.2)"/>
+  <text x="360" y="392" font-family="Arial, sans-serif" font-size="22" fill="white" text-anchor="middle">📷 Memories</text>
+
+  <rect x="478" y="360" width="160" height="48" rx="24" fill="rgba(255,255,255,0.2)"/>
+  <text x="558" y="392" font-family="Arial, sans-serif" font-size="22" fill="white" text-anchor="middle">🎯 Défi</text>
 
   <!-- URL -->
   <text x="82" y="560" font-family="Arial, sans-serif" font-size="28" fill="rgba(255,255,255,0.6)">sudoku-art.vercel.app</text>
