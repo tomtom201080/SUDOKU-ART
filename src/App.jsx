@@ -26,6 +26,7 @@ import UpdatePasswordScreen from './components/UpdatePasswordScreen';
 import InstallAppModal from './components/InstallAppModal';
 import HelpModal from './components/HelpModal';
 import KpiDashboard from './components/KpiDashboard';
+import PlatformStatsDashboard from './components/PlatformStatsDashboard';
 import AdSlot from './components/AdSlot';
 import ConsentBanner from './components/ConsentBanner';
 import AdInterstitial from './components/AdInterstitial';
@@ -142,6 +143,7 @@ export default function App() {
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showKpiDashboard, setShowKpiDashboard] = useState(false);
+  const [showPlatformStats, setShowPlatformStats] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
@@ -795,6 +797,9 @@ export default function App() {
             {session?.user?.email === 't.dabadie@gmail.com' && (
               <button className="icon-btn" onClick={() => setShowKpiDashboard(true)} title={t('nav_stats_title')}>📊</button>
             )}
+            {session?.user?.email === 't.dabadie@gmail.com' && (
+              <button className="icon-btn" onClick={() => setShowPlatformStats(true)} title={t('platform_stats_title')}>🛰️</button>
+            )}
             <button className="icon-btn" onClick={handleOpenGallery} title={t('gallery_title')}>🖼</button>
             {profileButton}
             {accountButton}
@@ -877,6 +882,9 @@ export default function App() {
         )}
         {showKpiDashboard && (
           <KpiDashboard onClose={() => setShowKpiDashboard(false)} />
+        )}
+        {showPlatformStats && (
+          <PlatformStatsDashboard onClose={() => setShowPlatformStats(false)} />
         )}
         {showGallery && (
           <Gallery gallery={galleryData} onClose={() => setShowGallery(false)} />
