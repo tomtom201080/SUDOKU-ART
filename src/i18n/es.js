@@ -417,7 +417,7 @@ export default {
   help_photo_challenge_text: 'Puedes elegir una foto de tu dispositivo. También puedes enviar un desafío a un amigo con una foto oculta y un límite de errores o pistas.',
 
   // ── InstallAppModal ──────────────────────────────────────────────
-  install_ios1: 'Pulsa el botón Compartir ⬆️ en la parte inferior de la pantalla (Safari)',
+  install_ios1: 'Pulsa el botón Compartir ⬆️ en la parte inferior de la pantalla',
   install_ios2: 'Desplázate y elige "En la pantalla de inicio"',
   install_ios3: 'Pulsa "Añadir" en la parte superior derecha',
   install_android1: 'Pulsa el menú ⋮ (3 puntos) en la parte superior derecha de Chrome',

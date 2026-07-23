@@ -417,7 +417,7 @@ export default {
   help_photo_challenge_text: '你可以从设备中选择一张照片。你也可以给好友发送带有隐藏照片以及错误或提示次数限制的挑战。',
 
   // ── InstallAppModal ───────────────────────────────────────────
-  install_ios1: '点击屏幕底部的分享按钮 ⬆️（Safari）',
+  install_ios1: '点击屏幕底部的分享按钮 ⬆️',
   install_ios2: '向下滚动并选择「添加到主屏幕」',
   install_ios3: '点击右上角的「添加」',
   install_android1: '点击 Chrome 右上角的菜单 ⋮（3 个点）',

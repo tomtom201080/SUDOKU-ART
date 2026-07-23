@@ -417,7 +417,7 @@ export default {
   help_photo_challenge_text: 'You can pick a photo from your device. You can also send a challenge to a friend with a hidden photo and a limit on errors or hints.',
 
   // ── InstallAppModal ───────────────────────────────────────────
-  install_ios1: 'Tap the Share button ⬆️ at the bottom of the screen (Safari)',
+  install_ios1: 'Tap the Share button ⬆️ at the bottom of the screen',
   install_ios2: 'Scroll down and choose "Add to Home Screen"',
   install_ios3: 'Tap "Add" in the top right',
   install_android1: 'Tap the ⋮ menu (3 dots) in the top right of Chrome',

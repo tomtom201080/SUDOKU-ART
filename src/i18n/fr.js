@@ -417,7 +417,7 @@ export default {
   help_photo_challenge_text: 'Tu peux choisir une photo de ton appareil. Tu peux aussi envoyer un défi à un ami avec une photo cachée et une limite d\'erreurs ou d\'indices.',
 
   // ── InstallAppModal ───────────────────────────────────────────
-  install_ios1: 'Appuie sur le bouton Partager ⬆️ en bas de l\'écran (Safari)',
+  install_ios1: 'Appuie sur le bouton Partager ⬆️ en bas de l\'écran',
   install_ios2: 'Fais défiler et choisis "Sur l\'écran d\'accueil"',
   install_ios3: 'Appuie sur "Ajouter" en haut à droite',
   install_android1: 'Appuie sur le menu ⋮ (3 points) en haut à droite de Chrome',

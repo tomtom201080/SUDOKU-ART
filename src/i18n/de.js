@@ -417,7 +417,7 @@ export default {
   help_photo_challenge_text: 'Du kannst ein Foto von deinem Gerät wählen. Du kannst auch einem Freund eine Herausforderung mit einem versteckten Foto und einem Fehler- oder Tipp-Limit senden.',
 
   // ── InstallAppModal ──────────────────────────────────────────────
-  install_ios1: 'Tippe unten auf den Teilen-Button ⬆️ (Safari)',
+  install_ios1: 'Tippe unten auf den Teilen-Button ⬆️',
   install_ios2: 'Scrolle und wähle „Zum Home-Bildschirm"',
   install_ios3: 'Tippe oben rechts auf „Hinzufügen"',
   install_android1: 'Tippe oben rechts in Chrome auf das Menü ⋮ (3 Punkte)',

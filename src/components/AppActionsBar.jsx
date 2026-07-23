@@ -22,6 +22,11 @@ export default function AppActionsBar({ onShowInstallInstructions }) {
   // de le cacher à tort pour quelqu'un qui en a besoin.
   const { canPromptNative, promptInstall } = useInstallPrompt();
   const [justCopied, setJustCopied] = useState(false);
+  // "Installer l'app" n'a de sens que sur téléphone (ajout à l'écran
+  // d'accueil) — sur ordinateur, l'action la plus utile reste de garder la
+  // page en favori, déjà mentionné dans InstallAppModal si jamais ouverte
+  // autrement.
+  const isMobile = isMobileDevice();
 
   const handleInstallClick = async () => {
     if (canPromptNative) {
@@ -55,9 +60,11 @@ export default function AppActionsBar({ onShowInstallInstructions }) {
 
   return (
     <div className="app-actions-bar">
-      <button className="app-action-btn" onClick={handleInstallClick}>
-        📲 {t('app_install_btn')}
-      </button>
+      {isMobile && (
+        <button className="app-action-btn" onClick={handleInstallClick}>
+          📲 {t('app_install_btn')}
+        </button>
+      )}
       <button className="app-action-btn app-action-btn-secondary" onClick={handleShareClick}>
         {justCopied ? `✅ ${t('app_share_copied')}` : `🔗 ${t('app_share_btn')}`}
       </button>
