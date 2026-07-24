@@ -1,4 +1,12 @@
 {
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "sudoku-art.vercel.app" }],
+      "destination": "https://sudokuart.com/:path*",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/ads.txt",
