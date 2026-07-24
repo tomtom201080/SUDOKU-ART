@@ -6,7 +6,7 @@
 // navigation interne (SPA) et le rendu par Google (qui exécute le JS).
 import { useEffect } from 'react';
 
-export const SITE_URL = 'https://sudoku-art.vercel.app';
+export const SITE_URL = 'https://sudokuart.com';
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 function upsertMeta(attr, key, content) {

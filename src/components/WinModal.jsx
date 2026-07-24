@@ -117,7 +117,7 @@ export default function WinModal({
           }
         }
         if (navigator.share) {
-          await navigator.share({ title: 'Sudoku Art', url: 'https://sudoku-art.vercel.app', text });
+          await navigator.share({ title: 'Sudoku Art', url: 'https://sudokuart.com', text });
           trackShareCompleted({ shareMethod: 'native_share', puzzleId });
           return;
         }

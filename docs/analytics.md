@@ -11,7 +11,7 @@ en place pour comprendre l'usage du jeu avant son lancement public.
 2. Si tu n'as pas encore de propriété : **Admin → Créer → Propriété**, type
    "Web", donne-lui un nom (ex: "Sudoku Art").
 3. Dans la propriété : **Admin → Flux de données → Ajouter un flux → Web**,
-   renseigne l'URL du site (`https://sudoku-art.vercel.app`).
+   renseigne l'URL du site (`https://sudokuart.com`).
 4. Le flux créé affiche un **ID de mesure** au format `G-XXXXXXXXXX`. C'est
    la valeur à mettre dans `VITE_GA_MEASUREMENT_ID`.
 

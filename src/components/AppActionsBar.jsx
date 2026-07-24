@@ -9,7 +9,7 @@ import { useInstallPrompt } from '../hooks/useInstallPrompt';
 import { isMobileDevice } from '../utils/device';
 import './AppActionsBar.css';
 
-const APP_URL = typeof window !== 'undefined' ? window.location.origin : 'https://sudoku-art.vercel.app';
+const APP_URL = typeof window !== 'undefined' ? window.location.origin : 'https://sudokuart.com';
 
 // onShowInstallInstructions : ouvre la modale d'instructions existante
 // (InstallAppModal) — utilisée seulement en repli, quand le navigateur ne

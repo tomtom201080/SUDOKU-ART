@@ -58,5 +58,5 @@
   <text x="558" y="392" font-family="Arial, sans-serif" font-size="22" fill="white" text-anchor="middle">🎯 Défi</text>
 
   <!-- URL -->
-  <text x="82" y="560" font-family="Arial, sans-serif" font-size="28" fill="rgba(255,255,255,0.6)">sudoku-art.vercel.app</text>
+  <text x="82" y="560" font-family="Arial, sans-serif" font-size="28" fill="rgba(255,255,255,0.6)">sudokuart.com</text>
 </svg>

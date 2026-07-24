@@ -641,7 +641,7 @@ export default {
   // ── WinModal ─────────────────────────────────────────────────
   win_difficulty_label: 'Difficulté : ',
   win_no_error: 'aucune erreur 🏆',
-  win_share_text: '{painting}Difficulté : {diff} — {time} — {errors}\nJoue aussi : https://sudoku-art.vercel.app',
+  win_share_text: '{painting}Difficulté : {diff} — {time} — {errors}\nJoue aussi : https://sudokuart.com',
   win_result_msg: 'Difficulté : {diff} — Erreurs : {errors} — Temps : {time}',
   win_stats_row: '❌ {errors} erreur{s} — ⏱ {time}',
   win_table_raw: '⏱ Brut',

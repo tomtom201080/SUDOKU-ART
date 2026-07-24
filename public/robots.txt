@@ -6,4 +6,4 @@ Allow: /
 Disallow: /*?defi=*
 Disallow: /*?rematch=*
 
-Sitemap: https://sudoku-art.vercel.app/sitemap.xml
+Sitemap: https://sudokuart.com/sitemap.xml

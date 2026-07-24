@@ -60,7 +60,7 @@ async function loadDotEnv() {
 
 await loadDotEnv();
 
-const SITE_URL = (process.env.SITE_URL || 'https://sudoku-art.vercel.app').replace(/\/$/, '');
+const SITE_URL = (process.env.SITE_URL || 'https://sudokuart.com').replace(/\/$/, '');
 const GOOGLE_SITE_VERIFICATION = process.env.GOOGLE_SITE_VERIFICATION || '';
 const OG_IMAGE = `${SITE_URL}/og-image.png`;
 

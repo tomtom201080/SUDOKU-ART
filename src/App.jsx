@@ -814,8 +814,8 @@ export default function App() {
         />
 
         <AppActionsBar onShowInstallInstructions={() => setShowInstallModal(true)} />
-        <a className="site-url-link" href="https://sudoku-art.vercel.app" target="_blank" rel="noopener noreferrer">
-          sudoku-art.vercel.app
+        <a className="site-url-link" href="https://sudokuart.com" target="_blank" rel="noopener noreferrer">
+          sudokuart.com
         </a>
 
         <AdSlot slot="8033973037" placement="home_banner" />
@@ -1101,8 +1101,8 @@ export default function App() {
         />
 
         <AppActionsBar onShowInstallInstructions={() => setShowInstallModal(true)} />
-        <a className="site-url-link" href="https://sudoku-art.vercel.app" target="_blank" rel="noopener noreferrer">
-          sudoku-art.vercel.app
+        <a className="site-url-link" href="https://sudokuart.com" target="_blank" rel="noopener noreferrer">
+          sudokuart.com
         </a>
       </div>
 
