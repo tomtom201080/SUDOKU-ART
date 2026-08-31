@@ -27,6 +27,7 @@ import InstallAppModal from './components/InstallAppModal';
 import HelpModal from './components/HelpModal';
 import KpiDashboard from './components/KpiDashboard';
 import PlatformStatsDashboard from './components/PlatformStatsDashboard';
+import TeaserGridGenerator from './components/TeaserGridGenerator';
 import AdSlot from './components/AdSlot';
 import AppActionsBar from './components/AppActionsBar';
 import ConsentBanner from './components/ConsentBanner';
@@ -145,6 +146,7 @@ export default function App() {
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showKpiDashboard, setShowKpiDashboard] = useState(false);
   const [showPlatformStats, setShowPlatformStats] = useState(false);
+  const [showTeaserGenerator, setShowTeaserGenerator] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
@@ -801,6 +803,9 @@ export default function App() {
             {session?.user?.email === 't.dabadie@gmail.com' && (
               <button className="icon-btn" onClick={() => setShowPlatformStats(true)} title={t('platform_stats_title')}>🛰️</button>
             )}
+            {session?.user?.email === 't.dabadie@gmail.com' && (
+              <button className="icon-btn" onClick={() => setShowTeaserGenerator(true)} title="[ADMIN] Générateur de grille teaser">🎬</button>
+            )}
             <button className="icon-btn" onClick={handleOpenGallery} title={t('gallery_title')}>🖼</button>
             {profileButton}
             {accountButton}
@@ -891,6 +896,9 @@ export default function App() {
         )}
         {showPlatformStats && (
           <PlatformStatsDashboard onClose={() => setShowPlatformStats(false)} />
+        )}
+        {showTeaserGenerator && (
+          <TeaserGridGenerator manifest={manifest} onClose={() => setShowTeaserGenerator(false)} />
         )}
         {showGallery && (
           <Gallery gallery={galleryData} onClose={() => setShowGallery(false)} />
