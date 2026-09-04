@@ -17,6 +17,12 @@ export default {
   home_defi_label: '挑战',
   home_defi_desc: '在同一棋盘上挑战好友，比较你们的成绩',
 
+  home_number_title: '玩指定编号的棋盘',
+  home_number_placeholder: '例如 128',
+  home_number_play_btn: '开始',
+  home_number_loading: '加载中…',
+  home_number_not_found: '未找到该棋盘。',
+
   home_back: '← 返回',
   home_choose_diff: '选择难度',
   home_classic_title: '经典数独',

@@ -17,6 +17,12 @@ export default {
   home_defi_label: 'Challenge',
   home_defi_desc: 'Challenge a friend on the same grid and compare scores',
 
+  home_number_title: 'Play grid #',
+  home_number_placeholder: 'e.g. 128',
+  home_number_play_btn: 'Play',
+  home_number_loading: 'Loading…',
+  home_number_not_found: 'Grid not found.',
+
   home_back: '← Back',
   home_choose_diff: 'Choose difficulty',
   home_classic_title: 'Classic Sudoku',

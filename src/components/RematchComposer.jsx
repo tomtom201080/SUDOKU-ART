@@ -75,7 +75,7 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, hi
         label: defiName.trim() || null
       });
 
-      const link = buildRematchLink(rematch.id);
+      const link = buildRematchLink(rematch.number);
       const diffLabel = DIFFICULTY_KEYS[difficulty] ? t(DIFFICULTY_KEYS[difficulty]) : difficulty;
       const message =
         t('rematch_share_text', {

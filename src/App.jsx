@@ -56,6 +56,7 @@ import {
   readChallengeIdFromUrl,
   clearChallengeFromUrl,
   fetchChallenge,
+  fetchChallengeByNumber,
   claimChallenge,
   claimChallengeToken
 } from './lib/challenges';
@@ -63,6 +64,7 @@ import {
   readRematchIdFromUrl,
   clearRematchFromUrl,
   fetchRematch,
+  fetchRematchByNumber,
   claimRematchToken,
   fetchUnnotifiedRematchResults,
   markRematchNotified,
@@ -400,11 +402,20 @@ export default function App() {
     setIncomingChallengeHandled(true);
     clearChallengeFromUrl();
 
-    fetchChallenge(incomingChallengeId)
+    // Depuis la migration 20260904100000, le lien contient le numéro court
+    // du défi (?defi=47), plus l'uuid — sauf pour un lien déjà partagé avant
+    // cette migration, encore au format uuid, qu'on continue de résoudre à
+    // l'ancienne pour ne pas casser les liens déjà envoyés.
+    const isNumber = /^\d+$/.test(incomingChallengeId);
+    const fetchPromise = isNumber
+      ? fetchChallengeByNumber(Number(incomingChallengeId))
+      : fetchChallenge(incomingChallengeId);
+
+    fetchPromise
       .then(async challenge => {
         if (!challenge || challenge.completed) return;
 
-        const { granted } = await claimChallengeToken(incomingChallengeId);
+        const { granted } = await claimChallengeToken(challenge.id);
         if (!granted) {
           setChallengeAlreadyOpened(true);
           return;
@@ -413,7 +424,7 @@ export default function App() {
         handlePlayChallenge(challenge);
         // Si l'utilisateur est déjà connecté, on rattache aussi le défi à
         // son compte (purement informatif, pas une condition pour jouer).
-        if (session) claimChallenge(incomingChallengeId).catch(() => null);
+        if (session) claimChallenge(challenge.id).catch(() => null);
       })
       .catch(() => setIncomingLinkFailed(true));
   }, [incomingChallengeId, incomingChallengeHandled, manifestLoading, session, handlePlayChallenge]);
@@ -427,7 +438,15 @@ export default function App() {
     setIncomingRematchHandled(true);
     clearRematchFromUrl();
 
-    fetchRematch(incomingRematchId)
+    // Même compatibilité que pour les défis "Memories" ci-dessus : numéro
+    // court (?rematch=47) depuis la migration 20260904100000, uuid pour un
+    // lien déjà partagé avant.
+    const isNumber = /^\d+$/.test(incomingRematchId);
+    const fetchPromise = isNumber
+      ? fetchRematchByNumber(Number(incomingRematchId))
+      : fetchRematch(incomingRematchId);
+
+    fetchPromise
       .then(async rematch => {
         if (!rematch || rematch.completed) return;
 
@@ -445,18 +464,18 @@ export default function App() {
         }
 
         // Mode perso : premier arrivé premier servi
-        if (hasRematchAlreadyStarted(incomingRematchId)) {
+        if (hasRematchAlreadyStarted(rematch.id)) {
           setRematchAlreadyStartedNotice(true);
           return;
         }
 
-        const { granted } = await claimRematchToken(incomingRematchId);
+        const { granted } = await claimRematchToken(rematch.id);
         if (!granted) {
           setChallengeAlreadyOpened(true);
           return;
         }
 
-        markRematchAsStarted(incomingRematchId);
+        markRematchAsStarted(rematch.id);
 
         // Si l'utilisateur est déjà connecté → lancer directement (son compte sera lié)
         // Sinon → proposer de se connecter ou jouer en libre
@@ -470,6 +489,38 @@ export default function App() {
       .catch(() => setIncomingLinkFailed(true));
   }, [incomingRematchId, incomingRematchHandled, manifestLoading, game]);
 
+  // Charge une grille numérotée (catalogue admin, voir
+  // src/lib/numberedPuzzles.js) et lance la partie — utilisé aussi bien pour
+  // un lien ouvert (?grille=N) que pour la saisie manuelle d'un numéro sur
+  // l'accueil (DifficultySelector). Retourne true si la grille a été
+  // trouvée et lancée, false si ce numéro n'existe pas.
+  const loadAndStartNumberedPuzzle = useCallback(async (number) => {
+    const entry = await fetchNumberedPuzzle(number);
+    if (!entry) return false;
+
+    const metadata = getPaintingMetadata(entry.painting_id);
+    const tier = metadata?.tier ?? null;
+    const image = {
+      id: entry.painting_id,
+      tier,
+      path: resolveImagePath(tier, metadata, entry.painting_id),
+      pathLow: resolveImagePathLow(tier, metadata, entry.painting_id),
+      title: metadata?.title ?? null,
+      artist: metadata?.artist ?? null,
+      year: metadata?.year ?? null,
+      style: metadata?.style ?? null,
+      museum: metadata?.museum ?? null,
+      city: metadata?.city ?? null,
+      country: metadata?.country ?? null,
+      technique: metadata?.technique ?? null,
+      funFact: metadata?.funFact ?? null,
+      observe: metadata?.observe ?? null
+    };
+
+    game.startNumberedPuzzle(entry, image);
+    return true;
+  }, [game]);
+
   // Dès qu'un lien de grille numérotée est ouvert (?grille=N), on charge
   // cette grille figée + l'œuvre associée et on lance la partie directement
   // — aucune connexion ni jeton anti-transfert requis, n'importe qui peut
@@ -480,33 +531,9 @@ export default function App() {
     setIncomingPuzzleNumberHandled(true);
     clearNumberedPuzzleFromUrl();
 
-    fetchNumberedPuzzle(incomingPuzzleNumber)
-      .then(entry => {
-        if (!entry) return;
-
-        const metadata = getPaintingMetadata(entry.painting_id);
-        const tier = metadata?.tier ?? null;
-        const image = {
-          id: entry.painting_id,
-          tier,
-          path: resolveImagePath(tier, metadata, entry.painting_id),
-          pathLow: resolveImagePathLow(tier, metadata, entry.painting_id),
-          title: metadata?.title ?? null,
-          artist: metadata?.artist ?? null,
-          year: metadata?.year ?? null,
-          style: metadata?.style ?? null,
-          museum: metadata?.museum ?? null,
-          city: metadata?.city ?? null,
-          country: metadata?.country ?? null,
-          technique: metadata?.technique ?? null,
-          funFact: metadata?.funFact ?? null,
-          observe: metadata?.observe ?? null
-        };
-
-        game.startNumberedPuzzle(entry, image);
-      })
+    loadAndStartNumberedPuzzle(incomingPuzzleNumber)
       .catch(() => setIncomingLinkFailed(true));
-  }, [incomingPuzzleNumber, incomingPuzzleNumberHandled, game]);
+  }, [incomingPuzzleNumber, incomingPuzzleNumberHandled, loadAndStartNumberedPuzzle]);
 
   // Tant qu'on est connecté et sur l'écran d'accueil, on vérifie si des amis
   // ont terminé un défi "même grille" qu'on leur a envoyé, pour leur montrer
@@ -867,6 +894,7 @@ export default function App() {
           onRequestSendChallenge={handleRequestSendChallenge}
           onOpenDefi={handleOpenDefi}
           onOpenMemories={handleOpenMemories}
+          onPlayNumberedPuzzle={loadAndStartNumberedPuzzle}
         />
 
         <AppActionsBar onShowInstallInstructions={() => setShowInstallModal(true)} />

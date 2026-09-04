@@ -73,9 +73,11 @@ export async function createChallenge({ photoPath, difficultyMode, maxErrors, ti
   return data;
 }
 
-export function buildChallengeLink(challengeId) {
+// `number` : le numéro court du défi (challenge.number), pas son uuid — voir
+// la migration 20260904100000 et le commentaire sur fetchChallengeByNumber.
+export function buildChallengeLink(number) {
   const url = new URL(window.location.origin + window.location.pathname);
-  url.searchParams.set('defi', challengeId);
+  url.searchParams.set('defi', number);
   return url.toString();
 }
 
@@ -122,6 +124,22 @@ export async function fetchChallenge(challengeId) {
     .from('challenges')
     .select('*')
     .eq('id', challengeId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+// Résout un défi à partir de son numéro court (celui du lien de partage,
+// voir buildChallengeLink) plutôt que de son uuid — utilisée à l'ouverture
+// d'un lien ?defi=N. Retourne la ligne complète (avec son vrai id/uuid), à
+// utiliser ensuite pour tous les appels suivants (claimChallengeToken,
+// claimChallenge...), jamais le numéro lui-même.
+export async function fetchChallengeByNumber(number) {
+  const { data, error } = await supabase
+    .from('challenges')
+    .select('*')
+    .eq('number', number)
     .maybeSingle();
 
   if (error) throw error;

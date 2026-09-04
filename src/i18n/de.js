@@ -17,6 +17,12 @@ export default {
   home_defi_label: 'Herausforderung',
   home_defi_desc: 'Fordere einen Freund auf demselben Raster heraus und vergleicht eure Punktzahlen',
 
+  home_number_title: 'Raster Nr. spielen',
+  home_number_placeholder: 'z. B. 128',
+  home_number_play_btn: 'Spielen',
+  home_number_loading: 'Lädt…',
+  home_number_not_found: 'Raster nicht gefunden.',
+
   home_back: '← Zurück',
   home_choose_diff: 'Wähle die Schwierigkeit',
   home_classic_title: 'Klassisches Sudoku',

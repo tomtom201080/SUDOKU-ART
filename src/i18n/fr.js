@@ -17,6 +17,12 @@ export default {
   home_defi_label: 'Défi',
   home_defi_desc: 'Défie un ami sur la même grille et compare vos scores',
 
+  home_number_title: 'Jouer une grille n°',
+  home_number_placeholder: 'ex. 128',
+  home_number_play_btn: 'Jouer',
+  home_number_loading: 'Chargement…',
+  home_number_not_found: 'Grille introuvable.',
+
   home_back: '← Retour',
   home_choose_diff: 'Choisis la difficulté',
   home_classic_title: 'Sudoku classique',

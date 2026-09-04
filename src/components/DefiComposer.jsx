@@ -108,7 +108,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
             classicMode,
             label });
 
-      const link      = buildRematchLink(rematch.id);
+      const link      = buildRematchLink(rematch.number);
       const diffLabel = DIFFICULTY_KEYS[difficulty] ? t(DIFFICULTY_KEYS[difficulty]) : difficulty;
       const limiteTxt = hintsLimit != null ? `\n💡 Max ${t('defi_hint_count', { v: hintsLimit, s: hintsLimit > 1 ? 's' : '' })}` : '';
       const regleTxt  = `${t('defi_rule_msg')}${limiteTxt}`;

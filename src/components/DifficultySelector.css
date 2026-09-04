@@ -69,6 +69,63 @@
   line-height: 1.35;
 }
 
+/* ─── Jouer une grille numérotée ─── */
+.ds-number-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  text-align: center;
+}
+
+.ds-number-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.ds-number-row {
+  display: flex;
+  gap: 8px;
+}
+
+.ds-number-input {
+  width: 96px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.ds-number-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.ds-number-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1.5px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.ds-number-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.ds-number-error {
+  font-size: 0.75rem;
+  color: #D32F2F;
+  margin: 0;
+}
+
 /* ─── Sous-écrans ─── */
 .ds-sub {
   display: flex;

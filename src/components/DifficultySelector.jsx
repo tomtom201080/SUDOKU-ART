@@ -82,7 +82,55 @@ function PhotoScreen({ onSelectDifficulty, onSendChallenge, onBack }) {
   );
 }
 
-function HomeScreen({ onPick, onOpenDefi, onOpenMemories }) {
+// Champ "Jouer la grille n°..." : un joueur qui a vu un numéro sur un
+// visuel partagé (screenshot teaser, lien reçu recopié à la main...) peut le
+// taper directement au lieu d'avoir le lien complet sous la main. Repose sur
+// le même catalogue que ?grille=N (voir src/lib/numberedPuzzles.js).
+function NumberedPuzzleForm({ onPlayNumberedPuzzle }) {
+  const { t } = useT();
+  const [value, setValue] = useState('');
+  const [status, setStatus] = useState('idle'); // idle | loading | not_found
+
+  if (!onPlayNumberedPuzzle) return null;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const number = Number(value);
+    if (!Number.isInteger(number) || number <= 0) return;
+    setStatus('loading');
+    try {
+      const found = await onPlayNumberedPuzzle(number);
+      if (!found) setStatus('not_found');
+      // si trouvé, l'appli change d'écran toute seule (partie lancée)
+    } catch {
+      setStatus('not_found');
+    }
+  };
+
+  return (
+    <form className="ds-number-form" onSubmit={handleSubmit}>
+      <label className="ds-number-label" htmlFor="ds-number-input">{t('home_number_title')}</label>
+      <div className="ds-number-row">
+        <input
+          id="ds-number-input"
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          className="ds-number-input"
+          value={value}
+          onChange={(e) => { setValue(e.target.value.replace(/[^0-9]/g, '')); setStatus('idle'); }}
+          placeholder={t('home_number_placeholder')}
+        />
+        <button type="submit" className="ds-number-btn" disabled={!value || status === 'loading'}>
+          {status === 'loading' ? t('home_number_loading') : t('home_number_play_btn')}
+        </button>
+      </div>
+      {status === 'not_found' && <p className="ds-number-error">{t('home_number_not_found')}</p>}
+    </form>
+  );
+}
+
+function HomeScreen({ onPick, onOpenDefi, onOpenMemories, onPlayNumberedPuzzle }) {
   const { t } = useT();
   return (
     <div className="ds-home">
@@ -112,11 +160,12 @@ function HomeScreen({ onPick, onOpenDefi, onOpenMemories }) {
           <span className="ds-card-desc">{t('home_defi_desc')}</span>
         </button>
       </div>
+      <NumberedPuzzleForm onPlayNumberedPuzzle={onPlayNumberedPuzzle} />
     </div>
   );
 }
 
-export default function DifficultySelector({ onSelect, onRequestSendChallenge, onOpenDefi, onOpenMemories }) {
+export default function DifficultySelector({ onSelect, onRequestSendChallenge, onOpenDefi, onOpenMemories, onPlayNumberedPuzzle }) {
   const { t } = useT();
   const [screen, setScreen] = useState('home');
 
@@ -129,5 +178,12 @@ export default function DifficultySelector({ onSelect, onRequestSendChallenge, o
   if (screen === 'photo') return (
     <PhotoScreen onSelectDifficulty={(diff, img) => onSelect(diff, img)} onSendChallenge={(img) => onRequestSendChallenge(img)} onBack={() => setScreen('home')} />
   );
-  return <HomeScreen onPick={setScreen} onOpenDefi={onOpenDefi} onOpenMemories={onOpenMemories} />;
+  return (
+    <HomeScreen
+      onPick={setScreen}
+      onOpenDefi={onOpenDefi}
+      onOpenMemories={onOpenMemories}
+      onPlayNumberedPuzzle={onPlayNumberedPuzzle}
+    />
+  );
 }

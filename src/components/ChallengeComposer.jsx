@@ -90,7 +90,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null, u
         hintsLimit,
         label: challengeName.trim() || null
       });
-      const link = buildChallengeLink(challenge.id);
+      const link = buildChallengeLink(challenge.number);
       setShareLink(link);
 
       const message = path

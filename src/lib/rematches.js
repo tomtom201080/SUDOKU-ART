@@ -102,9 +102,11 @@ export async function regenerateRematch(original, { groupMode, classicMode, phot
   });
 }
 
-export function buildRematchLink(rematchId) {
+// `number` : le numéro court du défi (rematch.number), pas son uuid — voir
+// la migration 20260904100000 et le commentaire sur fetchRematchByNumber.
+export function buildRematchLink(number) {
   const url = new URL(window.location.origin + window.location.pathname);
-  url.searchParams.set('rematch', rematchId);
+  url.searchParams.set('rematch', number);
   return url.toString();
 }
 
@@ -124,6 +126,22 @@ export async function fetchRematch(id) {
     .from('rematches')
     .select('*')
     .eq('id', id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
+// Résout un défi "même grille" à partir de son numéro court (celui du lien
+// de partage, voir buildRematchLink) plutôt que de son uuid — utilisée à
+// l'ouverture d'un lien ?rematch=N. Retourne la ligne complète (avec son
+// vrai id/uuid), à utiliser ensuite pour tous les appels suivants
+// (claimRematchToken, markRematchAsStarted...), jamais le numéro lui-même.
+export async function fetchRematchByNumber(number) {
+  const { data, error } = await supabase
+    .from('rematches')
+    .select('*')
+    .eq('number', number)
     .maybeSingle();
 
   if (error) throw error;

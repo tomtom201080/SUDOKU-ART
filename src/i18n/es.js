@@ -17,6 +17,12 @@ export default {
   home_defi_label: 'Desafío',
   home_defi_desc: 'Desafía a un amigo en la misma cuadrícula y compara vuestras puntuaciones',
 
+  home_number_title: 'Jugar la cuadrícula n.°',
+  home_number_placeholder: 'ej. 128',
+  home_number_play_btn: 'Jugar',
+  home_number_loading: 'Cargando…',
+  home_number_not_found: 'Cuadrícula no encontrada.',
+
   home_back: '← Volver',
   home_choose_diff: 'Elige la dificultad',
   home_classic_title: 'Sudoku clásico',
