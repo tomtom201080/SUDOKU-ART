@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { uploadSharedPhoto, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
 import { createRematch, buildRematchLink } from '../lib/rematches';
 import { isMobileDevice } from '../utils/device';
+import { resolveWikimediaDirectUrl } from '../utils/wikimediaDirectUrl';
 import './ChallengeComposer.css';
 import './DefiComposer.css';
 
@@ -52,8 +53,11 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, hi
       } else if (imageChoice === 'keep' && defaultImageUrl) {
         // Le fichier d'origine n'est plus disponible ici (seule l'URL locale
         // l'est) : on le récupère depuis le blob local pour le réenvoyer sous
-        // un nouveau chemin propre à ce défi.
-        const response = await fetch(defaultImageUrl);
+        // un nouveau chemin propre à ce défi. Si c'est un tableau de la
+        // bibliothèque (Wikimedia), il faut d'abord résoudre l'URL directe —
+        // voir wikimediaDirectUrl.js.
+        const fetchUrl = await resolveWikimediaDirectUrl(defaultImageUrl);
+        const response = await fetch(fetchUrl);
         const blob = await response.blob();
         const file = new File([blob], 'photo-defi.jpg', { type: blob.type || 'image/jpeg' });
         photoPath = await uploadSharedPhoto(file);

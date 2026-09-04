@@ -17,6 +17,7 @@ import { supabase } from '../lib/supabaseClient';
 import { listAllImages } from '../data/imageLibrary';
 import { generateSudoku, DIFFICULTIES } from '../sudoku/generator';
 import { saveNumberedPuzzle, buildNumberedPuzzleLink } from '../lib/numberedPuzzles';
+import { resolveWikimediaDirectUrl } from '../utils/wikimediaDirectUrl';
 import {
   TEASER_FORMATS,
   TEASER_THEMES,
@@ -158,8 +159,16 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
       const format = TEASER_FORMATS[formatKey];
       const layout = computeLayout(format);
 
+      // Les œuvres de la bibliothèque sont hébergées sur Wikimedia Commons
+      // via une URL Special:FilePath, dont la redirection ne porte pas
+      // d'en-tête CORS (voir wikimediaDirectUrl.js) — on résout d'abord
+      // l'URL directe pour que le crossOrigin ci-dessous fonctionne.
+      const artworkSrc = selectedImage.isCustom
+        ? selectedImage.path
+        : await resolveWikimediaDirectUrl(selectedImage.path);
+
       const [artworkImg, logoImg] = await Promise.all([
-        loadImage(selectedImage.path, { crossOrigin: selectedImage.isCustom ? undefined : 'anonymous' }),
+        loadImage(artworkSrc, { crossOrigin: selectedImage.isCustom ? undefined : 'anonymous' }),
         loadImage('/favicon.svg')
       ]);
 

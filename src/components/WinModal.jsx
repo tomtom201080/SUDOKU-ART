@@ -4,6 +4,7 @@ import { calcAdjustedScore, formatAdjustedScore, fetchRematch, fetchGroupResults
 import { useState, useEffect } from 'react';
 import { isMobileDevice, shareText } from '../utils/device';
 import { trackShareClicked, trackShareCompleted } from '../lib/tracking';
+import { resolveWikimediaDirectUrl } from '../utils/wikimediaDirectUrl';
 import GroupResultsList from './GroupResultsList';
 import './WinModal.css';
 
@@ -107,7 +108,12 @@ export default function WinModal({
     if (isMobileDevice()) {
       try {
         if (rewardUrl) {
-          const response = await fetch(rewardUrl);
+          // Un tableau de la bibliothèque (Wikimedia) doit d'abord être
+          // résolu vers son URL directe, sinon fetch() échoue silencieusement
+          // ici — et on retombait alors sur un partage sans la photo jointe,
+          // sans que rien ne le signale (voir wikimediaDirectUrl.js).
+          const fetchUrl = await resolveWikimediaDirectUrl(rewardUrl);
+          const response = await fetch(fetchUrl);
           const blob = await response.blob();
           const file = new File([blob], 'sudoku-art.jpg', { type: blob.type || 'image/jpeg' });
           if (navigator.canShare?.({ files: [file] })) {

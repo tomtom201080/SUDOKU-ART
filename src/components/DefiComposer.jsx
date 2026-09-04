@@ -5,6 +5,7 @@ import { generateSudoku } from '../sudoku/generator';
 import { uploadSharedPhoto } from '../lib/sharedPhoto';
 import { createRematch, regenerateRematch, buildRematchLink } from '../lib/rematches';
 import { isMobileDevice } from '../utils/device';
+import { resolveWikimediaDirectUrl } from '../utils/wikimediaDirectUrl';
 import './ChallengeComposer.css';
 import './DefiComposer.css';
 
@@ -78,7 +79,10 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
       if (imageChoice === 'new' && photoFile) {
         photoPath = await uploadSharedPhoto(photoFile);
       } else if (imageChoice === 'keep' && defaultImageUrl) {
-        const response = await fetch(defaultImageUrl);
+        // Tableau de la bibliothèque (Wikimedia) : il faut d'abord résoudre
+        // l'URL directe, sinon fetch() échoue (voir wikimediaDirectUrl.js).
+        const fetchUrl = await resolveWikimediaDirectUrl(defaultImageUrl);
+        const response = await fetch(fetchUrl);
         const blob = await response.blob();
         const file = new File([blob], 'photo-defi.jpg', { type: blob.type || 'image/jpeg' });
         photoPath = await uploadSharedPhoto(file);
