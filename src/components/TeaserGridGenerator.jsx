@@ -15,6 +15,8 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import QRCode from 'qrcode';
 import { supabase } from '../lib/supabaseClient';
 import { listAllImages } from '../data/imageLibrary';
+import { generateSudoku, DIFFICULTIES } from '../sudoku/generator';
+import { saveNumberedPuzzle, buildNumberedPuzzleLink } from '../lib/numberedPuzzles';
 import {
   TEASER_FORMATS,
   TEASER_THEMES,
@@ -29,6 +31,7 @@ import './TeaserGridGenerator.css';
 const SHARE_URL = 'https://sudokuart.com';
 const SHARE_LABEL = 'sudokuart.com';
 const DEFAULT_TAGLINE = 'Devine l’œuvre 🎨';
+const DIFFICULTY_LABELS = { facile: 'Facile', moyen: 'Moyen', complique: 'Compliqué', enfer: 'Enfer' };
 
 export default function TeaserGridGenerator({ manifest, onClose }) {
   const [adminStatus, setAdminStatus] = useState('checking'); // checking | ok | denied
@@ -93,6 +96,46 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Numérotation (catalogue admin, voir src/lib/numberedPuzzles.js) : une
+  // fois enregistrée, la grille numérotée sert de cible au lien/QR code de
+  // l'export à la place de la simple page d'accueil — quiconque l'ouvre
+  // démarre EXACTEMENT cette grille (même œuvre, même puzzle) depuis le
+  // début, en rapport avec le fragment révélé sur le visuel. Réservé aux
+  // œuvres de la bibliothèque : une image de test importée n'a pas d'id
+  // stable à enregistrer.
+  const [puzzleDifficulty, setPuzzleDifficulty] = useState('moyen');
+  const [savedNumber, setSavedNumber] = useState(null);
+  const [savingNumber, setSavingNumber] = useState(false);
+  const [saveNumberError, setSaveNumberError] = useState(null);
+
+  useEffect(() => {
+    setSavedNumber(null);
+    setSaveNumberError(null);
+  }, [selectedId, puzzleDifficulty]);
+
+  const handleSaveNumber = async () => {
+    if (!selectedImage || selectedImage.isCustom) return;
+    setSavingNumber(true);
+    setSaveNumberError(null);
+    try {
+      const { puzzle, solution } = generateSudoku(puzzleDifficulty);
+      const entry = await saveNumberedPuzzle({
+        puzzle,
+        solution,
+        difficulty: puzzleDifficulty,
+        paintingId: selectedImage.id
+      });
+      setSavedNumber(entry.number);
+    } catch (err) {
+      setSaveNumberError(err?.message || "Échec de l'enregistrement.");
+    } finally {
+      setSavingNumber(false);
+    }
+  };
+
+  const shareUrl = savedNumber ? buildNumberedPuzzleLink(savedNumber) : SHARE_URL;
+  const shareLabel = savedNumber ? `${SHARE_LABEL} — Grille #${savedNumber}` : SHARE_LABEL;
+
   const colors = TEASER_THEMES[theme];
 
   const handleUploadChange = (e) => {
@@ -122,7 +165,7 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
 
       let qrImg = null;
       if (showQr) {
-        const qrDataUrl = await QRCode.toDataURL(SHARE_URL, {
+        const qrDataUrl = await QRCode.toDataURL(shareUrl, {
           width: 480,
           margin: 1,
           color: { dark: '#1A1A1A', light: '#FFFFFF' }
@@ -137,7 +180,7 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
         theme,
         revealedCells,
         assets: { artworkImg, logoImg, qrImg },
-        branding: { tagline, showTagline, showLink, linkLabel: SHARE_LABEL }
+        branding: { tagline, showTagline, showLink, linkLabel: shareLabel }
       });
 
       const dataUrl = canvas.toDataURL('image/png');
@@ -244,7 +287,7 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
                 />
                 <label className="teaser-checkbox">
                   <input type="checkbox" checked={showLink} onChange={(e) => setShowLink(e.target.checked)} />
-                  Lien ({SHARE_LABEL})
+                  Lien ({shareLabel})
                 </label>
                 <label className="teaser-checkbox">
                   <input type="checkbox" checked={showQr} onChange={(e) => setShowQr(e.target.checked)} />
@@ -266,6 +309,39 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
                     🌙 Sombre
                   </button>
                 </div>
+              </section>
+
+              <section className="teaser-section">
+                <h3>Numérotation</h3>
+                <p className="teaser-preview-hint" style={{ margin: '0 0 4px' }}>
+                  Enregistre une vraie grille jouable pour cette œuvre, sous un numéro stable —
+                  le lien/QR code de l'export pointera alors directement vers cette grille
+                  (n'importe qui l'ouvre et démarre exactement la même, depuis le début).
+                </p>
+                <div className="teaser-row">
+                  <select
+                    className="teaser-select"
+                    style={{ width: 'auto', flex: '0 0 auto' }}
+                    value={puzzleDifficulty}
+                    onChange={(e) => setPuzzleDifficulty(e.target.value)}
+                  >
+                    {DIFFICULTIES.map(d => (
+                      <option key={d} value={d}>{DIFFICULTY_LABELS[d] ?? d}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className="teaser-btn"
+                    disabled={!selectedImage || selectedImage.isCustom || savingNumber || !!savedNumber}
+                    onClick={handleSaveNumber}
+                  >
+                    {savingNumber ? 'Génération…' : savedNumber ? `✅ Grille #${savedNumber}` : '🔢 Enregistrer et numéroter'}
+                  </button>
+                </div>
+                {selectedImage?.isCustom && (
+                  <p className="teaser-preview-hint">Indisponible pour une image de test importée.</p>
+                )}
+                {saveNumberError && <p className="teaser-error">{saveNumberError}</p>}
               </section>
 
               <section className="teaser-section">

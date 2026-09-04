@@ -96,10 +96,12 @@ function cloneGrid(grid) {
   return grid.map(r => [...r]);
 }
 
-// Génère une grille complète puis retire des cases une à une (ordre aléatoire),
-// en ne retirant que si l'unicité de la solution est conservée, jusqu'à atteindre
-// le nombre d'indices voulu (ou un minimum si l'unicité bloque avant).
-function digHoles(solution, targetClues) {
+// Un seul passage (ordre aléatoire des cases, retrait glouton) : on essaie de
+// retirer chaque case dans cet ordre, on ne la remet que si ça casse
+// l'unicité. Résultat très dépendant de l'ordre de tirage : selon les cases
+// rencontrées en premier, ce passage peut se retrouver bloqué (toutes les
+// cases restantes cassent l'unicité) largement AVANT d'atteindre targetClues.
+function digHolesOnce(solution, targetClues) {
   const puzzle = cloneGrid(solution);
   const cells = shuffle(
     Array.from({ length: SIZE * SIZE }, (_, i) => [Math.floor(i / SIZE), i % SIZE])
@@ -121,7 +123,31 @@ function digHoles(solution, targetClues) {
     }
   }
 
-  return puzzle;
+  return { puzzle, clues };
+}
+
+// Nombre de passages tentés avant de se contenter du meilleur résultat
+// obtenu. Un seul passage (digHolesOnce) rate régulièrement targetClues sur
+// les difficultés les plus basses (ex. "enfer" à 24 indices se bloque parfois
+// à 25-26) : la grille reste alors plus facile que prévu, avec plus de cases
+// visibles que ce que la difficulté choisie promet. Réessayer avec un autre
+// ordre de retrait résout la grande majorité de ces cas sans coût perceptible
+// (quelques passages de plus, toujours sous la seconde).
+const DIG_ATTEMPTS = 6;
+
+// Génère une grille complète puis retire des cases une à une (ordre aléatoire),
+// en ne retirant que si l'unicité de la solution est conservée, jusqu'à
+// atteindre le nombre d'indices voulu — en retentant plusieurs ordres de
+// retrait différents et en gardant le meilleur (le plus proche de la cible)
+// si aucun n'atteint exactement targetClues.
+function digHoles(solution, targetClues) {
+  let best = null;
+  for (let attempt = 0; attempt < DIG_ATTEMPTS; attempt++) {
+    const result = digHolesOnce(solution, targetClues);
+    if (!best || result.clues < best.clues) best = result;
+    if (best.clues <= targetClues) break;
+  }
+  return best.puzzle;
 }
 
 // Génère un puzzle complet : grille de départ (avec trous), solution complète,

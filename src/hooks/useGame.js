@@ -133,6 +133,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
   const [challengerBaselineJustSet, setChallengerBaselineJustSet] = useState(false); // true quand le créateur vient d'établir son propre score de référence (défi perso, personne d'autre n'a encore joué)
   const [activeQuestStage, setActiveQuestStage] = useState(null); // étape de la quête en cours, le cas échéant
   const [activeMathQuestStage, setActiveMathQuestStage] = useState(null); // étape Sudomath en cours, le cas échéant
+  const [puzzleNumber, setPuzzleNumber] = useState(null); // numéro affiché (badge) quand la partie vient d'une grille numérotée (?grille=N)
 
   const timerIdRef = useRef(null);
   const celebrateTimeoutRef = useRef(null);
@@ -179,6 +180,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setChallengerBaselineJustSet(false);
     setActiveQuestStage(null);
     setActiveMathQuestStage(null);
+    setPuzzleNumber(null);
     setTempFullReveal(false);
     if (tempRevealTimeoutRef.current) {
       clearTimeout(tempRevealTimeoutRef.current);
@@ -277,6 +279,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
       setHistory([]);
       setCelebrate([]);
       setChallengeMeta(null);
+      setPuzzleNumber(null);
       // Mêmes règles que la soumission du résultat final plus bas : le
       // créateur qui rejoue son propre lien perso établit sa référence, il
       // ne compte jamais comme un destinataire (aucun impact sur
@@ -314,6 +317,56 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
       // En cas d'erreur, on reste sur l'accueil plutôt que de planter
     }
   }, [userId, username]);
+
+  // Démarre une grille "numérotée" (catalogue admin, voir
+  // src/lib/numberedPuzzles.js) : une partie normale, solo, sans défi ni
+  // score à comparer — juste un puzzle figé + une œuvre imposés, identiques
+  // pour tout le monde qui ouvre ?grille=N. `entry` vient de
+  // fetchNumberedPuzzle() (déjà parsé côté App.jsx), `image` est l'objet
+  // œuvre déjà résolu (comme pour startQuestStage).
+  const startNumberedPuzzle = useCallback((entry, image) => {
+    const puzzle = typeof entry.puzzle === 'string' ? JSON.parse(entry.puzzle) : entry.puzzle;
+    const solution = typeof entry.solution === 'string' ? JSON.parse(entry.solution) : entry.solution;
+    const givenMask = puzzle.map(row => row.map(v => v !== 0));
+
+    setDifficulty(entry.difficulty);
+    setPuzzleData({ puzzle, solution, givenMask });
+    setUserGrid(buildInitialUserGrid(puzzle));
+    setWatermark(image);
+    setWatermarkVisible(true);
+    setIsComplete(false);
+    setShowWinModal(false);
+    setPendingDefiResultAd(false);
+    if (winRevealTimeoutRef.current) {
+      clearTimeout(winRevealTimeoutRef.current);
+      winRevealTimeoutRef.current = null;
+    }
+    setIsFailed(false);
+    setRewardImage(null);
+    setNextWatermark(null);
+    setActiveRematch(null);
+    setRematchOutcome(null);
+    setChallengerBaselineJustSet(false);
+    setActiveQuestStage(null);
+    setActiveMathQuestStage(null);
+    setTempFullReveal(false);
+    if (tempRevealTimeoutRef.current) {
+      clearTimeout(tempRevealTimeoutRef.current);
+      tempRevealTimeoutRef.current = null;
+    }
+    setErrorCells(new Set());
+    setErrorCount(0);
+    setHintsUsed(0);
+    setElapsedSeconds(0);
+    setNotesMode(false);
+    setNotesGrid(buildEmptyNotes());
+    setHistory([]);
+    setCelebrate([]);
+    setChallengeMeta(null);
+    setPuzzleNumber(entry.number);
+
+    logGameStart({ difficulty: entry.difficulty, userId, isCustomPhoto: false, isChallenge: false });
+  }, [userId]);
 
   // Lance une étape précise du parcours de quête : la difficulté et le
   // tableau à révéler sont imposés par l'étape (pas de tirage au hasard).
@@ -372,6 +425,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setChallengerBaselineJustSet(false);
     setActiveQuestStage(null);
     setActiveMathQuestStage(null);
+    setPuzzleNumber(null);
     setActiveQuestStage(stage);
 
     logGameStart({ difficulty: stage.difficulty, userId, isCustomPhoto: false, isChallenge: false });
@@ -433,6 +487,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setChallengerBaselineJustSet(false);
     setActiveQuestStage(null);
     setActiveMathQuestStage(null);
+    setPuzzleNumber(null);
     setActiveMathQuestStage(stage);
 
     logGameStart({ difficulty: stage.difficulty, userId, isCustomPhoto: false, isChallenge: false });
@@ -1111,6 +1166,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setChallengerBaselineJustSet(false);
     setActiveQuestStage(null);
     setActiveMathQuestStage(null);
+    setPuzzleNumber(null);
     setTempFullReveal(false);
     if (tempRevealTimeoutRef.current) {
       clearTimeout(tempRevealTimeoutRef.current);
@@ -1171,6 +1227,8 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     canUndo,
     startNewGame,
     startRematchGame,
+    startNumberedPuzzle,
+    puzzleNumber,
     startQuestStage,
     activeQuestStage,
     startMathQuestStage,

@@ -46,7 +46,8 @@ import { useNetworkStatus } from './hooks/useNetworkStatus';
 import { isMobileDevice, classifyReferrer } from './utils/device';
 import { trackHomeViewed, trackGameSelected, trackHintUsed, trackNewGameClicked, updateGameSessionSnapshot } from './lib/tracking';
 import './components/LegalModal.css';
-import { loadManifest, pickImageForTier, TIERS_BY_DIFFICULTY } from './data/imageLibrary';
+import { loadManifest, pickImageForTier, TIERS_BY_DIFFICULTY, resolveImagePath, resolveImagePathLow } from './data/imageLibrary';
+import { getPaintingMetadata } from './data/paintingsIndex';
 import { getMergedUnseenIds } from './lib/seenPaintings';
 import { getUnlockedGallery } from './utils/storage';
 import { supabase } from './lib/supabaseClient';
@@ -70,6 +71,11 @@ import {
   markRematchAsStarted,
   claimGroupResult
 } from './lib/rematches';
+import {
+  readNumberedPuzzleFromUrl,
+  clearNumberedPuzzleFromUrl,
+  fetchNumberedPuzzle
+} from './lib/numberedPuzzles';
 
 const DARK_MODE_KEY = 'sudoku-devoile:darkMode';
 
@@ -176,6 +182,13 @@ export default function App() {
   const [pendingRematch, setPendingRematch] = useState(null); // rematch en attente de choix connexion
   const [incomingRematchHandled, setIncomingRematchHandled] = useState(false);
   const [rematchNotifications, setRematchNotifications] = useState([]);
+
+  // Grille numérotée reçue par lien (?grille=N) — catalogue admin, voir
+  // src/lib/numberedPuzzles.js : aucune connexion requise, aucun jeton
+  // anti-transfert (contrairement aux défis, la même grille numérotée est
+  // prévue pour être ouverte par un nombre illimité de personnes).
+  const [incomingPuzzleNumber] = useState(() => readNumberedPuzzleFromUrl());
+  const [incomingPuzzleNumberHandled, setIncomingPuzzleNumberHandled] = useState(false);
   const [selectedRematchNotification, setSelectedRematchNotification] = useState(null);
 
   // Pont depuis les pages SEO (src/seo/pages.jsx) : leurs boutons "Jouer"
@@ -456,6 +469,44 @@ export default function App() {
       })
       .catch(() => setIncomingLinkFailed(true));
   }, [incomingRematchId, incomingRematchHandled, manifestLoading, game]);
+
+  // Dès qu'un lien de grille numérotée est ouvert (?grille=N), on charge
+  // cette grille figée + l'œuvre associée et on lance la partie directement
+  // — aucune connexion ni jeton anti-transfert requis, n'importe qui peut
+  // l'ouvrir (voir le commentaire sur incomingPuzzleNumber).
+  useEffect(() => {
+    if (!incomingPuzzleNumber || incomingPuzzleNumberHandled) return;
+
+    setIncomingPuzzleNumberHandled(true);
+    clearNumberedPuzzleFromUrl();
+
+    fetchNumberedPuzzle(incomingPuzzleNumber)
+      .then(entry => {
+        if (!entry) return;
+
+        const metadata = getPaintingMetadata(entry.painting_id);
+        const tier = metadata?.tier ?? null;
+        const image = {
+          id: entry.painting_id,
+          tier,
+          path: resolveImagePath(tier, metadata, entry.painting_id),
+          pathLow: resolveImagePathLow(tier, metadata, entry.painting_id),
+          title: metadata?.title ?? null,
+          artist: metadata?.artist ?? null,
+          year: metadata?.year ?? null,
+          style: metadata?.style ?? null,
+          museum: metadata?.museum ?? null,
+          city: metadata?.city ?? null,
+          country: metadata?.country ?? null,
+          technique: metadata?.technique ?? null,
+          funFact: metadata?.funFact ?? null,
+          observe: metadata?.observe ?? null
+        };
+
+        game.startNumberedPuzzle(entry, image);
+      })
+      .catch(() => setIncomingLinkFailed(true));
+  }, [incomingPuzzleNumber, incomingPuzzleNumberHandled, game]);
 
   // Tant qu'on est connecté et sur l'écran d'accueil, on vérifie si des amis
   // ont terminé un défi "même grille" qu'on leur a envoyé, pour leur montrer
@@ -1036,6 +1087,9 @@ export default function App() {
           <span className="stat-pill">
             {DIFFICULTY_ICONS[game.difficulty] ?? '🎯'} {DIFFICULTY_LABELS[game.difficulty] ?? game.difficulty}
           </span>
+          {game.puzzleNumber != null && (
+            <span className="stat-pill" title="Numéro de grille">🔢 #{game.puzzleNumber}</span>
+          )}
           <span className="stat-pill">❌ {game.errorCount} / {game.challengeMeta?.maxErrors ?? 3}</span>
           {darkModeButton}
           {!isClassicMode && game.watermark && (
@@ -1171,7 +1225,13 @@ export default function App() {
           elapsedSeconds={game.elapsedSeconds}
           userId={session?.user?.id ?? null}
           userEmail={username ?? session?.user?.email ?? null}
-          defaultImageUrl={game.watermark?.isCustom ? game.watermark.path : null}
+          // Bug corrigé : ne proposer "garder l'image actuelle" que pour une
+          // photo perso (isCustom) excluait de fait le cas normal — un
+          // tableau de la bibliothèque révélé par la partie en cours — donc
+          // "Rejouer la même grille" partait systématiquement sans image
+          // dès que la partie utilisait le mode Art/Photo normal (perso ET
+          // groupe) au lieu du mode Photo perso, silencieusement.
+          defaultImageUrl={game.watermark?.path ?? null}
           onClose={() => setShowRematchComposer(false)}
         />
       )}
