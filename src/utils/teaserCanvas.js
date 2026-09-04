@@ -13,6 +13,7 @@ export const TEASER_THEMES = {
     bg: '#F7F1E4',
     cardBg: '#FFFFFF',
     cellBg: '#FFFFFF',
+    cellText: '#1A1A1A', // couleur exacte de .cell-value en jeu (SudokuBoard.css)
     gridBorder: '#0F7B6C',
     gridLine: '#3A332A',
     text: '#2E2A22',
@@ -24,6 +25,7 @@ export const TEASER_THEMES = {
     bg: '#14181F',
     cardBg: '#1F2530',
     cellBg: '#232A35',
+    cellText: '#ECEAE3', // couleur exacte de body.dark .cell-value
     gridBorder: '#14A892',
     gridLine: '#3A4150',
     text: '#ECEAE3',
@@ -32,6 +34,12 @@ export const TEASER_THEMES = {
     accentText: '#0A1F1C'
   }
 };
+
+// Opacité du voile blanc/sombre laissé sur une case "révélée" (imageIntensity
+// par défaut du jeu, voir useGame.js) : le fragment d'œuvre reste visible en
+// transparence sous les chiffres, jamais montré en pleine couleur — cohérent
+// avec le fait qu'une vraie case ne se découvre complètement qu'à la victoire.
+export const REVEAL_VEIL_OPACITY = 0.72;
 
 export const TEASER_FORMATS = {
   square: {
@@ -73,13 +81,20 @@ export function cellKey(row, col) {
   return `${row}-${col}`;
 }
 
-// Tire un sous-ensemble de cases (row-col) de la grille 9x9 correspondant à
-// `percent` % de révélation, mélangé de façon déterministe à partir de
-// `seed` (change à chaque clic sur "nouveau tirage").
-export function pickRandomCells(percent, seed = 1) {
+// Tire un sous-ensemble de cases (row-col) correspondant à `percent` % de
+// révélation, mélangé de façon déterministe à partir de `seed` (change à
+// chaque clic sur "nouveau tirage"). `eligibleCells` (liste de [row, col])
+// restreint le tirage à ces cases uniquement — dans le générateur teaser, ce
+// sont les cases "données" de la vraie grille générée : ce sont les seules à
+// avoir un chiffre affichable avant même de jouer, donc les seules qui
+// peuvent réalistement montrer un fragment d'œuvre sur ce visuel. Sans
+// `eligibleCells`, tire parmi les 81 cases (comportement historique, encore
+// utilisé par les tests).
+export function pickRandomCells(percent, seed = 1, eligibleCells = null) {
+  const pool = eligibleCells ?? Array.from({ length: 81 }, (_, i) => [Math.floor(i / 9), i % 9]);
   const clamped = Math.min(100, Math.max(0, percent));
-  const count = Math.round((clamped / 100) * 81);
-  const indices = Array.from({ length: 81 }, (_, i) => i);
+  const count = Math.round((clamped / 100) * pool.length);
+  const indices = pool.map((_, i) => i);
   const random = mulberry32(seed);
   // Fisher-Yates
   for (let i = indices.length - 1; i > 0; i--) {
@@ -88,8 +103,8 @@ export function pickRandomCells(percent, seed = 1) {
   }
   const picked = new Set();
   for (let i = 0; i < count; i++) {
-    const idx = indices[i];
-    picked.add(cellKey(Math.floor(idx / 9), idx % 9));
+    const [row, col] = pool[indices[i]];
+    picked.add(cellKey(row, col));
   }
   return picked;
 }
@@ -115,23 +130,56 @@ function roundRectPath(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-function drawCells(ctx, { x, y, size, revealedCells, artworkImg, colors }) {
+// `givenMask`/`puzzle` (81 cases chacun) : seules les cases "données" de la
+// vraie grille générée affichent un chiffre — comme au tout début d'une
+// vraie partie, avant tout coup joué. Une case donnée "révélée" (dans
+// revealedCells) montre le fragment d'œuvre sous un voile translucide
+// (REVEAL_VEIL_OPACITY), avec le chiffre par-dessus — exactement la
+// superposition utilisée en jeu (SudokuBoard.css : cell-bg, cell-cover,
+// cell-value empilés). Une case non donnée reste vide, sans chiffre : rien
+// n'a encore été joué sur ce visuel.
+function drawCells(ctx, { x, y, size, revealedCells, artworkImg, colors, givenMask, puzzle }) {
   const cell = size / 9;
   const iw = artworkImg?.naturalWidth || artworkImg?.width || 0;
   const ih = artworkImg?.naturalHeight || artworkImg?.height || 0;
+  const digitFontSize = Math.round(cell * 0.5);
 
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
       const cx = x + col * cell;
       const cy = y + row * cell;
-      const revealed = revealedCells.has(cellKey(row, col));
+      const key = cellKey(row, col);
+      const isGiven = !!givenMask?.[row]?.[col];
+      const revealed = isGiven && revealedCells.has(key);
+
       if (revealed && artworkImg && iw && ih) {
         const sx = col * (iw / 9);
         const sy = row * (ih / 9);
         ctx.drawImage(artworkImg, sx, sy, iw / 9, ih / 9, cx, cy, cell, cell);
+        // Voile translucide par-dessus le fragment (cell-cover en jeu).
+        ctx.fillStyle = colors.cellBg;
+        ctx.globalAlpha = REVEAL_VEIL_OPACITY;
+        ctx.fillRect(cx, cy, cell, cell);
+        ctx.globalAlpha = 1;
       } else {
         ctx.fillStyle = colors.cellBg;
         ctx.fillRect(cx, cy, cell, cell);
+      }
+
+      if (isGiven) {
+        const value = puzzle?.[row]?.[col];
+        if (value) {
+          ctx.font = `600 ${digitFontSize}px system-ui, -apple-system, "Segoe UI", sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          // Léger halo derrière le chiffre (équivalent du text-shadow CSS de
+          // .cell-value) pour rester lisible même sur une case révélée.
+          ctx.shadowColor = colors.cellBg;
+          ctx.shadowBlur = digitFontSize * 0.35;
+          ctx.fillStyle = colors.cellText;
+          ctx.fillText(String(value), cx + cell / 2, cy + cell / 2 + digitFontSize * 0.03);
+          ctx.shadowBlur = 0;
+        }
       }
     }
   }
@@ -172,13 +220,14 @@ function drawGridLines(ctx, { x, y, size, colors }) {
   ctx.stroke();
 }
 
-// Dessine la grille (cases + traits) dans le carré [x, y, size, size],
-// avec des angles arrondis cohérents avec le style .sudoku-board de l'appli.
-export function drawGrid(ctx, { x, y, size, revealedCells, artworkImg, colors }) {
+// Dessine la grille (cases + chiffres + traits) dans le carré [x, y, size,
+// size], avec des angles arrondis cohérents avec le style .sudoku-board de
+// l'appli.
+export function drawGrid(ctx, { x, y, size, revealedCells, artworkImg, colors, givenMask, puzzle }) {
   ctx.save();
   roundRectPath(ctx, x, y, size, size, 16);
   ctx.clip();
-  drawCells(ctx, { x, y, size, revealedCells, artworkImg, colors });
+  drawCells(ctx, { x, y, size, revealedCells, artworkImg, colors, givenMask, puzzle });
   ctx.restore();
   drawGridLines(ctx, { x, y, size, colors });
 }
@@ -215,7 +264,10 @@ export function computeLayout(format) {
   }
 
   const margin = Math.round(width * 0.055);
-  const headerH = Math.round(height * (mode === 'stacked' && height > width ? 0.115 : 0.16));
+  // headerH doit loger logo+nom, le badge "Grille du jour #N" (nouveau,
+  // volontairement visible) ET l'accroche : plus généreux qu'avant, qui ne
+  // logeait que logo+nom+accroche.
+  const headerH = Math.round(height * (mode === 'stacked' && height > width ? 0.17 : 0.24));
   const footerH = Math.round(height * (height > width ? 0.135 : 0.135));
   const availW = width - margin * 2;
   const availH = height - headerH - footerH;
@@ -252,23 +304,50 @@ function drawTagline(ctx, text, centerX, y, maxWidth, colors, fontSize) {
   return boxHeight;
 }
 
-// Rendu complet du visuel : fond, grille, habillage (logo, nom, accroche,
-// lien, QR code). `layout` vient de computeLayout(format). `assets` regroupe
-// les images déjà chargées (logoImg, artworkImg, qrImg ou null si désactivé).
-export function renderTeaser(canvas, { format, layout, theme, revealedCells, assets, branding }) {
+// Badge "Grille du jour · #N" — volontairement le plus voyant de l'habillage
+// (fond plein, contour), pour qu'une personne qui voit juste la miniature
+// sur les réseaux retienne le numéro sans avoir à lire le lien en petit.
+function drawNumberBadge(ctx, { text, centerX, y, maxWidth, colors, fontSize }) {
+  ctx.font = `800 ${fontSize}px system-ui, -apple-system, "Segoe UI", sans-serif`;
+  const textWidth = ctx.measureText(text).width;
+  const paddingX = fontSize * 0.9;
+  const boxWidth = Math.min(maxWidth, textWidth + paddingX * 2);
+  const boxHeight = fontSize * 1.9;
+  const boxX = centerX - boxWidth / 2;
+
+  ctx.fillStyle = colors.gridBorder;
+  roundRectPath(ctx, boxX, y, boxWidth, boxHeight, boxHeight / 2);
+  ctx.fill();
+
+  ctx.fillStyle = colors.accentText;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, centerX, y + boxHeight / 2 + fontSize * 0.03);
+  return boxHeight;
+}
+
+// Rendu complet du visuel : fond, grille (avec ses chiffres), habillage
+// (logo, nom, badge numéro, accroche, lien, QR code). `layout` vient de
+// computeLayout(format). `assets` regroupe les images déjà chargées
+// (logoImg, artworkImg, qrImg ou null si désactivé). `puzzleData` fournit
+// `givenMask`/`puzzle` pour dessiner les chiffres (voir drawCells).
+export function renderTeaser(canvas, { format, layout, theme, revealedCells, assets, branding, puzzleData }) {
   const { width, height } = format;
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext('2d');
   const colors = TEASER_THEMES[theme] ?? TEASER_THEMES.light;
   const { logoImg, artworkImg, qrImg } = assets;
-  const { tagline, showTagline, showLink, linkLabel } = branding;
+  const { tagline, showTagline, showLink, linkLabel, gridNumber } = branding;
+  const givenMask = puzzleData?.givenMask;
+  const puzzle = puzzleData?.puzzle;
+  const numberText = gridNumber != null ? `🔢 Grille du jour · #${gridNumber}` : null;
 
   ctx.fillStyle = colors.bg;
   ctx.fillRect(0, 0, width, height);
 
   if (layout.mode === 'side') {
-    drawGrid(ctx, { x: layout.gridX, y: layout.gridY, size: layout.gridSize, revealedCells, artworkImg, colors });
+    drawGrid(ctx, { x: layout.gridX, y: layout.gridY, size: layout.gridSize, revealedCells, artworkImg, colors, givenMask, puzzle });
 
     const cx = layout.sideX + layout.sideWidth / 2;
     let cursorY = layout.gridY + 12;
@@ -282,6 +361,12 @@ export function renderTeaser(canvas, { format, layout, theme, revealedCells, ass
     ctx.font = `800 ${Math.round(layout.sideWidth * 0.13)}px system-ui, -apple-system, "Segoe UI", sans-serif`;
     ctx.fillText('Sudoku Art', cx, cursorY + layout.sideWidth * 0.1);
     cursorY += layout.sideWidth * 0.16;
+
+    if (numberText) {
+      cursorY += 16;
+      const boxH = drawNumberBadge(ctx, { text: numberText, centerX: cx, y: cursorY, maxWidth: layout.sideWidth, colors, fontSize: Math.round(layout.sideWidth * 0.065) });
+      cursorY += boxH + 20;
+    }
 
     if (showTagline && tagline) {
       cursorY += 18;
@@ -304,28 +389,36 @@ export function renderTeaser(canvas, { format, layout, theme, revealedCells, ass
     return canvas;
   }
 
-  // Formats "stacked" (carré / story) : logo + nom + accroche en haut,
-  // grille au centre, lien / QR code en bas.
-  drawGrid(ctx, { x: layout.gridX, y: layout.gridY, size: layout.gridSize, revealedCells, artworkImg, colors });
+  // Formats "stacked" (carré / story) : logo + nom, badge numéro, accroche
+  // en haut (empilés, hauteur variable selon ce qui est activé) ; grille au
+  // centre ; lien / QR code en bas.
+  drawGrid(ctx, { x: layout.gridX, y: layout.gridY, size: layout.gridSize, revealedCells, artworkImg, colors, givenMask, puzzle });
 
   const cx = width / 2;
-  const logoSize = Math.round(layout.headerH * 0.4);
-  const nameFontSize = Math.round(layout.headerH * 0.24);
-  const headerCenterY = layout.headerH * 0.34;
+  let cursorY = Math.round(layout.headerH * 0.14);
+  const logoSize = Math.round(layout.headerH * 0.3);
+  const nameFontSize = Math.round(layout.headerH * 0.2);
 
   ctx.font = `800 ${nameFontSize}px system-ui, -apple-system, "Segoe UI", sans-serif`;
   const nameWidth = ctx.measureText('Sudoku Art').width;
   const groupWidth = logoSize + 14 + nameWidth;
   const groupX = cx - groupWidth / 2;
+  const groupCenterY = cursorY + logoSize / 2;
 
-  drawLogo(ctx, logoImg, groupX, headerCenterY - logoSize / 2, logoSize);
+  drawLogo(ctx, logoImg, groupX, cursorY, logoSize);
   ctx.fillStyle = colors.text;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  ctx.fillText('Sudoku Art', groupX + logoSize + 14, headerCenterY + logoSize * 0.05);
+  ctx.fillText('Sudoku Art', groupX + logoSize + 14, groupCenterY + logoSize * 0.05);
+  cursorY += logoSize + Math.round(layout.headerH * 0.08);
+
+  if (numberText) {
+    const boxH = drawNumberBadge(ctx, { text: numberText, centerX: cx, y: cursorY, maxWidth: width - layout.margin * 2, colors, fontSize: Math.round(nameFontSize * 0.68) });
+    cursorY += boxH + Math.round(layout.headerH * 0.06);
+  }
 
   if (showTagline && tagline) {
-    drawTagline(ctx, tagline, cx, headerCenterY + logoSize / 2 + 20, width - layout.margin * 2, colors, nameFontSize * 0.82);
+    drawTagline(ctx, tagline, cx, cursorY, width - layout.margin * 2, colors, Math.round(nameFontSize * 0.74));
   }
 
   const footerTop = height - layout.footerH;

@@ -41,6 +41,18 @@ describe('pickRandomCells', () => {
       expect(key).toBe(cellKey(row, col));
     }
   });
+
+  it("respecte eligibleCells : ne pioche jamais en dehors, même à 100 %", () => {
+    // Cas réel : les seules cases pouvant afficher un chiffre (et donc être
+    // "révélées") sont les cases données (givenMask) d'une vraie grille —
+    // ex. une "enfer" n'en a que 24 sur 81.
+    const eligible = [[0, 0], [0, 1], [4, 4], [8, 8]];
+    const cells = pickRandomCells(100, 5, eligible);
+    expect(cells.size).toBe(eligible.length);
+    for (const key of cells) {
+      expect(eligible.some(([r, c]) => cellKey(r, c) === key)).toBe(true);
+    }
+  });
 });
 
 describe('computeLayout', () => {

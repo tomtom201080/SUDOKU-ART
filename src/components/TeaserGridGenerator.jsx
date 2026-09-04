@@ -3,7 +3,8 @@
 // session?.user?.email dans App.jsx, identique à celle de KpiDashboard /
 // PlatformStatsDashboard) : produit un visuel réseaux sociaux (grille
 // partiellement révélée + habillage) à partir d'une œuvre de la
-// bibliothèque, sans jamais créer de vraie partie/défi en base.
+// bibliothèque, sans jamais créer de vraie partie/défi en base tant que
+// l'admin ne clique pas explicitement sur "Enregistrer et numéroter".
 //
 // Double protection du rôle admin, comme get_platform_stats() : le bouton
 // qui ouvre ce panneau est déjà cascadé derrière la garde e-mail dans
@@ -21,6 +22,7 @@ import { resolveWikimediaDirectUrl } from '../utils/wikimediaDirectUrl';
 import {
   TEASER_FORMATS,
   TEASER_THEMES,
+  REVEAL_VEIL_OPACITY,
   pickRandomCells,
   cellKey,
   loadImage,
@@ -61,12 +63,44 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
     ? customImage
     : allImages.find(img => img.id === selectedId) ?? null;
 
-  const [revealPercent, setRevealPercent] = useState(22);
+  // La grille affichée est une VRAIE grille de sudoku générée normalement
+  // (comme une vraie partie), pas un décor : c'est ce qui permet d'afficher
+  // les chiffres des cases données, et c'est CETTE MÊME grille (mêmes
+  // chiffres, même œuvre) qui est enregistrée par "Enregistrer et
+  // numéroter" — jamais une grille générée séparément. Quelqu'un qui tape le
+  // numéro obtient donc garanti la même œuvre ET le même départ de grille
+  // que ce qui a été composé ici.
+  const [puzzleDifficulty, setPuzzleDifficulty] = useState('moyen');
+  const [puzzleSeed, setPuzzleSeed] = useState(0);
+  const puzzleData = useMemo(() => generateSudoku(puzzleDifficulty), [puzzleDifficulty, puzzleSeed]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Cases éligibles à la révélation : uniquement les cases "données" de la
+  // grille (les seules à porter un chiffre avant même de jouer).
+  const eligibleCells = useMemo(() => {
+    const cells = [];
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (puzzleData.givenMask[r][c]) cells.push([r, c]);
+      }
+    }
+    return cells;
+  }, [puzzleData]);
+
+  const [revealPercent, setRevealPercent] = useState(35);
   const [shuffleSeed, setShuffleSeed] = useState(1);
   const [manualMode, setManualMode] = useState(false);
   const [manualCells, setManualCells] = useState(null);
 
-  const autoCells = useMemo(() => pickRandomCells(revealPercent, shuffleSeed), [revealPercent, shuffleSeed]);
+  const autoCells = useMemo(
+    () => pickRandomCells(revealPercent, shuffleSeed, eligibleCells),
+    [revealPercent, shuffleSeed, eligibleCells]
+  );
+
+  // Un changement de grille (difficulté ou nouvelle grille) invalide un
+  // tirage manuel fait sur l'ancienne : les cases eligible ont changé.
+  useEffect(() => {
+    setManualCells(null);
+  }, [puzzleData]);
 
   useEffect(() => {
     if (manualMode && !manualCells) setManualCells(new Set(autoCells));
@@ -74,9 +108,12 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
 
   const revealedCells = manualMode ? (manualCells ?? autoCells) : autoCells;
   const revealedCount = revealedCells.size;
-  const revealedPercentActual = Math.round((revealedCount / 81) * 100);
+  const revealedPercentActual = eligibleCells.length
+    ? Math.round((revealedCount / eligibleCells.length) * 100)
+    : 0;
 
   const toggleCell = useCallback((row, col) => {
+    if (!puzzleData.givenMask[row][col]) return; // rien à révéler sur une case sans chiffre
     setManualCells(prev => {
       const base = prev ?? new Set(autoCells);
       const next = new Set(base);
@@ -84,7 +121,7 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
       if (next.has(key)) next.delete(key); else next.add(key);
       return next;
     });
-  }, [autoCells]);
+  }, [autoCells, puzzleData]);
 
   const resetManualFromPercent = () => setManualCells(new Set(autoCells));
 
@@ -98,31 +135,36 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
   const [error, setError] = useState(null);
 
   // Numérotation (catalogue admin, voir src/lib/numberedPuzzles.js) : une
-  // fois enregistrée, la grille numérotée sert de cible au lien/QR code de
-  // l'export à la place de la simple page d'accueil — quiconque l'ouvre
-  // démarre EXACTEMENT cette grille (même œuvre, même puzzle) depuis le
-  // début, en rapport avec le fragment révélé sur le visuel. Réservé aux
-  // œuvres de la bibliothèque : une image de test importée n'a pas d'id
-  // stable à enregistrer.
-  const [puzzleDifficulty, setPuzzleDifficulty] = useState('moyen');
+  // fois enregistrée, la grille numérotée sert de cible au lien/QR code ET
+  // au badge "Grille du jour #N" affiché sur l'export, à la place de la
+  // simple page d'accueil — quiconque tape ce numéro ou ouvre ce lien
+  // démarre EXACTEMENT cette grille (même œuvre, mêmes chiffres) depuis le
+  // début. Réservé aux œuvres de la bibliothèque : une image de test
+  // importée n'a pas d'id stable à enregistrer.
   const [savedNumber, setSavedNumber] = useState(null);
   const [savingNumber, setSavingNumber] = useState(false);
   const [saveNumberError, setSaveNumberError] = useState(null);
 
+  // Un numéro déjà enregistré ne correspond plus à rien dès que l'œuvre OU
+  // la grille change (nouvelle difficulté, "nouvelle grille") — jamais le
+  // laisser pointer vers une combinaison différente de celle enregistrée.
   useEffect(() => {
     setSavedNumber(null);
     setSaveNumberError(null);
-  }, [selectedId, puzzleDifficulty]);
+  }, [selectedId, puzzleData]);
 
   const handleSaveNumber = async () => {
     if (!selectedImage || selectedImage.isCustom) return;
     setSavingNumber(true);
     setSaveNumberError(null);
     try {
-      const { puzzle, solution } = generateSudoku(puzzleDifficulty);
+      // On enregistre LA grille déjà affichée (puzzleData), jamais une
+      // nouvelle grille générée à part : c'est ce qui garantit que quelqu'un
+      // qui tape ce numéro voit exactement la même œuvre et les mêmes
+      // chiffres que sur ce visuel, sans aucun risque de décalage.
       const entry = await saveNumberedPuzzle({
-        puzzle,
-        solution,
+        puzzle: puzzleData.puzzle,
+        solution: puzzleData.solution,
         difficulty: puzzleDifficulty,
         paintingId: selectedImage.id
       });
@@ -189,7 +231,8 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
         theme,
         revealedCells,
         assets: { artworkImg, logoImg, qrImg },
-        branding: { tagline, showTagline, showLink, linkLabel: shareLabel }
+        branding: { tagline, showTagline, showLink, linkLabel: shareLabel, gridNumber: savedNumber },
+        puzzleData
       });
 
       const dataUrl = canvas.toDataURL('image/png');
@@ -242,13 +285,31 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
               </section>
 
               <section className="teaser-section">
-                <h3>Révélation</h3>
+                <h3>Grille</h3>
+                <div className="teaser-row">
+                  <select
+                    className="teaser-select"
+                    style={{ width: 'auto', flex: '0 0 auto' }}
+                    value={puzzleDifficulty}
+                    onChange={(e) => setPuzzleDifficulty(e.target.value)}
+                  >
+                    {DIFFICULTIES.map(d => (
+                      <option key={d} value={d}>{DIFFICULTY_LABELS[d] ?? d}</option>
+                    ))}
+                  </select>
+                  <button type="button" className="teaser-btn" onClick={() => setPuzzleSeed(s => s + 1)}>
+                    🎲 Nouvelle grille
+                  </button>
+                </div>
                 <label className="teaser-field">
-                  <span>% de cases révélées ({revealPercent}%, {manualMode ? `${revealedCount}/81 en mode manuel` : `${Math.round((revealPercent / 100) * 81)}/81`})</span>
+                  <span>
+                    % des indices révélés ({revealPercent}%,{' '}
+                    {manualMode ? `${revealedCount}/${eligibleCells.length} en mode manuel` : `${Math.round((revealPercent / 100) * eligibleCells.length)}/${eligibleCells.length}`})
+                  </span>
                   <input
                     type="range"
                     min={5}
-                    max={60}
+                    max={70}
                     value={revealPercent}
                     disabled={manualMode}
                     onChange={(e) => setRevealPercent(Number(e.target.value))}
@@ -261,7 +322,7 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
                     disabled={manualMode}
                     onClick={() => setShuffleSeed(s => s + 1)}
                   >
-                    🎲 Nouveau tirage
+                    🔀 Nouveau tirage
                   </button>
                   <label className="teaser-checkbox">
                     <input
@@ -323,30 +384,19 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
               <section className="teaser-section">
                 <h3>Numérotation</h3>
                 <p className="teaser-preview-hint" style={{ margin: '0 0 4px' }}>
-                  Enregistre une vraie grille jouable pour cette œuvre, sous un numéro stable —
-                  le lien/QR code de l'export pointera alors directement vers cette grille
-                  (n'importe qui l'ouvre et démarre exactement la même, depuis le début).
+                  Enregistre <strong>exactement la grille affichée ci-contre</strong> (même œuvre,
+                  mêmes chiffres) sous un numéro stable et l'affiche en évidence sur l'image
+                  ("Grille du jour #N") — n'importe qui tape ce numéro ou ouvre le lien/QR code et
+                  démarre garanti la même grille, depuis le début.
                 </p>
-                <div className="teaser-row">
-                  <select
-                    className="teaser-select"
-                    style={{ width: 'auto', flex: '0 0 auto' }}
-                    value={puzzleDifficulty}
-                    onChange={(e) => setPuzzleDifficulty(e.target.value)}
-                  >
-                    {DIFFICULTIES.map(d => (
-                      <option key={d} value={d}>{DIFFICULTY_LABELS[d] ?? d}</option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    className="teaser-btn"
-                    disabled={!selectedImage || selectedImage.isCustom || savingNumber || !!savedNumber}
-                    onClick={handleSaveNumber}
-                  >
-                    {savingNumber ? 'Génération…' : savedNumber ? `✅ Grille #${savedNumber}` : '🔢 Enregistrer et numéroter'}
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  className="teaser-btn"
+                  disabled={!selectedImage || selectedImage.isCustom || savingNumber || !!savedNumber}
+                  onClick={handleSaveNumber}
+                >
+                  {savingNumber ? 'Génération…' : savedNumber ? `✅ Grille #${savedNumber}` : '🔢 Enregistrer et numéroter'}
+                </button>
                 {selectedImage?.isCustom && (
                   <p className="teaser-preview-hint">Indisponible pour une image de test importée.</p>
                 )}
@@ -387,26 +437,29 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
                   '--t-cell-bg': colors.cellBg,
                   '--t-grid-border': colors.gridBorder,
                   '--t-grid-line': colors.gridLine,
-                  '--t-bg': colors.bg
+                  '--t-bg': colors.bg,
+                  '--t-cell-text': colors.cellText
                 }}
               >
                 {Array.from({ length: 9 }).map((_, row) => (
                   <div className="teaser-preview-row" key={row}>
                     {Array.from({ length: 9 }).map((_, col) => {
                       const key = cellKey(row, col);
-                      const revealed = revealedCells.has(key);
+                      const isGiven = puzzleData.givenMask[row][col];
+                      const revealed = isGiven && revealedCells.has(key);
+                      const digit = isGiven ? puzzleData.puzzle[row][col] : null;
                       const thickRight = col === 2 || col === 5;
                       const thickBottom = row === 2 || row === 5;
                       return (
                         <button
                           type="button"
                           key={col}
-                          disabled={!manualMode}
+                          disabled={!manualMode || !isGiven}
                           onClick={() => toggleCell(row, col)}
                           className={[
                             'teaser-cell',
                             revealed ? 'is-revealed' : '',
-                            manualMode ? 'is-clickable' : '',
+                            manualMode && isGiven ? 'is-clickable' : '',
                             thickRight ? 'thick-right' : '',
                             thickBottom ? 'thick-bottom' : ''
                           ].join(' ').trim()}
@@ -416,7 +469,12 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
                             backgroundPosition: `${(col / 8) * 100}% ${(row / 8) * 100}%`
                           } : undefined}
                           aria-label={`case ligne ${row + 1}, colonne ${col + 1}`}
-                        />
+                        >
+                          {revealed && (
+                            <span className="teaser-cell-veil" style={{ opacity: REVEAL_VEIL_OPACITY }} aria-hidden="true" />
+                          )}
+                          {digit ? <span className="teaser-cell-digit">{digit}</span> : null}
+                        </button>
                       );
                     })}
                   </div>
@@ -424,11 +482,14 @@ export default function TeaserGridGenerator({ manifest, onClose }) {
               </div>
               <p className="teaser-preview-caption">
                 {selectedImage ? (selectedImage.title ?? 'Image de test') : 'Choisis une œuvre'}
-                {' — '}{revealedCount}/81 cases révélées ({revealedPercentActual}%)
+                {' — '}{DIFFICULTY_LABELS[puzzleDifficulty]}
+                {' — '}{revealedCount}/{eligibleCells.length} indices révélés ({revealedPercentActual}%)
+                {savedNumber != null && ` — Grille #${savedNumber}`}
               </p>
               <p className="teaser-preview-hint">
-                Cet aperçu montre le tirage des cases ; l'habillage (logo, accroche, lien, QR)
-                n'apparaît que sur l'image téléchargée, mise en page pour le format choisi.
+                Cet aperçu montre la vraie grille (chiffres compris) et le tirage des cases ;
+                le reste de l'habillage (logo, badge numéro, accroche, lien, QR) n'apparaît que
+                sur l'image téléchargée, mise en page pour le format choisi.
               </p>
             </div>
           </div>

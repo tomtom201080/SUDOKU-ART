@@ -224,7 +224,11 @@
 }
 
 .teaser-cell {
+  position: relative;
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--t-grid-line, #3A332A);
   background-color: var(--t-cell-bg, #FFFFFF);
   padding: 0;
@@ -235,6 +239,25 @@
 
 .teaser-cell.is-clickable {
   cursor: pointer;
+}
+
+/* Voile translucide laissé sur une case révélée, par-dessus le fragment
+   d'œuvre en background-image du bouton — même principe que .cell-cover en
+   jeu (SudokuBoard.css) : le fragment reste visible en transparence. */
+.teaser-cell-veil {
+  position: absolute;
+  inset: 0;
+  background: var(--t-cell-bg, #FFFFFF);
+  pointer-events: none;
+}
+
+.teaser-cell-digit {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(11px, 3.2vw, 16px);
+  font-weight: 600;
+  color: var(--t-cell-text, #1A1A1A);
+  pointer-events: none;
 }
 
 .teaser-cell.thick-right {
