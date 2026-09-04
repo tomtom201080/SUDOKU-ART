@@ -89,6 +89,7 @@ function GroupLeaderboard({ rematch, onClose }) {
           <button onClick={onClose}>✕</button>
         </div>
         <p className="group-leaderboard-meta">
+          {rematch.number != null && `#${rematch.number} · `}
           {diffLabel(rematch.difficulty) ?? rematch.difficulty} · {fmtDate(rematch.created_at)}{hintsSuffix}
         </p>
 
@@ -189,6 +190,7 @@ function RematchRow({ r, isSent, onHide, onExpand, onRegenerate }) {
           {isGroup ? '👨‍👩‍👧 ' : ''}{isSent ? (r.label || t('dd_sent_label')) : (r.challenger_name || t('defi_a_friend'))}
         </span>
         <span className="defi-row-meta">
+          {r.number != null && `#${r.number} · `}
           {diffLabel(r.difficulty) ?? r.difficulty} · {fmtDate(r.created_at)}
           {hasPlayed && ` · ${t('dd_results_arrow')}`}
         </span>

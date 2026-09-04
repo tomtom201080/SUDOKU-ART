@@ -64,6 +64,7 @@ function ChallengeRow({ c, isSent, onDelete, deletingId, onExpand }) {
           {isSent ? (c.label || t('dd_sent_label')) : (c.sender_email || t('defi_a_friend'))}
         </span>
         <span className="defi-row-meta">
+          {c.number != null && `#${c.number} · `}
           {diffLabel(c.difficulty_mode)} · {fmtDate(c.created_at)}
         </span>
       </div>
@@ -94,7 +95,10 @@ function ChallengeDetail({ c, isSent, onClose }) {
           <h2>{isSent ? (c.label || t('dd_sent_label')) : (c.sender_email || t('defi_a_friend'))}</h2>
           <button className="defi-dash-close" onClick={onClose}>✕</button>
         </div>
-        <p className="defi-row-meta">{diffLabel(c.difficulty_mode)} · {fmtDate(c.created_at)}</p>
+        <p className="defi-row-meta">
+          {c.number != null && `#${c.number} · `}
+          {diffLabel(c.difficulty_mode)} · {fmtDate(c.created_at)}
+        </p>
         {photoUrl ? (
           <img src={photoUrl} alt="" className="challenge-photo-preview" />
         ) : (
