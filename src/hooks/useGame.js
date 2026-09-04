@@ -3,14 +3,15 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { generateSudoku, isGridComplete, DIFFICULTIES } from '../sudoku/generator';
 import { resolveImagePath, resolveImagePathLow, listAllImages, pickImageForTier, pickRewardImage, TIERS_BY_DIFFICULTY } from '../data/imageLibrary';
 import { addToGallery, recordWin } from '../utils/storage';
-import { markChallengeCompleted, markChallengeStarted, updateChallengeProgress } from '../lib/challenges';
+import { markChallengeStarted, updateChallengeProgress } from '../lib/challenges';
 import { markPaintingSeen, getMergedUnseenIds } from '../lib/seenPaintings';
 import { logGameStart, logGameComplete, logGameFail } from '../lib/analytics';
 import {
-  submitRematchResult, submitGroupResult, updateChallengerBaseline, determineRematchWinner,
+  determineRematchWinner,
   markRematchStarted, updateRematchProgress, startGroupParticipant, updateGroupParticipantProgress
 } from '../lib/rematches';
-import { trackGameError, normalizeErrorCode } from '../lib/tracking';
+import { trackGameError } from '../lib/tracking';
+import { writeOrQueue } from '../lib/pendingWrites';
 
 function cloneGrid(grid) {
   return grid.map(row => [...row]);
@@ -527,7 +528,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
               isChallenge: !!challengeMeta?.id
             });
             if (challengeMeta.id) {
-              markChallengeCompleted(challengeMeta.id, 'lost');
+              writeOrQueue('challenge_completed', { challengeId: challengeMeta.id, result: 'lost' });
             }
           }
           return next;
@@ -748,7 +749,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
         isChallenge: !!challengeMeta?.id
       });
       if (challengeMeta?.id) {
-        markChallengeCompleted(challengeMeta.id, 'won');
+        writeOrQueue('challenge_completed', { challengeId: challengeMeta.id, result: 'won' });
       }
       if (watermark && !watermark.isCustom) {
         addToGallery(watermark, { difficulty });
@@ -768,20 +769,23 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
         const isGroupMode = activeRematch.groupMode;
 
         if (isGroupMode) {
-          // Mode groupe : on stocke dans rematch_results avec le pseudo du joueur
-          submitGroupResult(activeRematch.id, {
-            errors: errorCount,
-            seconds: finalElapsed,
-            hints: hintsUsed,
-            userId: userId ?? null,
-            playerName: activeRematch.playerPseudo ?? username ?? 'Anonyme',
-            resultRowId: activeRematch.groupResultRowId ?? null }).catch(err => {
-              // Ne jamais bloquer l'écran de victoire sur cette écriture,
-              // mais ne plus l'avaler en silence non plus (un rejet RLS ici
-              // laisserait croire à tort que la partie a été enregistrée).
-              console.error('submitGroupResult failed:', err);
-              trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.submitGroupResult', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
-            });
+          // Mode groupe : on stocke dans rematch_results avec le pseudo du joueur.
+          // writeOrQueue : ne bloque jamais l'écran de victoire, et ne perd
+          // plus le résultat s'il échoue (ex. hors ligne) — retenté plus
+          // tard au lieu d'être silencieusement abandonné.
+          writeOrQueue('group_result', {
+            rematchId: activeRematch.id,
+            data: {
+              errors: errorCount,
+              seconds: finalElapsed,
+              hints: hintsUsed,
+              userId: userId ?? null,
+              playerName: activeRematch.playerPseudo ?? username ?? 'Anonyme',
+              resultRowId: activeRematch.groupResultRowId ?? null
+            }
+          }).then(ok => {
+            if (!ok) trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.submitGroupResult', errorCode: 'queued_for_retry', fatal: false, gameInProgress: false });
+          });
         } else if (activeRematch.challengerUserId && userId && activeRematch.challengerUserId === userId) {
           // Le créateur joue son propre défi perso (via "Jouer maintenant"
           // ou en rouvrant son propre lien) avant qu'un ami ne l'ait fait :
@@ -789,26 +793,26 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
           // d'être comparé à tort au 0/0 fictif posé à la création. Ne
           // touche jamais recipient_*, pour laisser la place intacte à un
           // ami qui jouerait ensuite.
-          updateChallengerBaseline(activeRematch.id, {
-            errors: errorCount,
-            seconds: finalElapsed,
-            hints: hintsUsed
-          }).catch(err => {
-            console.error('updateChallengerBaseline failed:', err);
-            trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.updateChallengerBaseline', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
+          writeOrQueue('challenger_baseline', {
+            rematchId: activeRematch.id,
+            data: { errors: errorCount, seconds: finalElapsed, hints: hintsUsed }
+          }).then(ok => {
+            if (!ok) trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.updateChallengerBaseline', errorCode: 'queued_for_retry', fatal: false, gameInProgress: false });
           });
           setChallengerBaselineJustSet(true);
         } else {
           // Mode perso 1v1
-          submitRematchResult(activeRematch.id, {
-            errors: errorCount,
-            seconds: finalElapsed,
-            hints: hintsUsed,
-            userId,
-            playerName: activeRematch.playerPseudo ?? username ?? null
-          }).catch(err => {
-            console.error('submitRematchResult failed:', err);
-            trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.submitRematchResult', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
+          writeOrQueue('rematch_result', {
+            rematchId: activeRematch.id,
+            data: {
+              errors: errorCount,
+              seconds: finalElapsed,
+              hints: hintsUsed,
+              userId,
+              playerName: activeRematch.playerPseudo ?? username ?? null
+            }
+          }).then(ok => {
+            if (!ok) trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.submitRematchResult', errorCode: 'queued_for_retry', fatal: false, gameInProgress: false });
           });
 
           const winner = determineRematchWinner({
@@ -867,7 +871,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     recordWin(difficulty);
 
     if (challengeMeta?.id) {
-      markChallengeCompleted(challengeMeta.id, 'won');
+      writeOrQueue('challenge_completed', { challengeId: challengeMeta.id, result: 'won' });
     }
 
     if (watermark && !watermark.isCustom) {
@@ -887,39 +891,42 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
       const isGroupMode = activeRematch.groupMode;
 
       if (isGroupMode) {
-        submitGroupResult(activeRematch.id, {
-          errors: errorCount,
-          seconds: elapsedSeconds,
-          hints: hintsUsed,
-          userId: userId ?? null,
-          playerName: activeRematch.playerPseudo ?? username ?? 'Anonyme',
-          resultRowId: activeRematch.groupResultRowId ?? null }).catch(err => {
-            console.error('submitGroupResult failed:', err);
-            trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.solveGridForTesting.submitGroupResult', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
-          });
+        writeOrQueue('group_result', {
+          rematchId: activeRematch.id,
+          data: {
+            errors: errorCount,
+            seconds: elapsedSeconds,
+            hints: hintsUsed,
+            userId: userId ?? null,
+            playerName: activeRematch.playerPseudo ?? username ?? 'Anonyme',
+            resultRowId: activeRematch.groupResultRowId ?? null
+          }
+        }).then(ok => {
+          if (!ok) trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.solveGridForTesting.submitGroupResult', errorCode: 'queued_for_retry', fatal: false, gameInProgress: false });
+        });
       } else if (activeRematch.challengerUserId && userId && activeRematch.challengerUserId === userId) {
         // Même règle que dans setCellValue : le créateur qui teste son
         // propre défi perso établit sa référence, pas un faux résultat de
         // destinataire comparé au 0/0 fictif.
-        updateChallengerBaseline(activeRematch.id, {
-          errors: errorCount,
-          seconds: elapsedSeconds,
-          hints: hintsUsed
-        }).catch(err => {
-          console.error('updateChallengerBaseline failed:', err);
-          trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.solveGridForTesting.updateChallengerBaseline', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
+        writeOrQueue('challenger_baseline', {
+          rematchId: activeRematch.id,
+          data: { errors: errorCount, seconds: elapsedSeconds, hints: hintsUsed }
+        }).then(ok => {
+          if (!ok) trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.solveGridForTesting.updateChallengerBaseline', errorCode: 'queued_for_retry', fatal: false, gameInProgress: false });
         });
         setChallengerBaselineJustSet(true);
       } else {
-        submitRematchResult(activeRematch.id, {
-          errors: errorCount,
-          seconds: elapsedSeconds,
-          hints: hintsUsed,
-          userId,
-          playerName: activeRematch.playerPseudo ?? username ?? null
-        }).catch(err => {
-          console.error('submitRematchResult failed:', err);
-          trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.solveGridForTesting.submitRematchResult', errorCode: normalizeErrorCode(err), fatal: false, gameInProgress: false });
+        writeOrQueue('rematch_result', {
+          rematchId: activeRematch.id,
+          data: {
+            errors: errorCount,
+            seconds: elapsedSeconds,
+            hints: hintsUsed,
+            userId,
+            playerName: activeRematch.playerPseudo ?? username ?? null
+          }
+        }).then(ok => {
+          if (!ok) trackGameError({ errorType: 'rematch_result_submit_failed', errorLocation: 'useGame.solveGridForTesting.submitRematchResult', errorCode: 'queued_for_retry', fatal: false, gameInProgress: false });
         });
 
         const winner = determineRematchWinner({
@@ -1214,7 +1221,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
       // ci-dessus ni ce chemin ne marquaient le défi terminé — voir
       // l'équivalent dans l'effet du chronomètre plus haut.
       if (challengeMeta?.id) {
-        markChallengeCompleted(challengeMeta.id, 'lost');
+        writeOrQueue('challenge_completed', { challengeId: challengeMeta.id, result: 'lost' });
       }
     },
     resetErrorCount: (n) => setErrorCount(n),

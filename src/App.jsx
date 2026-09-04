@@ -43,6 +43,7 @@ import { useT } from './i18n/index.jsx';
 import { useGame } from './hooks/useGame';
 import { useGameAnalytics } from './hooks/useGameAnalytics';
 import { useNetworkStatus } from './hooks/useNetworkStatus';
+import { flushPendingWrites } from './lib/pendingWrites';
 import { isMobileDevice, classifyReferrer } from './utils/device';
 import { trackHomeViewed, trackGameSelected, trackHintUsed, trackNewGameClicked, updateGameSessionSnapshot } from './lib/tracking';
 import './components/LegalModal.css';
@@ -159,6 +160,18 @@ export default function App() {
   const [showTerms, setShowTerms] = useState(false);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const isOnline = useNetworkStatus();
+
+  // Retente les écritures critiques (résultat de défi/rematch) mises en
+  // attente parce qu'elles avaient échoué — typiquement une partie terminée
+  // hors ligne (voir src/lib/pendingWrites.js) : une fois au chargement de
+  // l'appli (au cas où la connexion soit déjà revenue depuis), puis à chaque
+  // retour en ligne détecté par le navigateur.
+  useEffect(() => {
+    flushPendingWrites();
+    const handleOnline = () => flushPendingWrites();
+    window.addEventListener('online', handleOnline);
+    return () => window.removeEventListener('online', handleOnline);
+  }, []);
 
   // Onboarding : affiché une seule fois au premier lancement
   const ONBOARDING_KEY = 'sudoku-devoile:onboardingDone';
