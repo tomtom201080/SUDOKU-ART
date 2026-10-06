@@ -22,10 +22,14 @@ export default function PlatformStatsDashboard({ onClose }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    supabase.rpc('get_platform_stats')
-      .then(({ data, error: rpcError }) => {
-        if (rpcError) throw rpcError;
-        setStats(data);
+    Promise.all([
+      supabase.rpc('get_platform_stats'),
+      supabase.rpc('get_shared_grids_stats')
+    ])
+      .then(([platform, sharedGrids]) => {
+        if (platform.error) throw platform.error;
+        if (sharedGrids.error) throw sharedGrids.error;
+        setStats({ ...platform.data, sharedGrids: sharedGrids.data });
       })
       .catch(err => setError(err.message || t('auth_error')));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -105,6 +109,26 @@ export default function PlatformStatsDashboard({ onClose }) {
               <div className="kpi-card">
                 <span className="kpi-value">{stats.rematches_completed}</span>
                 <span className="kpi-label">{t('platform_stats_rematches_done')}</span>
+              </div>
+            </div>
+
+            <h3 className="kpi-section-title">{t('platform_stats_shared_grids')}</h3>
+            <div className="kpi-grid">
+              <div className="kpi-card">
+                <span className="kpi-value">{stats.sharedGrids.total_initial}</span>
+                <span className="kpi-label">{t('platform_stats_shared_initial')}</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{stats.sharedGrids.total_snapshot}</span>
+                <span className="kpi-label">{t('platform_stats_shared_snapshot')}</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{stats.sharedGrids.total_scans}</span>
+                <span className="kpi-label">{t('platform_stats_shared_scans')}</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{stats.sharedGrids.created_today}</span>
+                <span className="kpi-label">{t('platform_stats_shared_today')}</span>
               </div>
             </div>
 

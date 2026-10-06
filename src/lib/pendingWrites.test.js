@@ -1,8 +1,12 @@
+// @vitest-environment jsdom
 // src/lib/pendingWrites.test.js
 // Couvre le bug corrigé : le résultat d'un défi/rematch terminé hors ligne
 // disparaissait purement et simplement (écriture fire-and-forget jamais
 // retentée) — l'expéditeur ne le voyait jamais. writeOrQueue()/
 // flushPendingWrites() doivent mémoriser puis retenter ces écritures.
+// Couvre aussi le cas 'shared_grid_create' (QR "Appel à un ami") : il doit
+// diffuser un évènement 'sharedgridresolved' quand la création en attente
+// réussit enfin, pour que ShareGridPanel.jsx puisse rafraîchir son QR.
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('./challenges', () => ({ markChallengeCompleted: vi.fn() }));
@@ -11,10 +15,12 @@ vi.mock('./rematches', () => ({
   submitGroupResult: vi.fn(),
   updateChallengerBaseline: vi.fn()
 }));
+vi.mock('./sharedGrids', () => ({ createSharedGrid: vi.fn() }));
 
 import { markChallengeCompleted } from './challenges';
 import { submitGroupResult } from './rematches';
-import { writeOrQueue, flushPendingWrites, getPendingWritesCount } from './pendingWrites';
+import { createSharedGrid } from './sharedGrids';
+import { writeOrQueue, flushPendingWrites, getPendingWritesCount, enqueuePendingWrite } from './pendingWrites';
 
 function createMemoryStorage() {
   const store = new Map();
@@ -85,5 +91,30 @@ describe('flushPendingWrites', () => {
   it("ne fait rien quand la file est vide", async () => {
     await flushPendingWrites();
     expect(markChallengeCompleted).not.toHaveBeenCalled();
+  });
+
+  it("diffuse 'sharedgridresolved' quand une création de grille partagée en attente réussit", async () => {
+    enqueuePendingWrite('shared_grid_create', { clientRequestId: 'local-1', type: 'snapshot', puzzle: [] });
+    expect(getPendingWritesCount()).toBe(1);
+
+    const createdRow = { id: 'abc12345', type: 'snapshot' };
+    createSharedGrid.mockResolvedValue(createdRow);
+
+    const handler = vi.fn();
+    window.addEventListener('sharedgridresolved', handler);
+    await flushPendingWrites();
+    window.removeEventListener('sharedgridresolved', handler);
+
+    expect(getPendingWritesCount()).toBe(0);
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0][0].detail).toEqual({ clientRequestId: 'local-1', grid: createdRow });
+  });
+});
+
+describe('enqueuePendingWrite', () => {
+  it("met en file sans tenter l'écriture", () => {
+    enqueuePendingWrite('shared_grid_create', { clientRequestId: 'local-2' });
+    expect(createSharedGrid).not.toHaveBeenCalled();
+    expect(getPendingWritesCount()).toBe(1);
   });
 });

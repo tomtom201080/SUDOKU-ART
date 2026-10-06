@@ -7,6 +7,12 @@
       "permanent": true
     }
   ],
+  "rewrites": [
+    {
+      "source": "/g/:id",
+      "destination": "/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/ads.txt",

@@ -28,6 +28,7 @@ import HelpModal from './components/HelpModal';
 import KpiDashboard from './components/KpiDashboard';
 import PlatformStatsDashboard from './components/PlatformStatsDashboard';
 import TeaserGridGenerator from './components/TeaserGridGenerator';
+import ShareGridPanel from './components/ShareGridPanel';
 import AdSlot from './components/AdSlot';
 import AppActionsBar from './components/AppActionsBar';
 import ConsentBanner from './components/ConsentBanner';
@@ -79,6 +80,12 @@ import {
   clearNumberedPuzzleFromUrl,
   fetchNumberedPuzzle
 } from './lib/numberedPuzzles';
+import {
+  readSharedGridIdFromPath,
+  clearSharedGridFromPath,
+  fetchSharedGrid,
+  incrementScan
+} from './lib/sharedGrids';
 
 const DARK_MODE_KEY = 'sudoku-devoile:darkMode';
 
@@ -204,6 +211,17 @@ export default function App() {
   // prévue pour être ouverte par un nombre illimité de personnes).
   const [incomingPuzzleNumber] = useState(() => readNumberedPuzzleFromUrl());
   const [incomingPuzzleNumberHandled, setIncomingPuzzleNumberHandled] = useState(false);
+
+  // Grille partagée reçue par QR (/g/<id>) — voir src/lib/sharedGrids.js :
+  // comme les grilles numérotées, aucune connexion ni jeton anti-transfert,
+  // ouvrable par n'importe qui (c'est le but du QR).
+  const [incomingSharedGridId] = useState(() => readSharedGridIdFromPath());
+  const [incomingSharedGridHandled, setIncomingSharedGridHandled] = useState(false);
+  // "Mode capture" (ShareGridPanel) : simplifie l'écran de jeu (masque
+  // pavé numérique / actions) pour que grille + QR tiennent ensemble sur
+  // une capture d'écran sans scroller.
+  const [captureMode, setCaptureMode] = useState(false);
+
   const [selectedRematchNotification, setSelectedRematchNotification] = useState(null);
 
   // Pont depuis les pages SEO (src/seo/pages.jsx) : leurs boutons "Jouer"
@@ -507,17 +525,18 @@ export default function App() {
   // un lien ouvert (?grille=N) que pour la saisie manuelle d'un numéro sur
   // l'accueil (DifficultySelector). Retourne true si la grille a été
   // trouvée et lancée, false si ce numéro n'existe pas.
-  const loadAndStartNumberedPuzzle = useCallback(async (number) => {
-    const entry = await fetchNumberedPuzzle(number);
-    if (!entry) return false;
-
-    const metadata = getPaintingMetadata(entry.painting_id);
+  // Reconstruit l'objet "œuvre" (watermark) complet à partir du seul id
+  // stable de la bibliothèque — utilisé pour les grilles numérotées ET les
+  // grilles partagées, qui ne stockent toutes deux qu'un painting_id (jamais
+  // de copie de l'image, voir les migrations respectives).
+  const buildPaintingImage = useCallback((paintingId) => {
+    const metadata = getPaintingMetadata(paintingId);
     const tier = metadata?.tier ?? null;
-    const image = {
-      id: entry.painting_id,
+    return {
+      id: paintingId,
       tier,
-      path: resolveImagePath(tier, metadata, entry.painting_id),
-      pathLow: resolveImagePathLow(tier, metadata, entry.painting_id),
+      path: resolveImagePath(tier, metadata, paintingId),
+      pathLow: resolveImagePathLow(tier, metadata, paintingId),
       title: metadata?.title ?? null,
       artist: metadata?.artist ?? null,
       year: metadata?.year ?? null,
@@ -529,10 +548,15 @@ export default function App() {
       funFact: metadata?.funFact ?? null,
       observe: metadata?.observe ?? null
     };
+  }, []);
 
-    game.startNumberedPuzzle(entry, image);
+  const loadAndStartNumberedPuzzle = useCallback(async (number) => {
+    const entry = await fetchNumberedPuzzle(number);
+    if (!entry) return false;
+
+    game.startNumberedPuzzle(entry, buildPaintingImage(entry.painting_id));
     return true;
-  }, [game]);
+  }, [game, buildPaintingImage]);
 
   // Dès qu'un lien de grille numérotée est ouvert (?grille=N), on charge
   // cette grille figée + l'œuvre associée et on lance la partie directement
@@ -547,6 +571,26 @@ export default function App() {
     loadAndStartNumberedPuzzle(incomingPuzzleNumber)
       .catch(() => setIncomingLinkFailed(true));
   }, [incomingPuzzleNumber, incomingPuzzleNumberHandled, loadAndStartNumberedPuzzle]);
+
+  // Dès qu'un QR de partage est ouvert (/g/<id>), on charge la grille
+  // (initiale ou snapshot "Appel à un ami") + l'œuvre associée et on lance
+  // la partie — invité, sans connexion ni jeton anti-transfert (n'importe
+  // qui peut ouvrir ce lien, c'est le but). Incrémente aussi le compteur de
+  // scans (fire-and-forget, voir incrementScan) une fois la grille trouvée.
+  useEffect(() => {
+    if (!incomingSharedGridId || incomingSharedGridHandled) return;
+
+    setIncomingSharedGridHandled(true);
+    clearSharedGridFromPath();
+
+    fetchSharedGrid(incomingSharedGridId)
+      .then(entry => {
+        if (!entry) return;
+        incrementScan(entry.id);
+        game.startSharedGrid(entry, buildPaintingImage(entry.painting_id));
+      })
+      .catch(() => setIncomingLinkFailed(true));
+  }, [incomingSharedGridId, incomingSharedGridHandled, game, buildPaintingImage]);
 
   // Tant qu'on est connecté et sur l'écran d'accueil, on vérifie si des amis
   // ont terminé un défi "même grille" qu'on leur a envoyé, pour leur montrer
@@ -1118,36 +1162,38 @@ export default function App() {
 
   return (
     <>
-      <header className="app-header">
-        <img src="/favicon.svg" alt="Sudoku Art" className="app-logo" />
-        <div className="header-actions">
-          <span className="stat-pill stat-pill-timer">
-            ⏱ {formatTime(game.elapsedSeconds)}
-            {game.challengeMeta?.timeLimitSeconds ? ` / ${formatTime(game.challengeMeta.timeLimitSeconds)}` : ''}
-          </span>
-          <span className="stat-pill">
-            {DIFFICULTY_ICONS[game.difficulty] ?? '🎯'} {DIFFICULTY_LABELS[game.difficulty] ?? game.difficulty}
-          </span>
-          {game.puzzleNumber != null && (
-            <span className="stat-pill" title="Numéro de grille">🔢 #{game.puzzleNumber}</span>
-          )}
-          <span className="stat-pill">❌ {game.errorCount} / {game.challengeMeta?.maxErrors ?? 3}</span>
-          {darkModeButton}
-          {!isClassicMode && game.watermark && (
-            <button className="icon-btn" onClick={game.toggleWatermark} title={t('game_watermark_toggle')}>
-              {game.watermarkVisible ? '🙈' : '🙉'}
-            </button>
-          )}
-          <button className="icon-btn" onClick={handleCloseGameEnd} title={t('nav_menu_title')}>↩</button>
-        </div>
-      </header>
+      {!captureMode && (
+        <header className="app-header">
+          <img src="/favicon.svg" alt="Sudoku Art" className="app-logo" />
+          <div className="header-actions">
+            <span className="stat-pill stat-pill-timer">
+              ⏱ {formatTime(game.elapsedSeconds)}
+              {game.challengeMeta?.timeLimitSeconds ? ` / ${formatTime(game.challengeMeta.timeLimitSeconds)}` : ''}
+            </span>
+            <span className="stat-pill">
+              {DIFFICULTY_ICONS[game.difficulty] ?? '🎯'} {DIFFICULTY_LABELS[game.difficulty] ?? game.difficulty}
+            </span>
+            {game.puzzleNumber != null && (
+              <span className="stat-pill" title="Numéro de grille">🔢 #{game.puzzleNumber}</span>
+            )}
+            <span className="stat-pill">❌ {game.errorCount} / {game.challengeMeta?.maxErrors ?? 3}</span>
+            {darkModeButton}
+            {!isClassicMode && game.watermark && (
+              <button className="icon-btn" onClick={game.toggleWatermark} title={t('game_watermark_toggle')}>
+                {game.watermarkVisible ? '🙈' : '🙉'}
+              </button>
+            )}
+            <button className="icon-btn" onClick={handleCloseGameEnd} title={t('nav_menu_title')}>↩</button>
+          </div>
+        </header>
+      )}
 
       {showHelpModal && (
         <HelpModal onClose={() => setShowHelpModal(false)} />
       )}
 
       <div className="game-screen">
-        {!isClassicMode && game.watermark && (
+        {!captureMode && !isClassicMode && game.watermark && (
           <div className="intensity-control">
             <label htmlFor="image-intensity">
               {t('game_intensity')}
@@ -1185,28 +1231,51 @@ export default function App() {
           onSelectCell={handleSelectCell}
         />
 
-        <NumberPad
-          ref={padRef}
-          onInput={handleInput}
-          disabled={game.isComplete || game.isFailed}
-          notesMode={game.notesMode}
-          onToggleNotes={game.toggleNotesMode}
-          onUndo={game.undo}
-          canUndo={game.canUndo}
-          onHint={handleOpenHint}
-          hintsDisabled={
-            (game.activeRematch?.hintsLimit ?? game.challengeMeta?.hintsLimit) != null &&
-            game.hintsUsed >= (game.activeRematch?.hintsLimit ?? game.challengeMeta?.hintsLimit)
-          }
-          hintsUsed={game.hintsUsed}
-          hintsLimit={game.activeRematch?.hintsLimit ?? game.challengeMeta?.hintsLimit ?? null}
-          completedDigits={game.completedDigits}
-        />
+        {!isClassicMode && (
+          <ShareGridPanel
+            puzzleData={game.puzzleData}
+            userGrid={game.userGrid}
+            watermark={game.watermark}
+            isCellRevealed={game.isCellRevealed}
+            sharedGrid={game.sharedGrid}
+            shareGridStatus={game.shareGridStatus}
+            onRequestShareGrid={game.requestShareGrid}
+            onSwitchToInitial={game.switchToInitialShareGrid}
+            userId={session?.user?.id ?? null}
+            onRequestSignup={() => setShowAuthScreen(true)}
+            captureMode={captureMode}
+            onToggleCaptureMode={() => setCaptureMode(v => !v)}
+          />
+        )}
 
-        <AppActionsBar onShowInstallInstructions={() => setShowInstallModal(true)} />
-        <a className="site-url-link" href="https://sudokuart.com" target="_blank" rel="noopener noreferrer">
-          sudokuart.com
-        </a>
+        {!captureMode && (
+          <NumberPad
+            ref={padRef}
+            onInput={handleInput}
+            disabled={game.isComplete || game.isFailed}
+            notesMode={game.notesMode}
+            onToggleNotes={game.toggleNotesMode}
+            onUndo={game.undo}
+            canUndo={game.canUndo}
+            onHint={handleOpenHint}
+            hintsDisabled={
+              (game.activeRematch?.hintsLimit ?? game.challengeMeta?.hintsLimit) != null &&
+              game.hintsUsed >= (game.activeRematch?.hintsLimit ?? game.challengeMeta?.hintsLimit)
+            }
+            hintsUsed={game.hintsUsed}
+            hintsLimit={game.activeRematch?.hintsLimit ?? game.challengeMeta?.hintsLimit ?? null}
+            completedDigits={game.completedDigits}
+          />
+        )}
+
+        {!captureMode && (
+          <>
+            <AppActionsBar onShowInstallInstructions={() => setShowInstallModal(true)} />
+            <a className="site-url-link" href="https://sudokuart.com" target="_blank" rel="noopener noreferrer">
+              sudokuart.com
+            </a>
+          </>
+        )}
       </div>
 
       {showHint && (

@@ -1,21 +1,8 @@
 // src/lib/rematches.js
 import { supabase } from './supabaseClient';
+import { getOrCreateDeviceToken } from './deviceToken';
 
-const DEVICE_TOKEN_KEY = 'sudoku-devoile:deviceToken';
 const STARTED_REMATCHES_KEY = 'sudoku-devoile:startedRematchIds';
-
-function getOrCreateDeviceToken() {
-  try {
-    let token = localStorage.getItem(DEVICE_TOKEN_KEY);
-    if (!token) {
-      token = crypto.randomUUID();
-      localStorage.setItem(DEVICE_TOKEN_KEY, token);
-    }
-    return token;
-  } catch {
-    return crypto.randomUUID();
-  }
-}
 
 // Empêche de rouvrir le lien pour relancer la grille à zéro (et retenter
 // indéfiniment jusqu'à avoir un bon score) : une fois qu'un défi a été

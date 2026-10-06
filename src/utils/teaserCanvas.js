@@ -119,7 +119,7 @@ export function loadImage(src, { crossOrigin } = {}) {
   });
 }
 
-function roundRectPath(ctx, x, y, w, h, r) {
+export function roundRectPath(ctx, x, y, w, h, r) {
   const radius = Math.min(r, w / 2, h / 2);
   ctx.beginPath();
   ctx.moveTo(x + radius, y);

@@ -1,0 +1,158 @@
+.share-grid-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 14px auto 0;
+  width: min(98vw, 760px);
+}
+
+.share-grid-qr-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Le QR reste toujours sur fond blanc opaque, même en mode sombre : un QR
+   inversé/coloré scanne beaucoup moins fiablement depuis une capture
+   d'écran ou une photo imprimée. */
+.share-grid-qr,
+.share-grid-qr-placeholder {
+  width: min(180px, 42vw);
+  min-width: 140px;
+  aspect-ratio: 1;
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 10px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 14px rgba(46, 42, 34, 0.15);
+}
+
+.share-grid-qr-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.share-grid-label {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.share-grid-updated {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.share-grid-offline {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #D98E04;
+  font-weight: 600;
+}
+
+.share-grid-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.share-grid-btn {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-color);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.share-grid-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.share-grid-btn-primary {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
+
+.share-grid-btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: transparent;
+}
+
+.share-grid-signup-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--card-bg);
+  border: 1px dashed var(--card-border);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  max-width: 100%;
+}
+
+.share-grid-signup-banner button:not(.share-grid-signup-dismiss) {
+  padding: 4px 10px;
+  border-radius: 14px;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.share-grid-signup-dismiss {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 0 2px;
+}
+
+.share-grid-exit-capture {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-color);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* ─── Mode capture : grille + QR seuls, pensé pour tenir sans scroll ─── */
+.share-grid-panel.is-capture-mode {
+  margin-top: 10px;
+  gap: 6px;
+}
+
+.share-grid-panel.is-capture-mode .share-grid-qr,
+.share-grid-panel.is-capture-mode .share-grid-qr-placeholder {
+  width: min(150px, 34vw);
+  min-width: 120px;
+}
+
+@media (max-height: 700px) {
+  .share-grid-panel .share-grid-qr,
+  .share-grid-panel .share-grid-qr-placeholder {
+    width: min(130px, 32vw);
+    min-width: 110px;
+  }
+}

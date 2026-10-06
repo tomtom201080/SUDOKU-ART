@@ -11,11 +11,17 @@ import {
   markRematchStarted, updateRematchProgress, startGroupParticipant, updateGroupParticipantProgress
 } from '../lib/rematches';
 import { trackGameError } from '../lib/tracking';
-import { writeOrQueue } from '../lib/pendingWrites';
+import { writeOrQueue, enqueuePendingWrite } from '../lib/pendingWrites';
+import { createSharedGrid } from '../lib/sharedGrids';
 
 function cloneGrid(grid) {
   return grid.map(row => [...row]);
 }
+
+// État initial/"réinitialisé" du QR de partage (ShareGridPanel.jsx) : aucune
+// grille partagée n'existe encore pour la partie en cours tant que le
+// joueur n'a pas ouvert le panneau au moins une fois (création paresseuse).
+const EMPTY_SHARED_GRID = { initialId: null, activeId: null, activeType: null, updatedAt: null };
 
 // Construit la grille initiale jouable : les cases données sont pré-remplies,
 // les autres sont à 0 (vide).
@@ -135,6 +141,8 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
   const [activeQuestStage, setActiveQuestStage] = useState(null); // étape de la quête en cours, le cas échéant
   const [activeMathQuestStage, setActiveMathQuestStage] = useState(null); // étape Sudomath en cours, le cas échéant
   const [puzzleNumber, setPuzzleNumber] = useState(null); // numéro affiché (badge) quand la partie vient d'une grille numérotée (?grille=N)
+  const [sharedGrid, setSharedGrid] = useState(EMPTY_SHARED_GRID); // { initialId, activeId, activeType, updatedAt } — QR de partage (ShareGridPanel.jsx)
+  const [shareGridStatus, setShareGridStatus] = useState('idle'); // 'idle' | 'creating' | 'queued'
 
   const timerIdRef = useRef(null);
   const celebrateTimeoutRef = useRef(null);
@@ -182,6 +190,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setActiveQuestStage(null);
     setActiveMathQuestStage(null);
     setPuzzleNumber(null);
+    setSharedGrid(EMPTY_SHARED_GRID);
     setTempFullReveal(false);
     if (tempRevealTimeoutRef.current) {
       clearTimeout(tempRevealTimeoutRef.current);
@@ -281,6 +290,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
       setCelebrate([]);
       setChallengeMeta(null);
       setPuzzleNumber(null);
+      setSharedGrid(EMPTY_SHARED_GRID);
       // Mêmes règles que la soumission du résultat final plus bas : le
       // créateur qui rejoue son propre lien perso établit sa référence, il
       // ne compte jamais comme un destinataire (aucun impact sur
@@ -365,8 +375,79 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setCelebrate([]);
     setChallengeMeta(null);
     setPuzzleNumber(entry.number);
+    setSharedGrid(EMPTY_SHARED_GRID);
 
     logGameStart({ difficulty: entry.difficulty, userId, isCustomPhoto: false, isChallenge: false });
+  }, [userId]);
+
+  // Démarre la partie d'un invité qui scanne un QR sous la grille de
+  // quelqu'un d'autre (voir ShareGridPanel.jsx / src/lib/sharedGrids.js) :
+  // une grille 'initial' (vierge) ou 'snapshot' (saisies + notes figées au
+  // moment du clic "Appel à un ami"). Partie totalement indépendante de
+  // l'expéditeur — propre chrono, propre compteur d'erreurs, ne modifie
+  // jamais la ligne shared_grids lue. Les cases déjà correctement remplies
+  // par l'expéditeur se verrouillent automatiquement (même règle que
+  // n'importe quelle case validée, voir setCellValue) ; les cases
+  // incorrectes restent modifiables et sont signalées en erreur tout de
+  // suite, mais sans compter dans le score de l'invité, qui démarre à 0.
+  const startSharedGrid = useCallback((entry, image) => {
+    const puzzle = typeof entry.puzzle === 'string' ? JSON.parse(entry.puzzle) : entry.puzzle;
+    const solution = typeof entry.solution === 'string' ? JSON.parse(entry.solution) : entry.solution;
+    const savedUserGrid = typeof entry.user_grid === 'string' ? JSON.parse(entry.user_grid) : entry.user_grid;
+    const savedNotes = typeof entry.notes_grid === 'string' ? JSON.parse(entry.notes_grid) : entry.notes_grid;
+    const givenMask = puzzle.map(row => row.map(v => v !== 0));
+
+    const initialUserGrid = Array.isArray(savedUserGrid) && savedUserGrid.length === 9
+      ? cloneGrid(savedUserGrid)
+      : buildInitialUserGrid(puzzle);
+
+    const initialErrorCells = new Set();
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        const v = initialUserGrid[r][c];
+        if (v !== 0 && v !== solution[r][c]) initialErrorCells.add(`${r}-${c}`);
+      }
+    }
+
+    setDifficulty(entry.difficulty);
+    setPuzzleData({ puzzle, solution, givenMask });
+    setUserGrid(initialUserGrid);
+    setWatermark(image);
+    setWatermarkVisible(true);
+    setIsComplete(false);
+    setShowWinModal(false);
+    setPendingDefiResultAd(false);
+    if (winRevealTimeoutRef.current) {
+      clearTimeout(winRevealTimeoutRef.current);
+      winRevealTimeoutRef.current = null;
+    }
+    setIsFailed(false);
+    setRewardImage(null);
+    setNextWatermark(null);
+    setActiveRematch(null);
+    setRematchOutcome(null);
+    setChallengerBaselineJustSet(false);
+    setActiveQuestStage(null);
+    setActiveMathQuestStage(null);
+    setTempFullReveal(false);
+    if (tempRevealTimeoutRef.current) {
+      clearTimeout(tempRevealTimeoutRef.current);
+      tempRevealTimeoutRef.current = null;
+    }
+    setErrorCells(initialErrorCells);
+    setErrorCount(0);
+    setHintsUsed(0);
+    setElapsedSeconds(0);
+    setNotesMode(false);
+    setNotesGrid(Array.isArray(savedNotes) && savedNotes.length === 9 ? cloneNotes(savedNotes) : buildEmptyNotes());
+    setHistory([]);
+    setCelebrate([]);
+    setChallengeMeta(null);
+    setPuzzleNumber(null);
+    // Partie neuve et indépendante : jamais le sharedGrid de l'expéditeur.
+    setSharedGrid(EMPTY_SHARED_GRID);
+
+    logGameStart({ difficulty: entry.difficulty, userId, isCustomPhoto: !!image?.isCustom, isChallenge: false });
   }, [userId]);
 
   // Lance une étape précise du parcours de quête : la difficulté et le
@@ -427,6 +508,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setActiveQuestStage(null);
     setActiveMathQuestStage(null);
     setPuzzleNumber(null);
+    setSharedGrid(EMPTY_SHARED_GRID);
     setActiveQuestStage(stage);
 
     logGameStart({ difficulty: stage.difficulty, userId, isCustomPhoto: false, isChallenge: false });
@@ -489,6 +571,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setActiveQuestStage(null);
     setActiveMathQuestStage(null);
     setPuzzleNumber(null);
+    setSharedGrid(EMPTY_SHARED_GRID);
     setActiveMathQuestStage(stage);
 
     logGameStart({ difficulty: stage.difficulty, userId, isCustomPhoto: false, isChallenge: false });
@@ -982,6 +1065,83 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setWatermarkVisible(v => !v);
   }, []);
 
+  // Retient la demande de création en cours (si mise en file faute de
+  // réseau), pour ne reprendre QUE l'évènement 'sharedgridresolved' qui lui
+  // correspond vraiment — voir l'effet plus bas et pendingWrites.js.
+  const pendingShareRequestIdRef = useRef(null);
+
+  // Crée (ou recrée) la grille partagée affichée par le QR sous la grille
+  // (ShareGridPanel.jsx) : 'initial' fige la grille de départ telle quelle
+  // (appelé une seule fois par partie, voir sharedGrid.initialId côté
+  // appelant), 'snapshot' fige l'état courant — saisies + notes — au moment
+  // du clic "Appel à un ami". Hors ligne : la tentative échoue tout de
+  // suite, la demande est mise en file (pendingWrites.js) et sharedGrid ne
+  // se met à jour que plus tard, quand 'sharedgridresolved' est reçu.
+  const requestShareGrid = useCallback(async (type) => {
+    if (!puzzleData || !userGrid || !watermark || watermark.isCustom) return null;
+
+    const payload = {
+      type,
+      puzzle: puzzleData.puzzle,
+      solution: puzzleData.solution,
+      userGrid: type === 'initial' ? puzzleData.puzzle : userGrid,
+      notesGrid: type === 'initial' ? [] : notesGrid,
+      difficulty,
+      paintingId: watermark.id
+    };
+
+    setShareGridStatus('creating');
+    try {
+      const row = await createSharedGrid(payload);
+      setSharedGrid(prev => ({
+        initialId: type === 'initial' ? row.id : prev.initialId,
+        activeId: row.id,
+        activeType: type,
+        updatedAt: Date.now()
+      }));
+      setShareGridStatus('idle');
+      return row;
+    } catch {
+      const clientRequestId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+      pendingShareRequestIdRef.current = clientRequestId;
+      enqueuePendingWrite('shared_grid_create', { ...payload, clientRequestId });
+      setShareGridStatus('queued');
+      trackGameError({ errorType: 'shared_grid_create_failed', errorLocation: 'useGame.requestShareGrid', errorCode: 'queued_for_retry', fatal: false, gameInProgress: true });
+      return null;
+    }
+  }, [puzzleData, userGrid, notesGrid, difficulty, watermark]);
+
+  // Revient au QR de la grille initiale (déjà créée) sans appel réseau — si
+  // elle n'existe pas encore, la crée d'abord (premier affichage du panneau).
+  const switchToInitialShareGrid = useCallback(() => {
+    if (sharedGrid.initialId) {
+      setSharedGrid(prev => ({ ...prev, activeId: prev.initialId, activeType: 'initial', updatedAt: Date.now() }));
+      return;
+    }
+    requestShareGrid('initial');
+  }, [sharedGrid.initialId, requestShareGrid]);
+
+  // Reprend la main si une création de grille partagée mise en file par
+  // requestShareGrid() a fini par réussir en arrière-plan (retour en ligne,
+  // voir pendingWrites.js) — seulement si c'est bien LA demande en cours
+  // pour cette partie (clientRequestId), pas une resté d'une autre partie.
+  useEffect(() => {
+    function handleResolved(e) {
+      const { clientRequestId, grid } = e.detail || {};
+      if (!grid?.id || clientRequestId !== pendingShareRequestIdRef.current) return;
+      pendingShareRequestIdRef.current = null;
+      setSharedGrid(prev => ({
+        initialId: grid.type === 'initial' ? grid.id : prev.initialId,
+        activeId: grid.id,
+        activeType: grid.type,
+        updatedAt: Date.now()
+      }));
+      setShareGridStatus('idle');
+    }
+    window.addEventListener('sharedgridresolved', handleResolved);
+    return () => window.removeEventListener('sharedgridresolved', handleResolved);
+  }, []);
+
   // Ferme la popup de victoire sans réinitialiser la partie : la grille
   // reste affichée, avec la photo entièrement révélée derrière.
   const dismissWinModal = useCallback(() => {
@@ -1174,6 +1334,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     setActiveQuestStage(null);
     setActiveMathQuestStage(null);
     setPuzzleNumber(null);
+    setSharedGrid(EMPTY_SHARED_GRID);
     setTempFullReveal(false);
     if (tempRevealTimeoutRef.current) {
       clearTimeout(tempRevealTimeoutRef.current);
@@ -1236,6 +1397,11 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
     startRematchGame,
     startNumberedPuzzle,
     puzzleNumber,
+    startSharedGrid,
+    sharedGrid,
+    shareGridStatus,
+    requestShareGrid,
+    switchToInitialShareGrid,
     startQuestStage,
     activeQuestStage,
     startMathQuestStage,

@@ -1,24 +1,9 @@
 // src/lib/challenges.js
 import { supabase } from './supabaseClient';
 import { BUCKET } from './sharedPhoto';
+import { getOrCreateDeviceToken } from './deviceToken';
 
 const PENDING_KEY = 'sudoku-devoile:pendingChallengeId';
-const DEVICE_TOKEN_KEY = 'sudoku-devoile:deviceToken';
-
-// Identifiant aléatoire propre à ce navigateur, créé une seule fois et
-// réutilisé pour tous les défis ouverts depuis cet appareil.
-function getOrCreateDeviceToken() {
-  try {
-    let token = localStorage.getItem(DEVICE_TOKEN_KEY);
-    if (!token) {
-      token = crypto.randomUUID();
-      localStorage.setItem(DEVICE_TOKEN_KEY, token);
-    }
-    return token;
-  } catch {
-    return crypto.randomUUID(); // pas de stockage possible : token jetable
-  }
-}
 
 // Tente de réclamer ce défi pour cet appareil. Si quelqu'un (un autre
 // appareil) l'a déjà réclamé avant, la photo ne doit plus être montrée ici :
