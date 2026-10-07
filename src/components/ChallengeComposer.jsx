@@ -1,10 +1,11 @@
 import { useT } from '../i18n/index.jsx';
 // src/components/ChallengeComposer.jsx
-import { useRef, useState, useEffect } from 'react';
-import { uploadSharedPhoto, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
+import { useState, useEffect } from 'react';
+import { SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
 import { createChallenge, buildChallengeLink } from '../lib/challenges';
 import { isMobileDevice } from '../utils/device';
 import MemoriesDashboard from './MemoriesDashboard';
+import MediaPicker from './MediaPicker';
 import './ChallengeComposer.css';
 
 const ERROR_OPTIONS = [
@@ -36,8 +37,8 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null, u
     { value: 'enfer', label: t('diff_enfer') },
   ];
 
-  const [photoFile, setPhotoFile] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState(preloadedPhotoUrl);
+  const [media, setMedia] = useState(null); // { mediaId, type, posterUrl } posé par MediaPicker
+  const [autoUploadFile, setAutoUploadFile] = useState(null);
   const [challengeName, setChallengeName] = useState('');
 
   useEffect(() => {
@@ -45,7 +46,7 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null, u
     fetch(preloadedPhotoUrl)
       .then(r => r.blob())
       .then(blob => {
-        setPhotoFile(new File([blob], 'photo-perso.jpg', { type: blob.type || 'image/jpeg' }));
+        setAutoUploadFile(new File([blob], 'photo-perso.jpg', { type: blob.type || 'image/jpeg' }));
       })
       .catch(() => null);
   }, [preloadedPhotoUrl]);
@@ -56,17 +57,6 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null, u
   const [status, setStatus] = useState('idle'); // idle | sending | done | error
   const [shareLink, setShareLink] = useState(null);
   const [linkCopied, setLinkCopied] = useState(false);
-  const fileInputRef = useRef(null);
-
-  const handlePickPhoto = () => fileInputRef.current?.click();
-
-  const handleFileChange = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    if (photoPreview) URL.revokeObjectURL(photoPreview);
-    setPhotoFile(file);
-    setPhotoPreview(URL.createObjectURL(file));
-  };
 
   const handleCopyLink = async () => {
     if (!shareLink) return;
@@ -81,9 +71,8 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null, u
   const handleSend = async () => {
     setStatus('sending');
     try {
-      const path = photoFile ? await uploadSharedPhoto(photoFile) : null;
       const challenge = await createChallenge({
-        photoPath: path,
+        mediaId: media?.mediaId ?? null,
         difficultyMode,
         maxErrors,
         timeLimitMinutes,
@@ -93,12 +82,14 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null, u
       const link = buildChallengeLink(challenge.number);
       setShareLink(link);
 
-      const message = path
-        ? t('cc_share_msg_with_photo', { link })
+      const message = media
+        ? t(media.type === 'video' ? 'cc_share_msg_with_video' : 'cc_share_msg_with_photo', { link })
         : t('cc_share_msg_no_photo', { link });
 
-      const disclaimer = path ? t('cc_share_disclaimer', { days: SHARE_EXPIRY_DAYS }) : '';
-
+      // Le défi (donc le lien) reste valable SHARE_EXPIRY_DAYS jours après sa
+      // résolution (purgeExpiredChallenges) — toujours vrai quel que soit le
+      // système de stockage de la pièce jointe.
+      const disclaimer = media ? t('cc_share_disclaimer', { days: SHARE_EXPIRY_DAYS }) : '';
       const fullMessage = message + disclaimer;
       if (isMobileDevice() && navigator.share) {
         try {
@@ -156,25 +147,12 @@ export default function ChallengeComposer({ onClose, preloadedPhotoUrl = null, u
 
             <div className="challenge-step">
               <p className="challenge-step-title">{t('cc_step1')}</p>
-              {photoPreview ? (
-                <img className="challenge-photo-preview" src={photoPreview} alt={t('cc_photo_selected_alt')} />
-              ) : (
-                <button className="challenge-pick-btn" onClick={handlePickPhoto}>
-                  {t('defi_pick_photo')}
-                </button>
-              )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                style={{ display: 'none' }}
+              <MediaPicker
+                userId={userId}
+                autoUploadFile={autoUploadFile}
+                onMediaReady={setMedia}
+                onClear={() => setMedia(null)}
               />
-              {photoPreview && (
-                <button className="challenge-link-btn" onClick={handlePickPhoto}>
-                  {t('rematch_change')}
-                </button>
-              )}
             </div>
 
             <div className="challenge-step">

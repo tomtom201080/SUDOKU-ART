@@ -97,6 +97,43 @@
   padding: 10px 12px;
 }
 
+.defi-row-thumb {
+  position: relative;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.defi-row-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.defi-row-thumb-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+.challenge-photo-preview-wrap {
+  position: relative;
+}
+
+.defi-row-thumb-play-lg {
+  font-size: 2rem;
+  border-radius: 12px;
+}
+
 .defi-row-left {
   display: flex;
   flex-direction: column;

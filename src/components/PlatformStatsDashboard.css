@@ -31,3 +31,37 @@
   margin: 6px 0 2px;
   font-weight: 600;
 }
+
+.platform-stats-reported-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.platform-stats-reported-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: var(--bg-color);
+}
+
+.platform-stats-reported-row img {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+
+.platform-stats-reported-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  font-size: 0.82rem;
+  color: var(--text-color);
+}

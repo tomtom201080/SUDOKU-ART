@@ -2,7 +2,7 @@
 import { useT } from '../i18n/index.jsx';
 import { useState, useEffect } from 'react';
 import { fetchSentChallenges, fetchReceivedChallenges, deleteChallenge, purgeExpiredChallenges } from '../lib/challenges';
-import { getSharedPhotoPublicUrl } from '../lib/sharedPhoto';
+import { useMediaPoster } from '../hooks/useMediaPoster';
 import './DefiDashboard.css';
 
 // Rafraîchissement périodique pendant que le tableau reste ouvert, pour que
@@ -56,9 +56,16 @@ function ChallengeStatus({ c }) {
 function ChallengeRow({ c, isSent, onDelete, deletingId, onExpand }) {
   const { t } = useT();
   const diffLabel = (d) => ({ facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') })[d] ?? d;
+  const { posterUrl, isVideo } = useMediaPoster(c.media_id, c.photo_path);
 
   return (
     <div className="defi-row" onClick={() => onExpand(c)} style={{ cursor: 'pointer' }}>
+      {posterUrl && (
+        <div className="defi-row-thumb">
+          <img src={posterUrl} alt="" />
+          {isVideo && <span className="defi-row-thumb-play">▶</span>}
+        </div>
+      )}
       <div className="defi-row-left">
         <span className="defi-row-opponent">
           {isSent ? (c.label || t('dd_sent_label')) : (c.sender_email || t('defi_a_friend'))}
@@ -81,12 +88,13 @@ function ChallengeRow({ c, isSent, onDelete, deletingId, onExpand }) {
   );
 }
 
-// Détail d'une ligne : montre la photo envoyée/reçue (tant qu'elle n'a pas
-// été purgée — voir purgeExpiredChallenges) et le statut/résultat.
+// Détail d'une ligne : montre la photo/poster vidéo envoyé(e)/reçu(e) (tant
+// qu'il/elle n'a pas été purgé(e) — voir purgeExpiredChallenges) et le
+// statut/résultat.
 function ChallengeDetail({ c, isSent, onClose }) {
   const { t } = useT();
   const diffLabel = (d) => ({ facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') })[d] ?? d;
-  const photoUrl = c.photo_path ? getSharedPhotoPublicUrl(c.photo_path) : null;
+  const { posterUrl, isVideo } = useMediaPoster(c.media_id, c.photo_path);
 
   return (
     <div className="defi-dash-overlay" onClick={onClose}>
@@ -99,8 +107,11 @@ function ChallengeDetail({ c, isSent, onClose }) {
           {c.number != null && `#${c.number} · `}
           {diffLabel(c.difficulty_mode)} · {fmtDate(c.created_at)}
         </p>
-        {photoUrl ? (
-          <img src={photoUrl} alt="" className="challenge-photo-preview" />
+        {posterUrl ? (
+          <div className="challenge-photo-preview-wrap">
+            <img src={posterUrl} alt="" className="challenge-photo-preview" />
+            {isVideo && <span className="defi-row-thumb-play defi-row-thumb-play-lg">▶</span>}
+          </div>
         ) : (
           <p className="defi-dash-empty">{t('mem_no_photo')}</p>
         )}

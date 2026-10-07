@@ -165,8 +165,15 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
 
     const data = generateSudoku(actualDifficulty);
     const initialUserGrid = buildInitialUserGrid(data.puzzle);
+    // media (optionnel, dans challengeOptions) : ligne shared_media déjà
+    // résolue par l'appelant (App.jsx) quand le défi a une pièce jointe
+    // vidéo — voir src/lib/sharedMedia.js. `path` reste le POSTER (la
+    // grille se joue exactement comme avec une photo, voir
+    // SudokuBoard.jsx) ; seule la présence de `media`/`isVideo` change
+    // l'écran de victoire (WinModal.jsx, bouton ▶).
+    const media = challengeOptions?.media ?? null;
     const image = customImageUrl
-      ? { id: `custom-${Date.now()}`, path: customImageUrl, tier: null, isCustom: true }
+      ? { id: `custom-${Date.now()}`, path: customImageUrl, tier: null, isCustom: true, media, isVideo: media?.type === 'video' }
       : preloadedImage; // si absent, l'effet de repli ci-dessous s'en occupera
 
     setDifficulty(actualDifficulty);
@@ -235,7 +242,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
   // Démarre une partie à partir d'une grille déjà déterminée (reçue via un
   // défi "même grille") : on ne génère rien, on rejoue exactement le même
   // puzzle que le challenger, pour pouvoir comparer les résultats à la fin.
-  const startRematchGame = useCallback((rematch, photoUrl, localPuzzleData = null, playerPseudo = null) => {
+  const startRematchGame = useCallback((rematch, photoUrl, localPuzzleData = null, playerPseudo = null, media = null) => {
     try {
       // On privilégie le puzzleData local (passé depuis DefiComposer) pour éviter
       // tout problème de parsing depuis Supabase (JSONB vs string).
@@ -253,7 +260,7 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
 
       const givenMask = puzzle.map(row => row.map(v => v !== 0));
       const image = photoUrl
-        ? { id: `rematch-${rematch.id}`, path: photoUrl, pathLow: photoUrl, tier: null, isCustom: true }
+        ? { id: `rematch-${rematch.id}`, path: photoUrl, pathLow: photoUrl, tier: null, isCustom: true, media, isVideo: media?.type === 'video' }
         : null;
 
       setDifficulty(rematch.difficulty);
@@ -1078,7 +1085,13 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
   // suite, la demande est mise en file (pendingWrites.js) et sharedGrid ne
   // se met à jour que plus tard, quand 'sharedgridresolved' est reçu.
   const requestShareGrid = useCallback(async (type) => {
-    if (!puzzleData || !userGrid || !watermark || watermark.isCustom) return null;
+    if (!puzzleData || !userGrid || !watermark) return null;
+    // Œuvre de bibliothèque (painting_id) OU partie à média perso déjà
+    // attaché via MediaPicker.jsx (watermark.media, voir startNewGame/
+    // startRematchGame) — une photo perso "historique" sans ligne
+    // shared_media (home screen, jeu immédiat) n'a rien de partageable
+    // (image locale éphémère, jamais hébergée), donc pas de QR pour elle.
+    if (watermark.isCustom && !watermark.media) return null;
 
     const payload = {
       type,
@@ -1087,7 +1100,8 @@ export function useGame(manifest, userId = null, { onMaxErrorsReached, username 
       userGrid: type === 'initial' ? puzzleData.puzzle : userGrid,
       notesGrid: type === 'initial' ? [] : notesGrid,
       difficulty,
-      paintingId: watermark.id
+      paintingId: watermark.isCustom ? null : watermark.id,
+      mediaId: watermark.media?.id ?? null
     };
 
     setShareGridStatus('creating');

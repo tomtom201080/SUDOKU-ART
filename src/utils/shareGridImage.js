@@ -10,7 +10,7 @@ import { TEASER_THEMES, drawGrid, loadImage, roundRectPath } from './teaserCanva
 const WIDTH = 1000;
 const HEIGHT = 1300;
 
-export async function renderShareImage({ puzzle, givenMask, revealedCells, artworkSrc, qrDataUrl, label }) {
+export async function renderShareImage({ puzzle, givenMask, revealedCells, artworkSrc, qrDataUrl, label, isVideo = false }) {
   const colors = TEASER_THEMES.light;
 
   const [artworkImg, logoImg, qrImg] = await Promise.all([
@@ -44,6 +44,21 @@ export async function renderShareImage({ puzzle, givenMask, revealedCells, artwo
   const gridX = (WIDTH - gridSize) / 2;
   const gridY = 140;
   drawGrid(ctx, { x: gridX, y: gridY, size: gridSize, revealedCells, artworkImg, colors, givenMask, puzzle });
+
+  // Badge ▶ au centre de la grille : signale qu'une vidéo est à débloquer
+  // une fois la grille résolue (jamais lue ici, juste indiquée).
+  if (isVideo) {
+    const badgeRadius = 56;
+    ctx.beginPath();
+    ctx.arc(cx, gridY + gridSize / 2, badgeRadius, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+    ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '700 48px system-ui, -apple-system, "Segoe UI", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('▶', cx + 4, gridY + gridSize / 2 + 2);
+  }
 
   // QR + libellé, en bas.
   const qrSize = 260;

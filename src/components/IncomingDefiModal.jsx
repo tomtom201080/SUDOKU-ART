@@ -19,7 +19,7 @@ async function checkPseudoAvailableForDefi(rematchId, pseudo) {
   return !data; // true = disponible
 }
 
-export default function IncomingDefiModal({ rematch, onLogin, onPlayFree }) {
+export default function IncomingDefiModal({ rematch, mediaType = null, onLogin, onPlayFree }) {
   const { t } = useT();
   const [step, setStep] = useState('choice'); // 'choice' | 'pseudo' // 'choice' | 'pseudo'
   const [pseudo, setPseudo] = useState('');
@@ -28,7 +28,8 @@ export default function IncomingDefiModal({ rematch, onLogin, onPlayFree }) {
   const diffLabel = (d) => ({ facile: t('diff_facile'), moyen: t('diff_moyen'), complique: t('diff_complique'), enfer: t('diff_enfer') })[d] ?? d;
   const challengerName = rematch?.challenger_name ?? t('incoming_a_friend');
   const diff       = diffLabel(rematch?.difficulty) ?? rematch?.difficulty ?? '';
-  const hasPhoto   = !!rematch?.photo_path;
+  const isVideo    = mediaType === 'video';
+  const hasPhoto   = !isVideo && (!!rematch?.photo_path || mediaType === 'photo');
   const hintsLimit = rematch?.hints_limit;
   const isGroup    = !!rematch?.group_mode;
 
@@ -77,6 +78,7 @@ export default function IncomingDefiModal({ rematch, onLogin, onPlayFree }) {
         <div className="incoming-defi-info">
           <span>🎮 {diff}</span>
           {isGroup && <span>{t('incoming_group')}</span>}
+          {isVideo && <span>{t('incoming_hidden_video')}</span>}
           {hasPhoto && <span>{t('incoming_hidden_photo')}</span>}
           {hintsLimit != null && <span>💡 Max {hintsLimit}</span>}
           <span>{t('incoming_rule_short')}</span>

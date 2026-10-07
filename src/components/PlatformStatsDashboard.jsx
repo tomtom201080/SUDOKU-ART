@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useT } from '../i18n/index.jsx';
 import { supabase } from '../lib/supabaseClient';
+import { getSharedMediaPublicUrl, fetchReportedSharedMedia, adminDeleteSharedMedia } from '../lib/sharedMedia';
 import './KpiDashboard.css';
 import './PlatformStatsDashboard.css';
 
@@ -20,19 +21,37 @@ export default function PlatformStatsDashboard({ onClose }) {
   const { t } = useT();
   const [stats, setStats] = useState(null);
   const [error, setError] = useState(null);
+  const [reportedMedia, setReportedMedia] = useState(null);
+  const [deletingMediaId, setDeletingMediaId] = useState(null);
 
   useEffect(() => {
     Promise.all([
       supabase.rpc('get_platform_stats'),
-      supabase.rpc('get_shared_grids_stats')
+      supabase.rpc('get_shared_grids_stats'),
+      supabase.rpc('get_shared_media_stats')
     ])
-      .then(([platform, sharedGrids]) => {
+      .then(([platform, sharedGrids, sharedMedia]) => {
         if (platform.error) throw platform.error;
         if (sharedGrids.error) throw sharedGrids.error;
-        setStats({ ...platform.data, sharedGrids: sharedGrids.data });
+        if (sharedMedia.error) throw sharedMedia.error;
+        setStats({ ...platform.data, sharedGrids: sharedGrids.data, sharedMedia: sharedMedia.data });
       })
       .catch(err => setError(err.message || t('auth_error')));
+
+    fetchReportedSharedMedia().then(setReportedMedia).catch(() => setReportedMedia([]));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleDeleteReported = async (id) => {
+    setDeletingMediaId(id);
+    try {
+      await adminDeleteSharedMedia(id);
+      setReportedMedia(prev => prev?.filter(m => m.id !== id) ?? prev);
+    } catch (err) {
+      console.error('adminDeleteSharedMedia failed:', err);
+    } finally {
+      setDeletingMediaId(null);
+    }
+  };
 
   const dbPercent = stats
     ? Math.min(100, Math.round((stats.db_size_bytes / FREE_TIER_DB_LIMIT_BYTES) * 100))
@@ -131,6 +150,59 @@ export default function PlatformStatsDashboard({ onClose }) {
                 <span className="kpi-label">{t('platform_stats_shared_today')}</span>
               </div>
             </div>
+
+            <h3 className="kpi-section-title">{t('platform_stats_media')}</h3>
+            <div className="kpi-grid">
+              <div className="kpi-card">
+                <span className="kpi-value">{stats.sharedMedia.total_photos}</span>
+                <span className="kpi-label">{t('platform_stats_media_photos')}</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{stats.sharedMedia.total_videos}</span>
+                <span className="kpi-label">{t('platform_stats_media_videos')}</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{stats.sharedMedia.videos_uploaded}</span>
+                <span className="kpi-label">{t('platform_stats_media_uploaded')}</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{stats.sharedMedia.videos_youtube + stats.sharedMedia.videos_vimeo + stats.sharedMedia.videos_direct}</span>
+                <span className="kpi-label">{t('platform_stats_media_linked')}</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{stats.sharedMedia.total_plays}</span>
+                <span className="kpi-label">{t('platform_stats_media_plays')}</span>
+              </div>
+              <div className="kpi-card">
+                <span className="kpi-value">{stats.sharedMedia.total_reports}</span>
+                <span className="kpi-label">{t('platform_stats_media_reports')}</span>
+              </div>
+            </div>
+
+            {reportedMedia && reportedMedia.length > 0 && (
+              <>
+                <h3 className="kpi-section-title">{t('platform_stats_reported_title')}</h3>
+                <div className="platform-stats-reported-list">
+                  {reportedMedia.map(m => (
+                    <div className="platform-stats-reported-row" key={m.id}>
+                      <img src={getSharedMediaPublicUrl(m.poster_path)} alt="" />
+                      <div className="platform-stats-reported-info">
+                        <span>{m.type === 'video' ? '🎬' : '📷'} {t('platform_stats_reported_count', { n: m.report_count })}</span>
+                        <span className="platform-stats-note">{new Date(m.created_at).toLocaleDateString('fr-FR')}</span>
+                      </div>
+                      <button
+                        className="kpi-close"
+                        onClick={() => handleDeleteReported(m.id)}
+                        disabled={deletingMediaId === m.id}
+                        title={t('platform_stats_reported_delete')}
+                      >
+                        🗑
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
 
             <h3 className="kpi-section-title">{t('platform_stats_storage')}</h3>
             <div className="platform-stats-storage">

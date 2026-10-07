@@ -11,7 +11,8 @@ import { supabase } from './supabaseClient';
 import { getOrCreateDeviceToken } from './deviceToken';
 
 export async function createSharedGrid({
-  type, puzzle, solution, userGrid, notesGrid, difficulty, paintingId = null, photoPath = null
+  type, puzzle, solution, userGrid, notesGrid, difficulty,
+  paintingId = null, photoPath = null, mediaId = null
 }) {
   const { data, error } = await supabase.rpc('create_shared_grid', {
     p_type: type,
@@ -22,7 +23,8 @@ export async function createSharedGrid({
     p_difficulty: difficulty,
     p_painting_id: paintingId,
     p_photo_path: photoPath,
-    p_device_token: getOrCreateDeviceToken()
+    p_device_token: getOrCreateDeviceToken(),
+    p_media_id: mediaId
   });
 
   if (error) throw error;

@@ -9,6 +9,7 @@ import {
 } from '../lib/rematches';
 import RematchResultDetail from './RematchResultDetail';
 import GroupResultsList from './GroupResultsList';
+import { useMediaPoster } from '../hooks/useMediaPoster';
 import './DefiDashboard.css';
 
 // DIFF_LABELS dynamiques via useT()
@@ -180,9 +181,16 @@ function RematchRow({ r, isSent, onHide, onExpand, onRegenerate }) {
   // affiche lui-même proprement "personne n'a encore joué" le cas échéant.
   const hasPlayed  = isGroup || r.completed;
   const inProgress = !isGroup && !hasPlayed && !!r.recipient_started_at;
+  const { posterUrl, isVideo } = useMediaPoster(r.media_id, r.photo_path);
 
   return (
     <div className="defi-row" onClick={() => hasPlayed && onExpand(r)} style={{ cursor: hasPlayed ? 'pointer' : 'default' }}>
+      {posterUrl && (
+        <div className="defi-row-thumb">
+          <img src={posterUrl} alt="" />
+          {isVideo && <span className="defi-row-thumb-play">▶</span>}
+        </div>
+      )}
       <div className="defi-row-left">
         <span className="defi-row-opponent">
           {/* Envoyé : "envoyé par X" n'apporte rien (X, c'est toujours soi-même)

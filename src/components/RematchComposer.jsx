@@ -1,19 +1,25 @@
 import { useT } from '../i18n/index.jsx';
 // src/components/RematchComposer.jsx
-import { useRef, useState } from 'react';
-import { uploadSharedPhoto, SHARE_EXPIRY_DAYS } from '../lib/sharedPhoto';
+import { useState } from 'react';
+import { SHARE_EXPIRY_DAYS, uploadSharedPhoto } from '../lib/sharedPhoto';
 import { createRematch, buildRematchLink } from '../lib/rematches';
 import { isMobileDevice } from '../utils/device';
 import { resolveWikimediaDirectUrl } from '../utils/wikimediaDirectUrl';
+import MediaPicker from './MediaPicker';
 import './ChallengeComposer.css';
 import './DefiComposer.css';
 
 const DIFFICULTY_KEYS = { facile: 'diff_facile', moyen: 'diff_moyen', complique: 'diff_complique', enfer: 'diff_enfer' };
 
-export default function RematchComposer({ puzzleData, difficulty, errorCount, hintsUsed = 0, elapsedSeconds, userId, userEmail, defaultImageUrl = null, onClose }) {
+// defaultMedia : ligne shared_media déjà en base associée à defaultImageUrl
+// (ex. game.watermark.media) — "garder" réutilise alors le même media_id
+// sans re-upload.
+export default function RematchComposer({
+  puzzleData, difficulty, errorCount, hintsUsed = 0, elapsedSeconds,
+  userId, userEmail, defaultImageUrl = null, defaultMedia = null, onClose
+}) {
   const { t } = useT();
-  const [photoFile, setPhotoFile] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState(null);
+  const [media, setMedia] = useState(null); // { mediaId, type, posterUrl } posé par MediaPicker (choix "new")
   const [imageChoice, setImageChoice] = useState(defaultImageUrl ? 'keep' : 'none'); // 'keep' | 'new' | 'none'
   const [groupMode, setGroupMode] = useState(false);
   const [defiName, setDefiName] = useState('');
@@ -21,18 +27,6 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, hi
   const [status, setStatus] = useState('idle'); // idle | sending | done | error
   const [shareLink, setShareLink] = useState(null);
   const [linkCopied, setLinkCopied] = useState(false);
-  const fileInputRef = useRef(null);
-
-  const handlePickPhoto = () => fileInputRef.current?.click();
-
-  const handleFileChange = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    if (photoPreview) URL.revokeObjectURL(photoPreview);
-    setPhotoFile(file);
-    setPhotoPreview(URL.createObjectURL(file));
-    setImageChoice('new');
-  };
 
   const handleCopyLink = async () => {
     if (!shareLink) return;
@@ -47,9 +41,12 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, hi
   const handleSend = async () => {
     setStatus('sending');
     try {
-      let photoPath = null;
-      if (imageChoice === 'new' && photoFile) {
-        photoPath = await uploadSharedPhoto(photoFile);
+      let mediaId = null;
+      let photoPath = null; // repli uniquement pour une photo "historique" sans media_id
+      if (imageChoice === 'new' && media) {
+        mediaId = media.mediaId;
+      } else if (imageChoice === 'keep' && defaultMedia) {
+        mediaId = defaultMedia.id; // déjà en base, pas de ré-upload
       } else if (imageChoice === 'keep' && defaultImageUrl) {
         // Le fichier d'origine n'est plus disponible ici (seule l'URL locale
         // l'est) : on le récupère depuis le blob local pour le réenvoyer sous
@@ -69,6 +66,7 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, hi
         solution: puzzleData.solution,
         difficulty,
         photoPath,
+        mediaId,
         challengerName: userEmail ?? (challengerName.trim() || null),
         challengerUserId: userId ?? null,
         challengerErrors: errorCount,
@@ -91,7 +89,7 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, hi
           min: Math.floor(elapsedSeconds / 60),
           sec: elapsedSeconds % 60,
           link
-        }) + (photoPath ? t('rematch_photo_share_warning', { days: SHARE_EXPIRY_DAYS }) : '');
+        }) + ((mediaId || photoPath) ? t('rematch_photo_share_warning', { days: SHARE_EXPIRY_DAYS }) : '');
 
       // navigator.share()/window.open() arrivent après des appels réseau
       // (upload photo + création du défi) : voir DefiComposer.jsx pour le
@@ -205,7 +203,7 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, hi
                 </button>
                 <button
                   className={`defi-mode-btn ${imageChoice === 'new' ? 'is-selected' : ''}`}
-                  onClick={() => { setImageChoice('new'); handlePickPhoto(); }}
+                  onClick={() => setImageChoice('new')}
                 >
                   <span className="defi-mode-icon">📷</span>
                   <span className="defi-mode-label">{t('share_image_new')}</span>
@@ -221,20 +219,12 @@ export default function RematchComposer({ puzzleData, difficulty, errorCount, hi
               {imageChoice === 'keep' && defaultImageUrl && (
                 <img className="challenge-photo-preview" src={defaultImageUrl} alt={t('cc_photo_selected_alt')} />
               )}
-              {imageChoice === 'new' && photoPreview && (
-                <img className="challenge-photo-preview" src={photoPreview} alt={t('cc_photo_selected_alt')} />
-              )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                style={{ display: 'none' }}
-              />
-              {imageChoice === 'new' && photoPreview && (
-                <button className="challenge-link-btn" onClick={handlePickPhoto}>
-                  {t('rematch_change')}
-                </button>
+              {imageChoice === 'new' && (
+                <MediaPicker
+                  userId={userId}
+                  onMediaReady={setMedia}
+                  onClear={() => setMedia(null)}
+                />
               )}
             </div>
 

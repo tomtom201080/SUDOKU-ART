@@ -33,7 +33,7 @@ export function markRematchAsStarted(id) {
 // challenger, on enregistre son résultat et la grille elle-même pour que le
 // destinataire joue exactement la même.
 export async function createRematch({
-  puzzle, solution, difficulty, photoPath,
+  puzzle, solution, difficulty, photoPath, mediaId = null,
   challengerName, challengerUserId,
   challengerErrors, challengerSeconds, challengerHints = 0,
   hintsLimit = null, groupMode = false, classicMode = false, label = null
@@ -45,6 +45,7 @@ export async function createRematch({
       solution: JSON.stringify(solution),
       difficulty,
       photo_path: photoPath ?? null,
+      media_id: mediaId,
       challenger_name: challengerName ?? null,
       challenger_user_id: challengerUserId ?? null,
       challenger_result_errors: challengerErrors,
@@ -68,7 +69,7 @@ export async function createRematch({
 // n'est jamais modifié ni supprimé, il reste intact dans l'historique.
 // Permet de changer le mode (perso/groupe) et l'image par rapport à
 // l'original.
-export async function regenerateRematch(original, { groupMode, classicMode, photoPath, challengerName, challengerUserId, label }) {
+export async function regenerateRematch(original, { groupMode, classicMode, photoPath, mediaId = null, challengerName, challengerUserId, label }) {
   const puzzle   = typeof original.puzzle   === 'string' ? JSON.parse(original.puzzle)   : original.puzzle;
   const solution = typeof original.solution === 'string' ? JSON.parse(original.solution) : original.solution;
 
@@ -77,6 +78,7 @@ export async function regenerateRematch(original, { groupMode, classicMode, phot
     solution,
     difficulty: original.difficulty,
     photoPath,
+    mediaId,
     challengerName,
     challengerUserId,
     challengerErrors: original.challenger_result_errors ?? 0,

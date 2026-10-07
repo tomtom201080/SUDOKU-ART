@@ -6,6 +6,7 @@ import { isMobileDevice, shareText } from '../utils/device';
 import { trackShareClicked, trackShareCompleted } from '../lib/tracking';
 import { resolveWikimediaDirectUrl } from '../utils/wikimediaDirectUrl';
 import GroupResultsList from './GroupResultsList';
+import VideoPlayerOverlay from './VideoPlayerOverlay';
 import './WinModal.css';
 
 
@@ -38,6 +39,7 @@ export default function WinModal({
   const [rematchResultSent, setRematchResultSent] = useState(false);
   const [groupRematch, setGroupRematch] = useState(null);
   const [groupResults, setGroupResults] = useState(null);
+  const [showVideo, setShowVideo] = useState(false);
 
   const isGroupRematch = !!activeRematch?.groupMode;
   // "Candidat libre" non connecté : le seul chemin vers un défi de groupe
@@ -241,7 +243,19 @@ export default function WinModal({
         {isCustomGame ? (
           <>
             <p className="win-reward-label">{t('win_photo_revealed')}</p>
-            <img className="win-reward-image" src={photoUrl} alt={t('win_personal_photo_alt')} />
+            <div className="win-reward-media">
+              <img className="win-reward-image" src={photoUrl} alt={t('win_personal_photo_alt')} />
+              {watermark.isVideo && (
+                <button
+                  type="button"
+                  className="win-video-play-btn"
+                  onClick={() => setShowVideo(true)}
+                  aria-label={t('video_player_play')}
+                >
+                  ▶
+                </button>
+              )}
+            </div>
 
             {isChallengeGame ? (
               <p className="win-challenge-note">
@@ -322,6 +336,10 @@ export default function WinModal({
             </div>
           </div>
         </div>
+      )}
+
+      {showVideo && watermark?.isVideo && (
+        <VideoPlayerOverlay media={watermark.media} onClose={() => setShowVideo(false)} />
       )}
     </div>
   );

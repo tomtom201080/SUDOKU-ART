@@ -1,5 +1,6 @@
 import { useT } from '../i18n/index.jsx';
 // src/components/RematchResultDetail.jsx
+import { useMediaPoster } from '../hooks/useMediaPoster';
 import '../components/WinModal.css';
 import './PaintingDetailModal.css';
 
@@ -26,11 +27,19 @@ export default function RematchResultDetail({ rematch, winner, isSent = true, on
   const friendErrors = isSent ? rematch.recipient_result_errors : rematch.challenger_result_errors;
   const friendSeconds = isSent ? rematch.recipient_result_seconds : rematch.challenger_result_seconds;
   const friendName = (isSent ? rematch.recipient_name : rematch.challenger_name) || t('rrd_friend');
+  const { posterUrl, isVideo } = useMediaPoster(rematch.media_id, rematch.photo_path);
 
   return (
     <div className="painting-detail-overlay" onClick={onClose}>
       <div className="painting-detail-panel" onClick={(e) => e.stopPropagation()}>
         <button className="painting-detail-close" onClick={onClose}>✕</button>
+
+        {posterUrl && (
+          <div className="challenge-photo-preview-wrap">
+            <img src={posterUrl} alt="" className="challenge-photo-preview" />
+            {isVideo && <span className="defi-row-thumb-play defi-row-thumb-play-lg">▶</span>}
+          </div>
+        )}
 
         <div className="rematch-outcome">
           <p className="rematch-outcome-title">

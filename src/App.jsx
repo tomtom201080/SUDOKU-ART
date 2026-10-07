@@ -86,6 +86,7 @@ import {
   fetchSharedGrid,
   incrementScan
 } from './lib/sharedGrids';
+import { fetchSharedMedia, getSharedMediaPublicUrl } from './lib/sharedMedia';
 
 const DARK_MODE_KEY = 'sudoku-devoile:darkMode';
 
@@ -154,6 +155,19 @@ export default function App() {
   const [showDefiDashboard, setShowDefiDashboard] = useState(false);
   const [showMemoriesDashboard, setShowMemoriesDashboard] = useState(false);
   const [regenerateSource, setRegenerateSource] = useState(null); // défi existant à renvoyer, le cas échéant
+  const [regenerateMedia, setRegenerateMedia] = useState(null); // shared_media de regenerateSource, résolu ci-dessous
+
+  // Résout le média (photo/vidéo) du défi à "renvoyer" sous un nouveau
+  // lien, pour que DefiComposer puisse le réutiliser tel quel (voir
+  // defaultMedia) sans que l'admin ait à le rejoindre manuellement.
+  useEffect(() => {
+    if (!regenerateSource?.media_id) { setRegenerateMedia(null); return; }
+    let cancelled = false;
+    fetchSharedMedia(regenerateSource.media_id)
+      .then(media => { if (!cancelled) setRegenerateMedia(media); })
+      .catch(() => { if (!cancelled) setRegenerateMedia(null); });
+    return () => { cancelled = true; };
+  }, [regenerateSource]);
   // Interstitielle pub : quelle action est en attente après la pub
   const [pendingAdAction, setPendingAdAction] = useState(null); // null | 'challenge' | 'rematch'
   // QUEST_DISABLED: const [showQuestMap, setShowQuestMap] = useState(false);
@@ -278,11 +292,11 @@ export default function App() {
     if (session && showAuthScreen) {
       setShowAuthScreen(false);
       if (authIntent === 'pending_rematch' && pendingRematch) {
-        const { rematch, photoUrl } = pendingRematch;
+        const { rematch, photoUrl, media } = pendingRematch;
         setPendingRematch(null);
         setAuthIntent(null);
         setIsClassicMode(!!rematch.classic_mode);
-        game.startRematchGame(rematch, photoUrl);
+        game.startRematchGame(rematch, photoUrl, null, null, media);
       } else if (authIntent === 'claim_group_result' && game.activeRematch?.groupMode && game.activeRematch.playerPseudo) {
         // Rattache au compte qui vient de se connecter le résultat joué en
         // candidat libre juste avant — la partie WinModal reste affichée
@@ -407,15 +421,19 @@ export default function App() {
     }
   };
 
-  const handlePlayChallenge = useCallback((challenge) => {
-    const photoUrl = getSharedPhotoPublicUrl(challenge.photo_path);
+  const handlePlayChallenge = useCallback(async (challenge) => {
+    const media = challenge.media_id ? await fetchSharedMedia(challenge.media_id).catch(() => null) : null;
+    const photoUrl = media
+      ? getSharedMediaPublicUrl(media.poster_path)
+      : getSharedPhotoPublicUrl(challenge.photo_path);
     const challengeOptions = {
       id: challenge.id,
       maxErrors: challenge.max_errors,
       timeLimitMinutes: challenge.time_limit_minutes,
       hintsLimit: challenge.hints_limit ?? null,
       photoPath: challenge.photo_path,
-      senderEmail: challenge.sender_email
+      senderEmail: challenge.sender_email,
+      media
     };
     setLastCustomImage(photoUrl);
     setLastChallengeMeta(challengeOptions);
@@ -452,7 +470,7 @@ export default function App() {
           return;
         }
 
-        handlePlayChallenge(challenge);
+        await handlePlayChallenge(challenge);
         // Si l'utilisateur est déjà connecté, on rattache aussi le défi à
         // son compte (purement informatif, pas une condition pour jouer).
         if (session) claimChallenge(challenge.id).catch(() => null);
@@ -481,15 +499,22 @@ export default function App() {
       .then(async rematch => {
         if (!rematch || rematch.completed) return;
 
-        const photoUrl = rematch.photo_path ? getSharedPhotoPublicUrl(rematch.photo_path) : null;
+        // media_id (pièce jointe vidéo/photo via MediaPicker.jsx) prime sur
+        // l'ancien photo_path quand les deux sont absents/présents à la fois
+        // ne devrait pas arriver, mais au cas où : media_id est la source la
+        // plus récente.
+        const media = rematch.media_id ? await fetchSharedMedia(rematch.media_id).catch(() => null) : null;
+        const photoUrl = media
+          ? getSharedMediaPublicUrl(media.poster_path)
+          : (rematch.photo_path ? getSharedPhotoPublicUrl(rematch.photo_path) : null);
 
         // Mode groupe : pas de claim token, tout le monde peut jouer
         if (rematch.group_mode) {
           if (session) {
             setIsClassicMode(!!rematch.classic_mode);
-            game.startRematchGame(rematch, photoUrl);
+            game.startRematchGame(rematch, photoUrl, null, null, media);
           } else {
-            setPendingRematch({ rematch, photoUrl });
+            setPendingRematch({ rematch, photoUrl, media });
           }
           return;
         }
@@ -512,9 +537,9 @@ export default function App() {
         // Sinon → proposer de se connecter ou jouer en libre
         if (session) {
           setIsClassicMode(!!rematch.classic_mode);
-          game.startRematchGame(rematch, photoUrl);
+          game.startRematchGame(rematch, photoUrl, null, null, media);
         } else {
-          setPendingRematch({ rematch, photoUrl });
+          setPendingRematch({ rematch, photoUrl, media });
         }
       })
       .catch(() => setIncomingLinkFailed(true));
@@ -584,10 +609,25 @@ export default function App() {
     clearSharedGridFromPath();
 
     fetchSharedGrid(incomingSharedGridId)
-      .then(entry => {
+      .then(async entry => {
         if (!entry) return;
         incrementScan(entry.id);
-        game.startSharedGrid(entry, buildPaintingImage(entry.painting_id));
+
+        let image = null;
+        if (entry.painting_id) {
+          image = buildPaintingImage(entry.painting_id);
+        } else if (entry.media_id) {
+          const media = await fetchSharedMedia(entry.media_id).catch(() => null);
+          const posterUrl = media ? getSharedMediaPublicUrl(media.poster_path) : null;
+          image = posterUrl
+            ? { id: `shared-${entry.id}`, path: posterUrl, tier: null, isCustom: true, media, isVideo: media.type === 'video' }
+            : null;
+        } else if (entry.photo_path) {
+          const legacyUrl = getSharedPhotoPublicUrl(entry.photo_path);
+          image = legacyUrl ? { id: `shared-${entry.id}`, path: legacyUrl, tier: null, isCustom: true } : null;
+        }
+
+        game.startSharedGrid(entry, image);
       })
       .catch(() => setIncomingLinkFailed(true));
   }, [incomingSharedGridId, incomingSharedGridHandled, game, buildPaintingImage]);
@@ -684,22 +724,22 @@ export default function App() {
   };
 
   // Appelé par DefiComposer quand la grille est prête à jouer
-  const handleDefiStartGame = ({ rematch, puzzleData, photoUrl }) => {
+  const handleDefiStartGame = ({ rematch, puzzleData, photoUrl, media = null }) => {
     setShowDefiComposer(false);
     setRegenerateSource(null);
     setLastCustomImage(photoUrl ?? null);
     setIsClassicMode(!!rematch.classic_mode);
     setLastChallengeMeta(null);
     // On passe puzzleData local pour éviter tout pb de parsing depuis Supabase
-    game.startRematchGame(rematch, photoUrl, puzzleData);
+    game.startRematchGame(rematch, photoUrl, puzzleData, null, media);
   };
 
   const handlePlayPendingRematch = (pseudo = null) => {
     if (!pendingRematch) return;
-    const { rematch, photoUrl } = pendingRematch;
+    const { rematch, photoUrl, media } = pendingRematch;
     setPendingRematch(null);
     setIsClassicMode(!!rematch.classic_mode);
-    game.startRematchGame(rematch, photoUrl, null, pseudo);
+    game.startRematchGame(rematch, photoUrl, null, pseudo, media);
   };
 
   const handleLoginThenPlayPendingRematch = () => {
@@ -1097,9 +1137,10 @@ export default function App() {
               userEmail={username ?? session?.user?.email ?? null}
               defaultImageUrl={
                 regenerateSource
-                  ? (regenerateSource.photo_path ? getSharedPhotoPublicUrl(regenerateSource.photo_path) : null)
+                  ? (regenerateMedia ? getSharedMediaPublicUrl(regenerateMedia.poster_path) : (regenerateSource.photo_path ? getSharedPhotoPublicUrl(regenerateSource.photo_path) : null))
                   : lastCustomImage
               }
+              defaultMedia={regenerateSource ? regenerateMedia : null}
               regenerateFrom={regenerateSource}
             />
           </ErrorBoundary>
@@ -1141,6 +1182,7 @@ export default function App() {
         {pendingRematch && (
           <IncomingDefiModal
             rematch={pendingRematch.rematch}
+            mediaType={pendingRematch.media?.type ?? null}
             onLogin={handleLoginThenPlayPendingRematch}
             onPlayFree={handlePlayPendingRematch}
           />
@@ -1342,6 +1384,7 @@ export default function App() {
           // dès que la partie utilisait le mode Art/Photo normal (perso ET
           // groupe) au lieu du mode Photo perso, silencieusement.
           defaultImageUrl={game.watermark?.path ?? null}
+          defaultMedia={game.watermark?.media ?? null}
           onClose={() => setShowRematchComposer(false)}
         />
       )}

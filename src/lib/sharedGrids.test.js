@@ -38,7 +38,8 @@ describe('createSharedGrid', () => {
       p_difficulty: 'moyen',
       p_painting_id: 'la-joconde',
       p_photo_path: null,
-      p_device_token: 'device-token-123'
+      p_device_token: 'device-token-123',
+      p_media_id: null
     });
     expect(result).toEqual({ id: 'abc12345' });
   });

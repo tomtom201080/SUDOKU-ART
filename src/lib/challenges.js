@@ -35,7 +35,9 @@ export async function claimChallengeToken(challengeId) {
 // Crée un défi en base : photo déjà téléversée (photoPath), paramètres de
 // difficulté/erreurs/temps choisis par l'expéditeur. Retourne la ligne créée
 // (avec son id, utilisé pour construire le lien).
-export async function createChallenge({ photoPath, difficultyMode, maxErrors, timeLimitMinutes, hintsLimit = null, label = null }) {
+export async function createChallenge({
+  photoPath = null, mediaId = null, difficultyMode, maxErrors, timeLimitMinutes, hintsLimit = null, label = null
+}) {
   const { data: userData } = await supabase.auth.getUser();
   const senderEmail = userData?.user?.email ?? 'un ami';
 
@@ -45,6 +47,7 @@ export async function createChallenge({ photoPath, difficultyMode, maxErrors, ti
       sender_email: senderEmail,
       sender_user_id: userData?.user?.id ?? null,
       photo_path: photoPath,
+      media_id: mediaId,
       difficulty_mode: difficultyMode,
       max_errors: maxErrors,
       time_limit_minutes: timeLimitMinutes,

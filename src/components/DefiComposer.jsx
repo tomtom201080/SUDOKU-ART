@@ -1,11 +1,12 @@
 // src/components/DefiComposer.jsx
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { useT } from '../i18n/index.jsx';
 import { generateSudoku } from '../sudoku/generator';
 import { uploadSharedPhoto } from '../lib/sharedPhoto';
 import { createRematch, regenerateRematch, buildRematchLink } from '../lib/rematches';
 import { isMobileDevice } from '../utils/device';
 import { resolveWikimediaDirectUrl } from '../utils/wikimediaDirectUrl';
+import MediaPicker from './MediaPicker';
 import './ChallengeComposer.css';
 import './DefiComposer.css';
 
@@ -16,7 +17,13 @@ import './DefiComposer.css';
 // même score déjà enregistré du challenger. L'ancien défi n'est jamais
 // modifié : handleSend crée toujours une TOUTE NOUVELLE ligne. Seuls le
 // mode (perso/groupe) et l'image restent modifiables dans ce cas.
-export default function DefiComposer({ onClose, onStartGame, userId, userEmail, defaultImageUrl = null, regenerateFrom = null }) {
+// defaultMedia : ligne shared_media déjà en base associée à defaultImageUrl
+// (le cas échéant) — "garder" devient alors une simple réutilisation du
+// même media_id, sans re-upload (voir handleSend).
+export default function DefiComposer({
+  onClose, onStartGame, userId, userEmail,
+  defaultImageUrl = null, defaultMedia = null, regenerateFrom = null
+}) {
   const { t } = useT();
   const DIFFICULTY_OPTIONS = [
     { id: 'facile',    label: t('diff_facile'), icon: '😌' },
@@ -30,15 +37,13 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
   const [hintsLimit, setHintsLimit] = useState(regenerateFrom?.hints_limit ?? null);
   const [groupMode, setGroupMode]   = useState(regenerateFrom?.group_mode ?? false); // false = perso, true = groupe
   const [defiName, setDefiName]     = useState(regenerateFrom?.label ?? '');
-  const [photoFile, setPhotoFile]   = useState(null);
-  const [photoPreview, setPhotoPreview] = useState(null);
+  const [media, setMedia] = useState(null); // { mediaId, type, posterUrl } posé par MediaPicker (choix "new")
   const [imageChoice, setImageChoice] = useState(defaultImageUrl ? 'keep' : 'none'); // 'keep' | 'new' | 'none'
   const [challengerName, setChallengerName] = useState('');
   const [error, setError]           = useState(null);
   const [shareLink, setShareLink]   = useState(null);
   const [linkCopied, setLinkCopied] = useState(false);
   const [pendingGameStart, setPendingGameStart] = useState(null);
-  const fileInputRef = useRef(null);
 
   const handleCopyLink = async () => {
     if (!shareLink) return;
@@ -54,16 +59,6 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
     if (pendingGameStart) onStartGame(pendingGameStart);
   };
 
-  const handlePickPhoto = () => fileInputRef.current?.click();
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (photoPreview) URL.revokeObjectURL(photoPreview);
-    setPhotoFile(file);
-    setPhotoPreview(URL.createObjectURL(file));
-    setImageChoice('new');
-  };
-
   const handleSend = async () => {
     if (!difficulty) return;
     setStep('sending');
@@ -75,9 +70,13 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
             solution: typeof regenerateFrom.solution === 'string' ? JSON.parse(regenerateFrom.solution) : regenerateFrom.solution
           }
         : generateSudoku(difficulty);
-      let photoPath = null;
-      if (imageChoice === 'new' && photoFile) {
-        photoPath = await uploadSharedPhoto(photoFile);
+
+      let mediaId = null;
+      let photoPath = null; // repli uniquement pour une photo "historique" sans media_id
+      if (imageChoice === 'new' && media) {
+        mediaId = media.mediaId;
+      } else if (imageChoice === 'keep' && defaultMedia) {
+        mediaId = defaultMedia.id; // déjà en base, pas de ré-upload
       } else if (imageChoice === 'keep' && defaultImageUrl) {
         // Tableau de la bibliothèque (Wikimedia) : il faut d'abord résoudre
         // l'URL directe, sinon fetch() échoue (voir wikimediaDirectUrl.js).
@@ -87,7 +86,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
         const file = new File([blob], 'photo-defi.jpg', { type: blob.type || 'image/jpeg' });
         photoPath = await uploadSharedPhoto(file);
       }
-      const photoUrl = imageChoice === 'new' ? photoPreview : (imageChoice === 'keep' ? defaultImageUrl : null);
+      const photoUrl = imageChoice === 'new' ? media?.posterUrl : (imageChoice === 'keep' ? defaultImageUrl : null);
       const classicMode = imageChoice === 'none';
       const senderIdentity = {
         challengerName:   userEmail ?? (challengerName.trim() || 'Un ami'),
@@ -97,12 +96,13 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
       const label = defiName.trim() || null;
 
       const rematch = regenerateFrom
-        ? await regenerateRematch(regenerateFrom, { ...senderIdentity, photoPath, groupMode, classicMode, label })
+        ? await regenerateRematch(regenerateFrom, { ...senderIdentity, photoPath, mediaId, groupMode, classicMode, label })
         : await createRematch({
             puzzle:           puzzleData.puzzle,
             solution:         puzzleData.solution,
             difficulty,
             photoPath,
+            mediaId,
             ...senderIdentity,
             challengerErrors: 0,
             challengerSeconds: 0,
@@ -117,20 +117,22 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
       const limiteTxt = hintsLimit != null ? `\n💡 Max ${t('defi_hint_count', { v: hintsLimit, s: hintsLimit > 1 ? 's' : '' })}` : '';
       const regleTxt  = `${t('defi_rule_msg')}${limiteTxt}`;
 
-      // Avertissement photo UNIQUEMENT en mode groupe avec photo perso
-      const photoGroupWarning = groupMode && photoPath
+      // Avertissement photo/vidéo UNIQUEMENT en mode groupe avec média perso
+      const hasAttachment = !!(mediaId || photoPath);
+      const photoGroupWarning = groupMode && hasAttachment
         ? `\n\n${t('defi_group_photo_warning')}`
-        : !groupMode && photoPath
+        : !groupMode && hasAttachment
         ? `\n${t('defi_photo_personal_warning')}`
         : '';
 
       const groupTxt = groupMode ? `${t('defi_group_msg')}` : '';
 
       const senderName = userEmail ?? (challengerName.trim() || t('defi_a_friend'));
+      const attachmentNote = media?.type === 'video' ? t('defi_share_video_note') : (hasAttachment ? t('defi_share_photo_note') : '');
       const message =
         t('defi_share_intro', { name: senderName }) +
         t('defi_share_diff_line', { diff: diffLabel }) +
-        t('defi_share_body', { photoNote: photoPath ? t('defi_share_photo_note') : '', groupNote: groupTxt }) +
+        t('defi_share_body', { photoNote: attachmentNote, groupNote: groupTxt }) +
         `${link}${regleTxt}${photoGroupWarning}`;
 
       // navigator.share()/window.open() arrivent ici après deux await réseau
@@ -153,7 +155,8 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
       }
 
       setShareLink(link);
-      setPendingGameStart({ rematch, puzzleData, photoUrl });
+      const gameMedia = imageChoice === 'new' ? (media?.media ?? null) : (imageChoice === 'keep' ? defaultMedia : null);
+      setPendingGameStart({ rematch, puzzleData, photoUrl, media: gameMedia });
       setStep('done');
 
     } catch (err) {
@@ -281,7 +284,7 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
               </button>
               <button
                 className={`defi-mode-btn ${imageChoice === 'new' ? 'is-selected' : ''}`}
-                onClick={() => { setImageChoice('new'); handlePickPhoto(); }}
+                onClick={() => setImageChoice('new')}
               >
                 <span className="defi-mode-icon">📷</span>
                 <span className="defi-mode-label">{t('share_image_new')}</span>
@@ -299,16 +302,16 @@ export default function DefiComposer({ onClose, onStartGame, userId, userEmail, 
                 <img className="defi-photo-thumb" src={defaultImageUrl} alt={t('cc_photo_selected_alt')} />
               </div>
             )}
-            {imageChoice === 'new' && photoPreview && (
-              <div className="defi-photo-row">
-                <img className="defi-photo-thumb" src={photoPreview} alt={t('cc_photo_selected_alt')} />
-                <button className="challenge-link-btn" onClick={handlePickPhoto}>{t('defi_photo_change')}</button>
-              </div>
+            {imageChoice === 'new' && (
+              <MediaPicker
+                userId={userId}
+                onMediaReady={setMedia}
+                onClear={() => setMedia(null)}
+              />
             )}
-            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
 
-            {/* Avertissement photo en mode groupe */}
-            {groupMode && imageChoice !== 'none' && (photoPreview || (imageChoice === 'keep' && defaultImageUrl)) && (
+            {/* Avertissement photo/vidéo en mode groupe */}
+            {groupMode && imageChoice !== 'none' && (media || (imageChoice === 'keep' && defaultImageUrl)) && (
               <div className="defi-group-photo-warning">
                 {t('defi_group_photo_warning')}
               </div>
