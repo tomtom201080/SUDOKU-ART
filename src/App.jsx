@@ -1273,23 +1273,6 @@ export default function App() {
           onSelectCell={handleSelectCell}
         />
 
-        {!isClassicMode && (
-          <ShareGridPanel
-            puzzleData={game.puzzleData}
-            userGrid={game.userGrid}
-            watermark={game.watermark}
-            isCellRevealed={game.isCellRevealed}
-            sharedGrid={game.sharedGrid}
-            shareGridStatus={game.shareGridStatus}
-            onRequestShareGrid={game.requestShareGrid}
-            onSwitchToInitial={game.switchToInitialShareGrid}
-            userId={session?.user?.id ?? null}
-            onRequestSignup={() => setShowAuthScreen(true)}
-            captureMode={captureMode}
-            onToggleCaptureMode={() => setCaptureMode(v => !v)}
-          />
-        )}
-
         {!captureMode && (
           <NumberPad
             ref={padRef}
@@ -1307,6 +1290,23 @@ export default function App() {
             hintsUsed={game.hintsUsed}
             hintsLimit={game.activeRematch?.hintsLimit ?? game.challengeMeta?.hintsLimit ?? null}
             completedDigits={game.completedDigits}
+          />
+        )}
+
+        {!isClassicMode && (
+          <ShareGridPanel
+            puzzleData={game.puzzleData}
+            userGrid={game.userGrid}
+            watermark={game.watermark}
+            isCellRevealed={game.isCellRevealed}
+            sharedGrid={game.sharedGrid}
+            shareGridStatus={game.shareGridStatus}
+            onRequestShareGrid={game.requestShareGrid}
+            onSwitchToInitial={game.switchToInitialShareGrid}
+            userId={session?.user?.id ?? null}
+            onRequestSignup={() => setShowAuthScreen(true)}
+            captureMode={captureMode}
+            onToggleCaptureMode={() => setCaptureMode(v => !v)}
           />
         )}
 
