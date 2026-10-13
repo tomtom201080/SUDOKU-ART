@@ -13,7 +13,7 @@ export default {
   home_sudoku_label: 'Sudoku',
   home_sudoku_desc: 'Klassisches Sudoku, ohne Bild, zum Konzentrieren',
   home_memories_label: 'Erinnerungen',
-  home_memories_desc: 'Sende einem Freund ein Foto, er enthüllt es beim Spielen',
+  home_memories_desc: 'Sende einem Freund ein Foto oder Video, er enthüllt es beim Spielen',
   home_defi_label: 'Herausforderung',
   home_defi_desc: 'Fordere einen Freund auf demselben Raster heraus und vergleicht eure Punktzahlen',
 

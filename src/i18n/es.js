@@ -13,7 +13,7 @@ export default {
   home_sudoku_label: 'Sudoku',
   home_sudoku_desc: 'El sudoku clásico, sin imagen, para concentrarte',
   home_memories_label: 'Recuerdos',
-  home_memories_desc: 'Envía una foto a un amigo, la revelará mientras juega',
+  home_memories_desc: 'Envía una foto o un vídeo a un amigo, lo revelará mientras juega',
   home_defi_label: 'Desafío',
   home_defi_desc: 'Desafía a un amigo en la misma cuadrícula y compara vuestras puntuaciones',
 

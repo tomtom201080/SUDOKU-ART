@@ -260,21 +260,12 @@ body {
 }
 
 .home-footer {
-  position: fixed;
-  bottom: max(10px, env(safe-area-inset-bottom, 0px));
-  left: 0;
-  right: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   flex-wrap: wrap;
-  padding: 0 16px;
-  pointer-events: none;
-}
-
-.home-footer button {
-  pointer-events: auto;
+  padding: 16px 16px max(16px, env(safe-area-inset-bottom, 0px));
 }
 
 .privacy-footer-sep {

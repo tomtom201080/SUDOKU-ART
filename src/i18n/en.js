@@ -13,7 +13,7 @@ export default {
   home_sudoku_label: 'Sudoku',
   home_sudoku_desc: 'Classic sudoku, no image, pure focus',
   home_memories_label: 'Memories',
-  home_memories_desc: 'Send a photo to a friend — they reveal it while playing',
+  home_memories_desc: 'Send a photo or video to a friend — they reveal it while playing',
   home_defi_label: 'Challenge',
   home_defi_desc: 'Challenge a friend on the same grid and compare scores',
 

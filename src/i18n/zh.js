@@ -13,7 +13,7 @@ export default {
   home_sudoku_label: '数独',
   home_sudoku_desc: '经典数独，无图片，专注解题',
   home_memories_label: '回忆',
-  home_memories_desc: '给好友发送一张照片，他在游戏中揭晓它',
+  home_memories_desc: '给好友发送一张照片或一段视频，他在游戏中揭晓它',
   home_defi_label: '挑战',
   home_defi_desc: '在同一棋盘上挑战好友，比较你们的成绩',
 
